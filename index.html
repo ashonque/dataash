@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DataAsh | Excel → SQL Server, Simplified</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #00c896;
+      --primary-dark: #00a87f;
+      --dark: #0a0f1a;
+      --gray: #e0e7ff;
+      --text: #f0f4ff;
+      --card-bg: rgba(25, 30, 50, 0.6);
+      --card-border: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--dark);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 5%;
+      position: relative;
+      z-index: 10;
+      background: rgba(10, 15, 26, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.5rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .logo-icon {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      transform-style: preserve-3d;
+      transform: rotateY(20deg) rotateX(15deg);
+      transition: transform 0.4s ease;
+    }
+    .logo-icon:hover {
+      transform: rotateY(30deg) rotateX(25deg) scale(1.1);
+    }
+    .logo-icon::before,
+    .logo-icon::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(135deg, var(--primary), #00a87f);
+      box-shadow: 0 8px 20px rgba(0, 200, 150, 0.4);
+    }
+    .logo-icon::before {
+      transform: translateZ(8px);
+    }
+    .logo-icon::after {
+      transform: translateZ(-8px) rotateY(180deg);
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+    nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s;
+      position: relative;
+      padding: 0.5rem 0;
+    }
+    nav a:hover {
+      opacity: 0.8;
+    }
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .cta-btn {
+      background: white;
+      color: var(--dark);
+      border: none;
+      padding: 0.75rem 1.75rem;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+    }
+    .cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 2rem;
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(0, 200, 150, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(0, 200, 150, 0.05) 0%, transparent 20%),
+        linear-gradient(to bottom, #0a0f1a, #0c1220);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tag {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50px;
+      padding: 0.5rem 1.25rem;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(5px);
+      border: 1px solid var(--card-border);
+    }
+    .tag::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      max-width: 700px;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      background: linear-gradient(to right, #fff, #a0e6d3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 650px;
+      margin: 0 auto 2.5rem;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 0.9rem 2.25rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0, 200, 150, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-download::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: 0.5s;
+    }
+    .btn-download:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 200, 150, 0.6);
+    }
+    .btn-download:hover::before {
+      left: 100%;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--gray);
+      color: var(--text);
+      padding: 0.9rem 2.25rem;
+      font-weight: 600;
+      border-radius: 50px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--primary);
+    }
+
+    /* About Section */
+    .about-section {
+      padding: 6rem 5%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+    
+    .about-content {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 3rem;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    .about-content p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      color: #e0e7ff;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .feature-card {
+      background: rgba(30, 35, 60, 0.4);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px solid var(--card-border);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .feature-card i {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    
+    .feature-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .feature-card p {
+      font-size: 0.95rem;
+      margin: 0;
+      opacity: 0.8;
+    }
+
+    /* ========== CONTACT MODAL ========== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      animation: fadeIn 0.3s ease;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal {
+      background: linear-gradient(145deg, #111827, #0f172a);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(0, 200, 150, 0.06);
+      animation: slideUp 0.4s ease;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+    .modal-close:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #f87171;
+      transform: rotate(90deg);
+    }
+
+    .modal h2 {
+      font-size: 1.6rem;
+      margin-bottom: 0.4rem;
+      background: linear-gradient(to right, #fff, #a0e6d3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .modal .modal-subtitle {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin-bottom: 2rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: #4b5563;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 200, 150, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .btn-send {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      padding: 0.85rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 6px 20px rgba(0, 200, 150, 0.3);
+      margin-top: 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-send::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: 0.5s;
+    }
+    .btn-send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 200, 150, 0.5);
+    }
+    .btn-send:hover::before {
+      left: 100%;
+    }
+    .btn-send:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Success state */
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .form-success.active {
+      display: block;
+    }
+    .form-success .checkmark {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 1.8rem;
+      box-shadow: 0 8px 25px rgba(0, 200, 150, 0.4);
+      animation: scaleIn 0.4s ease;
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+    .form-success h3 {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+    .form-success p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      font-size: 0.9rem;
+      opacity: 0.7;
+      border-top: 1px solid var(--card-border);
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.5rem; }
+      nav ul { 
+        flex-wrap: wrap; 
+        justify-content: center; 
+        gap: 1rem; 
+        margin-top: 1rem;
+      }
+      .buttons { 
+        flex-direction: column; 
+        align-items: center; 
+      }
+      .btn-download, .btn-outline {
+        width: 100%;
+        max-width: 300px;
+      }
+      .about-content {
+        padding: 2rem 1.5rem;
+      }
+      .section-title {
+        font-size: 2rem;
+      }
+      .modal {
+        padding: 2rem 1.5rem;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="#" class="logo">
+      <div class="logo-icon"></div>
+      DataAsh
+    </a>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+    </nav>
+    <button class="cta-btn" id="contactBtn">Contact Us</button>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="tag">Trusted by Data Engineers</div>
+    <h1>Move Excel Tables to SQL Server — Instantly & Securely</h1>
+    <p>DataImportTool created by DataAsh lets you create and copy tables from Excel to your local SQL Server in seconds — no coding, no cloud, no risk. Your data never leaves your workstation.</p>
+
+    <div class="buttons">
+      <button class="btn-download">
+        <i class="fas fa-download"></i> Download Now
+      </button>
+      <button class="btn-outline">View Demo</button>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="about-section">
+    <h2 class="section-title">About DataAsh</h2>
+    <div class="about-content">
+      <p>DataImportTool is a lightweight desktop tool that lets you import Excel (.xlsx, .xlsm, .xls), CSV, TSV, and text files directly into your SQL Server database — with zero configuration. It automatically detects delimiters, data types, date formats, and European number formats so you don't have to. No installation required, no admin rights needed, no internet connection after download. Built for data engineers, analysts, and IT professionals who value speed and privacy.</p>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <i class="fas fa-bolt"></i>
+          <h3>Lightning Fast</h3>
+          <p>Import large datasets in seconds with optimized processing</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-shield-alt"></i>
+          <h3>Privacy First</h3>
+          <p>Your data never leaves your machine - no cloud storage</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-cogs"></i>
+          <h3>No Configuration</h3>
+          <p>Automatic detection of data types and formats</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-user-friends"></i>
+          <h3>Professional Grade</h3>
+          <p>Built for data engineers and analysts</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    © 2026 DataAsh. All rights reserved. Built for privacy-first data engineering.
+  </footer>
+
+  <!-- ========== CONTACT MODAL ========== -->
+  <div class="modal-overlay" id="contactModal">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">✕</button>
+
+      <!-- The Form -->
+      <div id="contactForm">
+        <h2>Get in Touch</h2>
+        <p class="modal-subtitle">Have a question or feedback? We'd love to hear from you.</p>
+
+        <form id="emailForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" placeholder="John" required />
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" placeholder="Doe" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="john@example.com" required />
+          </div>
+
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Tell us what's on your mind..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn-send" id="sendBtn">
+            <i class="fas fa-paper-plane"></i> Send Message
+          </button>
+        </form>
+      </div>
+
+      <!-- Success State -->
+      <div class="form-success" id="formSuccess">
+        <div class="checkmark">✓</div>
+        <h3>Message Sent!</h3>
+        <p>Thank you for reaching out. We'll get back to you shortly.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Modal open/close =====
+    const modal = document.getElementById('contactModal');
+    const contactBtn = document.getElementById('contactBtn');
+    const modalClose = document.getElementById('modalClose');
+
+    contactBtn.addEventListener('click', () => {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      // Reset form after closing
+      setTimeout(() => {
+        document.getElementById('contactForm').style.display = '';
+        document.getElementById('formSuccess').classList.remove('active');
+        document.getElementById('emailForm').reset();
+        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+        sendBtn.disabled = false;
+      }, 300);
+    }
+
+    // ===== Form submission via Formspree =====
+    const form = document.getElementById('emailForm');
+    const sendBtn = document.getElementById('sendBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Show loading
+      sendBtn.innerHTML = '<div class="spinner"></div> Sending...';
+      sendBtn.disabled = true;
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+          // Show success
+          document.getElementById('contactForm').style.display = 'none';
+          document.getElementById('formSuccess').classList.add('active');
+        } else {
+          throw new Error('Failed');
+        }
+      } catch (error) {
+        sendBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed — Try Again';
+        sendBtn.disabled = false;
+        setTimeout(() => {
+          sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+        }, 3000);
+      }
+    });
+
+    // ===== Download button =====
+    document.querySelector('.btn-download').addEventListener('click', function() {
+      alert('✅ Download started! DataAsh v2.0 will install locally — zero internet required after download.');
+      // Replace with your actual download link:
+      // window.location.href = 'https://yourdomain.com/downloads/DataImportTool-v2.0.zip';
+    });
+
+    // ===== Smooth scrolling =====
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          window.scrollTo({
+            top: target.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
