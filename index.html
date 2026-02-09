@@ -7,6 +7,8 @@
   <meta name="description" content="Free tool to convert Excel sheets into SQL Server tables instantly. Export SQL scripts or upload directly. Ideal for developers and database admins.">
   <meta name="keywords" content="Excel to SQL, Excel to SQL Server, import Excel to SQL, SQL converter, Excel table to SQL">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Gumroad Overlay Script -->
+  <script src="https://gumroad.com/js/gumroad.js"></script>
   <style>
     :root {
       --primary: #00c896;
@@ -204,9 +206,10 @@
       position: relative;
       overflow: hidden;
       box-shadow: 0 8px 25px rgba(0, 200, 150, 0.4);
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 0.5rem;
+      text-decoration: none;
     }
     .btn-download::before {
       content: '';
@@ -221,6 +224,7 @@
     .btn-download:hover {
       transform: translateY(-3px);
       box-shadow: 0 12px 30px rgba(0, 200, 150, 0.6);
+      color: white;
     }
     .btn-download:hover::before {
       left: 100%;
@@ -552,6 +556,7 @@
       .btn-download {
         width: 100%;
         max-width: 300px;
+        justify-content: center;
       }
       .about-content {
         padding: 2rem 1.5rem;
@@ -592,9 +597,10 @@
     <p>DataImportTool created by DataAsh lets you create and copy tables from Excel to your local SQL Server in seconds — no coding, no cloud, no risk. Your data never leaves your workstation.</p>
 
     <div class="buttons">
-      <button class="btn-download">
+      <!-- Gumroad overlay: the gumroad-button class triggers the popup checkout -->
+      <a class="btn-download gumroad-button" href="https://ashonque.gumroad.com/l/phnwuf">
         <i class="fas fa-download"></i> Download Now
-      </button>
+      </a>
     </div>
   </section>
 
@@ -644,20 +650,6 @@
         <h2>Get in Touch</h2>
         <p class="modal-subtitle">Have a question or feedback? We'd love to hear from you.</p>
 
-        <!--
-          ============================================================
-          IMPORTANT: Replace YOUR_FORM_ID below with your real Formspree ID.
-          
-          Steps to get your Formspree form ID:
-          1. Go to https://formspree.io and sign up (free tier = 50 submissions/month)
-          2. Click "New Form"
-          3. Set the recipient email to: ashonque@proton.me
-          4. Copy the form ID (e.g., "xpzvqkdl") from the integration page
-          5. Replace YOUR_FORM_ID below with that ID
-          
-          Example: https://formspree.io/f/xpzvqkdl
-          ============================================================
-        -->
         <form id="emailForm" action="https://formspree.io/f/mkovgrqj" method="POST">
           <!-- Hidden field to set reply-to so you can reply directly to the sender -->
           <input type="hidden" name="_replyto" id="replyToField">
@@ -774,13 +766,6 @@
       }
     });
 
-    // ===== Download button =====
-    document.querySelector('.btn-download').addEventListener('click', function() {
-      window.open('https://ashonque.gumroad.com/l/phnwuf', '_blank');
-      // Replace with your actual download link:
-      // window.location.href = 'https://yourdomain.com/downloads/DataImportTool-v2.0.zip';
-    });
-
     // ===== Smooth scrolling =====
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function(e) {
@@ -799,5 +784,3 @@
 </body>
 
 </html>
-
-
