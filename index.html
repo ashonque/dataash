@@ -226,21 +226,6 @@
       left: 100%;
     }
 
-    .btn-outline {
-      background: transparent;
-      border: 2px solid var(--gray);
-      color: var(--text);
-      padding: 0.9rem 2.25rem;
-      font-weight: 600;
-      border-radius: 50px;
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-    .btn-outline:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: var(--primary);
-    }
-
     /* About Section */
     .about-section {
       padding: 6rem 5%;
@@ -564,7 +549,7 @@
         flex-direction: column; 
         align-items: center; 
       }
-      .btn-download, .btn-outline {
+      .btn-download {
         width: 100%;
         max-width: 300px;
       }
@@ -610,7 +595,6 @@
       <button class="btn-download">
         <i class="fas fa-download"></i> Download Now
       </button>
-      <button class="btn-outline">View Demo</button>
     </div>
   </section>
 
@@ -660,7 +644,24 @@
         <h2>Get in Touch</h2>
         <p class="modal-subtitle">Have a question or feedback? We'd love to hear from you.</p>
 
+        <!--
+          ============================================================
+          IMPORTANT: Replace YOUR_FORM_ID below with your real Formspree ID.
+          
+          Steps to get your Formspree form ID:
+          1. Go to https://formspree.io and sign up (free tier = 50 submissions/month)
+          2. Click "New Form"
+          3. Set the recipient email to: ashonque@proton.me
+          4. Copy the form ID (e.g., "xpzvqkdl") from the integration page
+          5. Replace YOUR_FORM_ID below with that ID
+          
+          Example: https://formspree.io/f/xpzvqkdl
+          ============================================================
+        -->
         <form id="emailForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+          <!-- Hidden field to set reply-to so you can reply directly to the sender -->
+          <input type="hidden" name="_replyto" id="replyToField">
+
           <div class="form-row">
             <div class="form-group">
               <label for="firstName">First Name</label>
@@ -732,9 +733,19 @@
     // ===== Form submission via Formspree =====
     const form = document.getElementById('emailForm');
     const sendBtn = document.getElementById('sendBtn');
+    const emailInput = document.getElementById('email');
+    const replyToField = document.getElementById('replyToField');
+
+    // Sync the reply-to hidden field with the email input
+    emailInput.addEventListener('input', () => {
+      replyToField.value = emailInput.value;
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      // Sync reply-to one more time before submit
+      replyToField.value = emailInput.value;
 
       // Show loading
       sendBtn.innerHTML = '<div class="spinner"></div> Sending...';
