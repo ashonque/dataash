@@ -191,6 +191,10 @@
     .btn-download::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);transition:.5s}
     .btn-download:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,200,150,0.6);color:#fff}
     .btn-download:hover::before{left:100%}
+    .btn-free-download{background:transparent;color:var(--primary);padding:.9rem 2.25rem;font-weight:600;font-size:1.1rem;border-radius:50px;border:2px solid var(--primary);cursor:pointer;transition:all .4s ease;position:relative;overflow:hidden;box-shadow:0 4px 15px rgba(0,200,150,0.15);display:inline-flex;align-items:center;gap:.5rem;text-decoration:none}
+    .btn-free-download::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,200,150,0.15),transparent);transition:.5s}
+    .btn-free-download:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,200,150,0.3);background:rgba(0,200,150,0.08);color:var(--primary)}
+    .btn-free-download:hover::before{left:100%}
     .trust-bar{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;margin-top:3rem;opacity:.6;font-size:.85rem}
     .trust-item{display:flex;align-items:center;gap:.5rem}
     .trust-item i{color:var(--primary)}
@@ -242,6 +246,8 @@
     .cta-section{text-align:center;padding:5rem 2rem;background:linear-gradient(135deg,rgba(0,200,150,0.08) 0%,rgba(0,168,127,0.04) 100%);border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border)}
     .cta-section h2{font-size:2.2rem;margin-bottom:1rem;background:linear-gradient(to right,#fff,#a0e6d3);-webkit-background-clip:text;background-clip:text;color:transparent}
     .cta-section p{color:#94a3b8;margin-bottom:2rem;font-size:1.05rem}
+    .cta-buttons{display:flex;gap:1.25rem;flex-wrap:wrap;justify-content:center}
+    .tool-buttons{display:flex;gap:1rem;flex-wrap:wrap}
     .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:1000;justify-content:center;align-items:center;padding:1.5rem;animation:fadeIn .3s ease}
     .modal-overlay.active{display:flex}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -274,7 +280,7 @@
     footer{text-align:center;padding:3rem 2rem;font-size:.9rem;opacity:.7;border-top:1px solid var(--card-border);margin-top:2rem}
     footer a{color:var(--primary);text-decoration:none}
     footer a:hover{text-decoration:underline}
-    @media(max-width:768px){.hero h1{font-size:2.5rem}nav ul{flex-wrap:wrap;justify-content:center;gap:1rem;margin-top:1rem}header{flex-wrap:wrap;gap:.5rem}.buttons{flex-direction:column;align-items:center}.btn-download{width:100%;max-width:300px;justify-content:center}.about-content{padding:2rem 1.5rem}.section-title{font-size:2rem}.modal{padding:2rem 1.5rem}.form-row{grid-template-columns:1fr}.tool-showcase{grid-template-columns:1fr}.trust-bar{gap:1.25rem}}
+    @media(max-width:768px){.hero h1{font-size:2.5rem}nav ul{flex-wrap:wrap;justify-content:center;gap:1rem;margin-top:1rem}header{flex-wrap:wrap;gap:.5rem}.buttons{flex-direction:column;align-items:center}.btn-download,.btn-free-download{width:100%;max-width:300px;justify-content:center}.about-content{padding:2rem 1.5rem}.section-title{font-size:2rem}.modal{padding:2rem 1.5rem}.form-row{grid-template-columns:1fr}.tool-showcase{grid-template-columns:1fr}.trust-bar{gap:1.25rem}.cta-buttons{flex-direction:column;align-items:center}.tool-buttons{flex-direction:column}}
   </style>
 </head>
 <body>
@@ -300,6 +306,9 @@
     <div class="buttons">
       <a class="btn-download gumroad-button" href="https://ashonque.gumroad.com/l/phnwuf" aria-label="Download DataImportTool for 9.99 EUR">
         <i class="fas fa-download"></i> Download Now — €9.99
+      </a>
+      <a class="btn-free-download" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download Free Version DataImportTool v3">
+        <i class="fas fa-gift"></i> Free Version — v3.0
       </a>
     </div>
     <div class="trust-bar">
@@ -328,9 +337,14 @@
           <div class="tool-highlight"><i class="fas fa-check-circle"></i> Portable — no install, no admin</div>
           <div class="tool-highlight"><i class="fas fa-check-circle"></i> Privacy-first — 100% offline</div>
         </div>
-        <a class="btn-download gumroad-button" href="https://ashonque.gumroad.com/l/phnwuf" aria-label="Download DataImportTool">
-          <i class="fas fa-download"></i> Get DataImportTool
-        </a>
+        <div class="tool-buttons">
+          <a class="btn-download gumroad-button" href="https://ashonque.gumroad.com/l/phnwuf" aria-label="Download DataImportTool">
+            <i class="fas fa-download"></i> Get DataImportTool
+          </a>
+          <a class="btn-free-download" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download Free Version DataImportTool v3">
+            <i class="fas fa-gift"></i> Free Version — v3.0
+          </a>
+        </div>
       </div>
       <div class="tool-visual">
         <div class="tool-visual-header">
@@ -419,7 +433,10 @@
   <section class="cta-section">
     <h2>Ready to Simplify Your Data Imports?</h2>
     <p>Join data professionals worldwide who use DataAsh tools to save hours every week.</p>
-    <a class="btn-download gumroad-button" href="https://ashonque.gumroad.com/l/phnwuf" aria-label="Download DataImportTool"><i class="fas fa-download"></i> Download DataImportTool — €9.99</a>
+    <div class="cta-buttons">
+      <a class="btn-download gumroad-button" href="https://ashonque.gumroad.com/l/phnwuf" aria-label="Download DataImportTool"><i class="fas fa-download"></i> Download DataImportTool — €9.99</a>
+      <a class="btn-free-download" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download Free Version DataImportTool v3"><i class="fas fa-gift"></i> Free Version — v3.0</a>
+    </div>
   </section>
 
   <footer>
