@@ -293,8 +293,8 @@
     .demo-section .section-title{margin-bottom:1rem}
     .demo-section .section-subtitle{margin-bottom:2.5rem}
     .video-container{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--card-border);box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 80px rgba(0,200,150,0.06);background:#000;max-width:900px;margin:0 auto}
-    .video-container video{width:100%;display:block;border-radius:16px}
-    .video-overlay{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);cursor:pointer;transition:all .4s ease;z-index:2;border-radius:16px}
+    .video-container video{width:100%;display:block}
+    .video-overlay{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);cursor:pointer;transition:all .4s ease;z-index:3}
     .video-overlay:hover{background:rgba(0,0,0,0.3)}
     .video-overlay.hidden{opacity:0;pointer-events:none}
     .play-btn{width:80px;height:80px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(0,200,150,0.5);transition:all .3s ease;margin-bottom:1rem}
@@ -304,6 +304,21 @@
     .video-glow{position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;border-radius:18px;background:linear-gradient(135deg,rgba(0,200,150,0.15),transparent,rgba(0,200,150,0.1));z-index:-1;filter:blur(1px)}
     .video-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(0,200,150,0.1);border:1px solid rgba(0,200,150,0.25);border-radius:50px;padding:.4rem 1rem;font-size:.8rem;color:var(--primary);font-weight:600;margin-bottom:1.5rem}
     .video-badge i{font-size:.7rem}
+    /* Video Controls */
+    .video-controls{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:1rem 1rem .75rem;display:flex;align-items:center;gap:.75rem;z-index:4;opacity:0;transition:opacity .3s ease}
+    .video-container:hover .video-controls,.video-container.show-controls .video-controls{opacity:1}
+    .video-controls button{background:none;border:none;color:#fff;cursor:pointer;font-size:1.1rem;padding:.25rem;transition:color .2s,transform .2s;display:flex;align-items:center;justify-content:center;width:32px;height:32px}
+    .video-controls button:hover{color:var(--primary);transform:scale(1.15)}
+    .video-progress{flex:1;height:4px;background:rgba(255,255,255,0.2);border-radius:4px;cursor:pointer;position:relative;transition:height .15s}
+    .video-progress:hover{height:6px}
+    .video-progress-filled{height:100%;background:var(--primary);border-radius:4px;width:0%;transition:width .1s linear;position:relative}
+    .video-progress-filled::after{content:'';position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:12px;height:12px;background:#fff;border-radius:50%;opacity:0;transition:opacity .15s;box-shadow:0 0 6px rgba(0,200,150,0.6)}
+    .video-progress:hover .video-progress-filled::after{opacity:1}
+    .video-time{font-size:.75rem;color:rgba(255,255,255,0.7);min-width:80px;text-align:center;font-variant-numeric:tabular-nums;user-select:none}
+    .video-container:fullscreen{border-radius:0;max-width:none;border:none;box-shadow:none}
+    .video-container:fullscreen .video-glow{display:none}
+    .video-container:-webkit-full-screen{border-radius:0;max-width:none;border:none;box-shadow:none}
+    .video-container:-webkit-full-screen .video-glow{display:none}
     @media(max-width:768px){.hero h1{font-size:2.5rem}nav ul{flex-wrap:wrap;justify-content:center;gap:1rem;margin-top:1rem}header{flex-wrap:wrap;gap:.5rem}.buttons{flex-direction:column;align-items:center}.btn-download,.btn-free-download{width:100%;max-width:300px;justify-content:center}.about-content{padding:2rem 1.5rem}.section-title{font-size:2rem}.modal{padding:2rem 1.5rem}.form-row{grid-template-columns:1fr}.tool-showcase{grid-template-columns:1fr}.trust-bar{gap:1.25rem}.cta-buttons{flex-direction:column;align-items:center}.tool-buttons{flex-direction:column}.hero-domains{gap:.75rem}}
   </style>
 </head>
@@ -356,15 +371,23 @@
     <div class="video-badge"><i class="fas fa-play-circle"></i> See It In Action</div>
     <h2 class="section-title">Watch DataImportTool in Action</h2>
     <p class="section-subtitle">Import Excel to SQL Server in under 60 seconds — drag, drop, done.</p>
-    <div class="video-container">
+    <div class="video-container" id="videoContainer">
       <div class="video-glow"></div>
-      <video id="demoVideo" preload="metadata" playsinline poster="" muted>
+      <video id="demoVideo" preload="metadata" playsinline muted>
         <source src="DataImportToolvideo.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
       <div class="video-overlay" id="videoOverlay">
         <div class="play-btn"><i class="fas fa-play"></i></div>
         <span>Watch Demo</span>
+      </div>
+      <div class="video-controls">
+        <button id="vidPlayPause" title="Play / Pause"><i class="fas fa-play"></i></button>
+        <div class="video-progress" id="vidProgress">
+          <div class="video-progress-filled" id="vidProgressFilled"></div>
+        </div>
+        <span class="video-time" id="vidTime">0:00 / 0:00</span>
+        <button id="vidFullscreen" title="Fullscreen"><i class="fas fa-expand"></i></button>
       </div>
     </div>
   </section>
@@ -529,25 +552,100 @@
     // ===== Video Player =====
     const demoVideo = document.getElementById('demoVideo');
     const videoOverlay = document.getElementById('videoOverlay');
+    const videoContainer = document.getElementById('videoContainer');
+    const vidPlayPause = document.getElementById('vidPlayPause');
+    const vidProgress = document.getElementById('vidProgress');
+    const vidProgressFilled = document.getElementById('vidProgressFilled');
+    const vidTime = document.getElementById('vidTime');
+    const vidFullscreen = document.getElementById('vidFullscreen');
+    let hideControlsTimer;
+
     if (demoVideo && videoOverlay) {
+      // Format time helper
+      function fmtTime(s){if(isNaN(s))return'0:00';const m=Math.floor(s/60);return m+':'+(Math.floor(s%60)+'').padStart(2,'0')}
+
+      // Show controls temporarily
+      function flashControls(){videoContainer.classList.add('show-controls');clearTimeout(hideControlsTimer);hideControlsTimer=setTimeout(()=>{if(!demoVideo.paused)videoContainer.classList.remove('show-controls')},2500)}
+
+      // Overlay click — first play
       videoOverlay.addEventListener('click', () => {
         videoOverlay.classList.add('hidden');
         demoVideo.muted = false;
         demoVideo.play();
-        gtag('event', 'video_play', {
-          event_category: 'engagement',
-          event_label: 'demo_video'
-        });
+        flashControls();
+        gtag('event', 'video_play', { event_category: 'engagement', event_label: 'demo_video' });
       });
+
+      // Video click — toggle play/pause
       demoVideo.addEventListener('click', () => {
         if (demoVideo.paused) { demoVideo.play(); } else { demoVideo.pause(); }
+        flashControls();
       });
+
+      // Play/Pause button
+      vidPlayPause.addEventListener('click', () => {
+        if (demoVideo.paused) { demoVideo.play(); } else { demoVideo.pause(); }
+      });
+
+      // Update play/pause icon
+      demoVideo.addEventListener('play', () => { vidPlayPause.innerHTML = '<i class="fas fa-pause"></i>'; });
+      demoVideo.addEventListener('pause', () => { vidPlayPause.innerHTML = '<i class="fas fa-play"></i>'; videoContainer.classList.add('show-controls'); });
+
+      // Progress bar update
+      demoVideo.addEventListener('timeupdate', () => {
+        if (demoVideo.duration) {
+          vidProgressFilled.style.width = (demoVideo.currentTime / demoVideo.duration * 100) + '%';
+          vidTime.textContent = fmtTime(demoVideo.currentTime) + ' / ' + fmtTime(demoVideo.duration);
+        }
+      });
+
+      // Click/drag on progress bar to seek
+      let seeking = false;
+      function seekTo(e) {
+        const rect = vidProgress.getBoundingClientRect();
+        const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        demoVideo.currentTime = pct * demoVideo.duration;
+        vidProgressFilled.style.width = (pct * 100) + '%';
+      }
+      vidProgress.addEventListener('mousedown', (e) => { seeking = true; seekTo(e); });
+      document.addEventListener('mousemove', (e) => { if (seeking) seekTo(e); });
+      document.addEventListener('mouseup', () => { seeking = false; });
+      vidProgress.addEventListener('touchstart', (e) => { seekTo(e.touches[0]); }, {passive:true});
+      vidProgress.addEventListener('touchmove', (e) => { seekTo(e.touches[0]); }, {passive:true});
+
+      // Fullscreen toggle
+      vidFullscreen.addEventListener('click', () => {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        } else {
+          (videoContainer.requestFullscreen || videoContainer.webkitRequestFullscreen).call(videoContainer);
+        }
+      });
+      function onFSChange() {
+        const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        vidFullscreen.innerHTML = isFS ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+        vidFullscreen.title = isFS ? 'Exit Fullscreen' : 'Fullscreen';
+      }
+      document.addEventListener('fullscreenchange', onFSChange);
+      document.addEventListener('webkitfullscreenchange', onFSChange);
+
+      // Keyboard shortcuts when video is in view
+      document.addEventListener('keydown', (e) => {
+        if (videoOverlay.classList.contains('hidden') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+          if (e.key === 'f' || e.key === 'F') { vidFullscreen.click(); e.preventDefault(); }
+          if (e.key === 'Escape' && (document.fullscreenElement || document.webkitFullscreenElement)) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+        }
+      });
+
+      // Mouse move shows controls
+      videoContainer.addEventListener('mousemove', flashControls);
+
+      // Video ended — show overlay again
       demoVideo.addEventListener('ended', () => {
         videoOverlay.classList.remove('hidden');
-        gtag('event', 'video_complete', {
-          event_category: 'engagement',
-          event_label: 'demo_video'
-        });
+        vidPlayPause.innerHTML = '<i class="fas fa-play"></i>';
+        videoContainer.classList.add('show-controls');
+        gtag('event', 'video_complete', { event_category: 'engagement', event_label: 'demo_video' });
       });
     }
 
