@@ -56,11 +56,10 @@
     "operatingSystem": "Windows 10, Windows 11",
     "offers": {
       "@type": "Offer",
-      "price": "9.99",
+      "price": "0",
       "priceCurrency": "EUR",
-      "url": "https://ashonque.gumroad.com/l/phnwuf",
-      "availability": "https://schema.org/InStock",
-      "priceValidUntil": "2026-12-31"
+      "url": "https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip",
+      "availability": "https://schema.org/InStock"
     },
     "aggregateRating": {
       "@type": "AggregateRating",
@@ -76,7 +75,7 @@
     },
     "softwareVersion": "3.0",
     "fileSize": "66MB",
-    "downloadUrl": "https://ashonque.gumroad.com/l/phnwuf",
+    "downloadUrl": "https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip",
     "screenshot": "https://dataash.de/og-image.png",
     "featureList": [
       "Import Excel (.xlsx, .xlsm, .xls) to SQL Server",
@@ -143,7 +142,7 @@
       {"@type": "Question", "name": "What is the best offline data tool for SQL Server?", "acceptedAnswer": {"@type": "Answer", "text": "DataImportTool by DataAsh combines automatic data type detection, European format support, drag-and-drop simplicity, and complete privacy in a single portable tool."}},
       {"@type": "Question", "name": "Can I use DataImportTool for large datasets?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. DataImportTool uses optimized bulk insert operations to handle large datasets efficiently. It can import files with millions of rows into SQL Server in seconds."}},
       {"@type": "Question", "name": "What data tools does DataAsh offer?", "acceptedAnswer": {"@type": "Answer", "text": "DataAsh is a growing data tools platform focused on building professional-grade tools for data analytics, data science, ETL, data modeling, and data engineering. Our current flagship tool is DataImportTool for Excel/CSV to SQL Server imports, with more tools planned for data transformation, data quality, and data pipeline automation."}},
-      {"@type": "Question", "name": "Is there a free version of DataImportTool?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. DataAsh offers a free version (v3.0) of DataImportTool that you can download directly from GitHub. It includes core import functionality for Excel, CSV, and text files to SQL Server."}}
+      {"@type": "Question", "name": "Is DataImportTool free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. DataImportTool v3.0 is completely free to download and use. It includes full import functionality for Excel, CSV, and text files to SQL Server — no strings attached."}}
     ]
   }
   </script>
@@ -162,7 +161,6 @@
   </script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <script src="https://gumroad.com/js/gumroad.js"></script>
   <style>
     :root{--primary:#00c896;--primary-dark:#00a87f;--dark:#0a0f1a;--gray:#e0e7ff;--text:#f0f4ff;--card-bg:rgba(25,30,50,0.6);--card-border:rgba(255,255,255,0.1)}
     *{margin:0;padding:0;box-sizing:border-box}
@@ -196,13 +194,6 @@
     .btn-download::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);transition:.5s}
     .btn-download:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,200,150,0.6);color:#fff}
     .btn-download:hover::before{left:100%}
-    .btn-free-download{background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(255,165,0,0.08));color:#fbbf24;padding:.9rem 2.25rem;font-weight:600;font-size:1.1rem;border-radius:50px;border:2px solid rgba(251,191,36,0.5);cursor:pointer;transition:all .4s ease;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(251,191,36,0.15);display:inline-flex;align-items:center;gap:.5rem;text-decoration:none}
-    .btn-free-download .free-badge{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0a0f1a;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:.15rem .5rem;border-radius:4px;margin-left:.25rem}
-    .btn-free-download::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(251,191,36,0.2),transparent);transition:.5s}
-    .btn-free-download:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(251,191,36,0.25);background:linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,165,0,0.12));border-color:rgba(251,191,36,0.7);color:#fbbf24}
-    .btn-free-download:hover::before{left:100%}
-    @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
-    .btn-free-download::after{content:'';position:absolute;top:-1px;left:-1px;right:-1px;bottom:-1px;border-radius:50px;background:linear-gradient(90deg,transparent,rgba(251,191,36,0.3),transparent);background-size:200% 100%;animation:shimmer 3s ease infinite;pointer-events:none;z-index:-1}
     .trust-bar{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;margin-top:3rem;opacity:.6;font-size:.85rem}
     .trust-item{display:flex;align-items:center;gap:.5rem}
     .trust-item i{color:var(--primary)}
@@ -319,7 +310,7 @@
     .video-container:fullscreen .video-glow{display:none}
     .video-container:-webkit-full-screen{border-radius:0;max-width:none;border:none;box-shadow:none}
     .video-container:-webkit-full-screen .video-glow{display:none}
-    @media(max-width:768px){.hero h1{font-size:2.5rem}nav ul{flex-wrap:wrap;justify-content:center;gap:1rem;margin-top:1rem}header{flex-wrap:wrap;gap:.5rem}.buttons{flex-direction:column;align-items:center}.btn-download,.btn-free-download{width:100%;max-width:300px;justify-content:center}.about-content{padding:2rem 1.5rem}.section-title{font-size:2rem}.modal{padding:2rem 1.5rem}.form-row{grid-template-columns:1fr}.tool-showcase{grid-template-columns:1fr}.trust-bar{gap:1.25rem}.cta-buttons{flex-direction:column;align-items:center}.tool-buttons{flex-direction:column}.hero-domains{gap:.75rem}}
+    @media(max-width:768px){.hero h1{font-size:2.5rem}nav ul{flex-wrap:wrap;justify-content:center;gap:1rem;margin-top:1rem}header{flex-wrap:wrap;gap:.5rem}.buttons{flex-direction:column;align-items:center}.btn-download{width:100%;max-width:300px;justify-content:center}.about-content{padding:2rem 1.5rem}.section-title{font-size:2rem}.modal{padding:2rem 1.5rem}.form-row{grid-template-columns:1fr}.tool-showcase{grid-template-columns:1fr}.trust-bar{gap:1.25rem}.cta-buttons{flex-direction:column;align-items:center}.tool-buttons{flex-direction:column}.hero-domains{gap:.75rem}}
   </style>
 </head>
 <body>
@@ -349,13 +340,10 @@
       <span class="hero-domain"><i class="fas fa-circle"></i> Data Science</span>
       <span class="hero-domain"><i class="fas fa-circle"></i> SQL Server</span>
     </div>
-    <p class="hero-subtext">Starting with our flagship tool: DataImportTool — import Excel, CSV &amp; text files to SQL Server instantly. More tools coming soon.</p>
+    <p class="hero-subtext">Starting with our flagship tool: DataImportTool — import Excel, CSV &amp; text files to SQL Server instantly.</p>
     <div class="buttons">
-      <a class="btn-download gumroad-button" href="https://ashonque.gumroad.com/l/phnwuf" aria-label="Download DataImportTool for 9.99 EUR">
-        <i class="fas fa-download"></i> Download Pro — &euro;9.99
-      </a>
-      <a class="btn-free-download" id="freeDownloadHero" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download Free Version DataImportTool v3">
-        <i class="fas fa-gift"></i> Free Download <span class="free-badge">v3.0</span>
+      <a class="btn-download" id="freeDownloadHero" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free">
+        <i class="fas fa-download"></i> Download Free — v3.0
       </a>
     </div>
     <div class="trust-bar">
@@ -397,8 +385,8 @@
     <p class="section-subtitle">Professional-grade data tools built for speed, privacy, and simplicity. No bloat, no subscriptions, no cloud dependency.</p>
     <div class="tool-showcase">
       <div class="tool-info">
-        <div class="tool-price-tag"><i class="fas fa-tag"></i> &euro;9.99 — One-time purchase</div>
-        <h3>DataImportTool v2.0</h3>
+        <div class="tool-price-tag"><i class="fas fa-gift"></i> Free &amp; Open</div>
+        <h3>DataImportTool v3.0</h3>
         <p>The fastest way to get Excel, CSV, TSV, and text data into SQL Server. Built for data engineers, analysts, and IT professionals who need reliable, secure, offline data imports without complex configuration or expensive enterprise licenses.</p>
         <div class="tool-highlights">
           <div class="tool-highlight"><i class="fas fa-check-circle"></i> Excel to SQL Server (.xlsx, .xlsm, .xls)</div>
@@ -411,11 +399,8 @@
           <div class="tool-highlight"><i class="fas fa-check-circle"></i> Privacy-first — 100% offline</div>
         </div>
         <div class="tool-buttons">
-          <a class="btn-download gumroad-button" href="https://ashonque.gumroad.com/l/phnwuf" aria-label="Download DataImportTool">
-            <i class="fas fa-download"></i> Get DataImportTool
-          </a>
-          <a class="btn-free-download" id="freeDownloadTools" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download Free Version DataImportTool v3">
-            <i class="fas fa-gift"></i> Free Version <span class="free-badge">v3.0</span>
+          <a class="btn-download" id="freeDownloadTools" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free">
+            <i class="fas fa-download"></i> Download Free — v3.0
           </a>
         </div>
       </div>
@@ -475,8 +460,8 @@
       <div class="faq-item"><button class="faq-question" aria-expanded="false">What file formats does it support?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool supports Excel (.xlsx, .xlsm, .xls), CSV, TSV, and generic text files with custom delimiters. It automatically detects the delimiter, data types, and date formats so you don't have to configure anything.</div></div>
       <div class="faq-item"><button class="faq-question" aria-expanded="false">Do I need admin rights or installation?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">No. DataImportTool is a portable application that requires no installation and no admin rights. Simply download, extract, and run. It works on any Windows 10 or Windows 11 machine.</div></div>
       <div class="faq-item"><button class="faq-question" aria-expanded="false">Can it handle large datasets with millions of rows?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. DataImportTool uses optimized bulk insert operations to handle large datasets efficiently. It can import files with millions of rows into SQL Server in seconds, making it one of the fastest data import tools available.</div></div>
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">What is the best offline data tool for SQL Server?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool by DataAsh combines automatic data type detection, European format support, drag-and-drop simplicity, and complete privacy in a single portable tool — all for a one-time price of &euro;9.99.</div></div>
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">Is there a free version of DataImportTool?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes! DataAsh offers a free version (v3.0) of DataImportTool that you can download directly from GitHub. It includes core import functionality for Excel, CSV, and text files to SQL Server — completely free, no strings attached.</div></div>
+      <div class="faq-item"><button class="faq-question" aria-expanded="false">What is the best offline data tool for SQL Server?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool by DataAsh combines automatic data type detection, European format support, drag-and-drop simplicity, and complete privacy in a single portable tool — completely free.</div></div>
+      <div class="faq-item"><button class="faq-question" aria-expanded="false">Is DataImportTool free?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes! DataImportTool v3.0 is completely free to download and use. It includes full import functionality for Excel, CSV, and text files to SQL Server — no strings attached.</div></div>
       <div class="faq-item"><button class="faq-question" aria-expanded="false">What data tools does DataAsh plan to release?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataAsh is building a growing platform of professional data tools. Beyond DataImportTool, we're working on tools for data transformation, data quality checks, data pipeline automation, and more — all following our core principles of speed, privacy, and zero cloud dependency.</div></div>
     </div>
   </section>
@@ -485,8 +470,7 @@
     <h2>Ready to Simplify Your Data Workflows?</h2>
     <p>Join data professionals worldwide who use DataAsh tools for analytics, ETL, and data engineering.</p>
     <div class="cta-buttons">
-      <a class="btn-download gumroad-button" href="https://ashonque.gumroad.com/l/phnwuf" aria-label="Download DataImportTool"><i class="fas fa-download"></i> Download Pro — &euro;9.99</a>
-      <a class="btn-free-download" id="freeDownloadCta" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download Free Version DataImportTool v3"><i class="fas fa-gift"></i> Free Download <span class="free-badge">v3.0</span></a>
+      <a class="btn-download" id="freeDownloadCta" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free"><i class="fas fa-download"></i> Download Free — v3.0</a>
     </div>
   </section>
 
@@ -522,7 +506,7 @@
 
   <script>
     // ===== GA4 Free Download Tracking =====
-    document.querySelectorAll('.btn-free-download').forEach(btn => {
+    document.querySelectorAll('.btn-download').forEach(btn => {
       btn.addEventListener('click', function() {
         gtag('event', 'free_download_click', {
           event_category: 'download',
@@ -561,13 +545,9 @@
     let hideControlsTimer;
 
     if (demoVideo && videoOverlay) {
-      // Format time helper
       function fmtTime(s){if(isNaN(s))return'0:00';const m=Math.floor(s/60);return m+':'+(Math.floor(s%60)+'').padStart(2,'0')}
-
-      // Show controls temporarily
       function flashControls(){videoContainer.classList.add('show-controls');clearTimeout(hideControlsTimer);hideControlsTimer=setTimeout(()=>{if(!demoVideo.paused)videoContainer.classList.remove('show-controls')},2500)}
 
-      // Overlay click — first play
       videoOverlay.addEventListener('click', () => {
         videoOverlay.classList.add('hidden');
         demoVideo.muted = false;
@@ -576,22 +556,18 @@
         gtag('event', 'video_play', { event_category: 'engagement', event_label: 'demo_video' });
       });
 
-      // Video click — toggle play/pause
       demoVideo.addEventListener('click', () => {
         if (demoVideo.paused) { demoVideo.play(); } else { demoVideo.pause(); }
         flashControls();
       });
 
-      // Play/Pause button
       vidPlayPause.addEventListener('click', () => {
         if (demoVideo.paused) { demoVideo.play(); } else { demoVideo.pause(); }
       });
 
-      // Update play/pause icon
       demoVideo.addEventListener('play', () => { vidPlayPause.innerHTML = '<i class="fas fa-pause"></i>'; });
       demoVideo.addEventListener('pause', () => { vidPlayPause.innerHTML = '<i class="fas fa-play"></i>'; videoContainer.classList.add('show-controls'); });
 
-      // Progress bar update
       demoVideo.addEventListener('timeupdate', () => {
         if (demoVideo.duration) {
           vidProgressFilled.style.width = (demoVideo.currentTime / demoVideo.duration * 100) + '%';
@@ -599,7 +575,6 @@
         }
       });
 
-      // Click/drag on progress bar to seek
       let seeking = false;
       function seekTo(e) {
         const rect = vidProgress.getBoundingClientRect();
@@ -613,7 +588,6 @@
       vidProgress.addEventListener('touchstart', (e) => { seekTo(e.touches[0]); }, {passive:true});
       vidProgress.addEventListener('touchmove', (e) => { seekTo(e.touches[0]); }, {passive:true});
 
-      // Fullscreen toggle
       vidFullscreen.addEventListener('click', () => {
         if (document.fullscreenElement || document.webkitFullscreenElement) {
           (document.exitFullscreen || document.webkitExitFullscreen).call(document);
@@ -629,7 +603,6 @@
       document.addEventListener('fullscreenchange', onFSChange);
       document.addEventListener('webkitfullscreenchange', onFSChange);
 
-      // Keyboard shortcuts when video is in view
       document.addEventListener('keydown', (e) => {
         if (videoOverlay.classList.contains('hidden') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
           if (e.key === 'f' || e.key === 'F') { vidFullscreen.click(); e.preventDefault(); }
@@ -637,10 +610,8 @@
         }
       });
 
-      // Mouse move shows controls
       videoContainer.addEventListener('mousemove', flashControls);
 
-      // Video ended — show overlay again
       demoVideo.addEventListener('ended', () => {
         videoOverlay.classList.remove('hidden');
         vidPlayPause.innerHTML = '<i class="fas fa-play"></i>';
