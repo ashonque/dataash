@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-5P4PHQCGXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -14,7 +13,6 @@
   <title>DataAsh | Best Data Tools for Analytics, ETL & Data Engineering</title>
   <meta name="description" content="DataAsh builds professional data tools for data analytics, data science, ETL, data modeling, and data engineering. Import Excel, CSV to SQL Server instantly — offline, secure, no coding. The best data tools platform for professionals.">
   <meta name="keywords" content="data tools, data analytics tools, data science tools, data engineering tools, ETL tools, data modeling tools, excel to sql server tool, data analysis tool, excel to sql converter, csv to sql server, data import tool, best data tools, top data tools, offline data tools, secure data tools, german data tools, data tools for download, dataash, data tools windows, excel to database, sql server import tool, data engineering tools, ETL tool, excel sql import, data migration tool, best excel to sql tool, free data tools, data analysis, data processing tool, portable data tools, no install data tool, drag and drop sql import, european data tools, american data tools, data pipeline tools, data warehouse tools, data transformation tools, free data engineering tools, data tools platform">
-  <!-- Favicon -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
@@ -39,7 +37,7 @@
   <meta name="twitter:image" content="https://dataash.de/og-image.png" />
   <meta name="author" content="DataAsh" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-  <meta name="theme-color" content="#00c896" />
+  <meta name="theme-color" content="#00e5a8" />
   <meta name="application-name" content="DataAsh Data Tools" />
   <meta name="msapplication-tooltip" content="Data Tools for Analytics, ETL & Data Engineering — DataAsh" />
 
@@ -161,156 +159,446 @@
   </script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--primary:#00c896;--primary-dark:#00a87f;--dark:#0a0f1a;--gray:#e0e7ff;--text:#f0f4ff;--card-bg:rgba(25,30,50,0.6);--card-border:rgba(255,255,255,0.1)}
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-color:var(--dark);color:var(--text);overflow-x:hidden;line-height:1.6}
-    header{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 5%;position:sticky;top:0;z-index:100;background:rgba(10,15,26,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border)}
-    .logo{display:flex;align-items:center;gap:.75rem;font-weight:700;font-size:1.5rem;text-decoration:none;color:var(--text)}
-    .logo-icon{position:relative;width:32px;height:32px;transform-style:preserve-3d;transform:rotateY(20deg) rotateX(15deg);transition:transform .4s ease}
-    .logo-icon:hover{transform:rotateY(30deg) rotateX(25deg) scale(1.1)}
-    .logo-icon::before,.logo-icon::after{content:'';position:absolute;width:100%;height:100%;border-radius:4px;background:linear-gradient(135deg,var(--primary),#00a87f);box-shadow:0 8px 20px rgba(0,200,150,0.4)}
-    .logo-icon::before{transform:translateZ(8px)}
-    .logo-icon::after{transform:translateZ(-8px) rotateY(180deg)}
-    nav ul{display:flex;list-style:none;gap:2rem}
-    nav a{color:var(--text);text-decoration:none;font-weight:500;transition:opacity .3s;position:relative;padding:.5rem 0}
-    nav a:hover{opacity:.8}
-    nav a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--primary);transition:width .3s ease}
-    nav a:hover::after{width:100%}
-    .cta-btn{background:#fff;color:var(--dark);border:none;padding:.75rem 1.75rem;border-radius:50px;font-weight:600;cursor:pointer;transition:all .3s ease;box-shadow:0 6px 20px rgba(255,255,255,0.2)}
-    .cta-btn:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(255,255,255,0.3)}
-    .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 2rem;background:radial-gradient(circle at 10% 20%,rgba(0,200,150,0.05) 0%,transparent 20%),radial-gradient(circle at 90% 80%,rgba(0,200,150,0.05) 0%,transparent 20%),linear-gradient(to bottom,#0a0f1a,#0c1220);position:relative;overflow:hidden}
-    .tag{background:rgba(255,255,255,0.1);border-radius:50px;padding:.5rem 1.25rem;font-size:.85rem;display:inline-flex;align-items:center;gap:.5rem;margin-bottom:1.5rem;backdrop-filter:blur(5px);border:1px solid var(--card-border)}
-    .tag::before{content:'';width:6px;height:6px;background:var(--primary);border-radius:50%}
-    .hero h1{font-size:3.5rem;max-width:800px;margin-bottom:1.5rem;line-height:1.2;background:linear-gradient(to right,#fff,#a0e6d3);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .hero p{max-width:720px;margin:0 auto 1.5rem;font-size:1.1rem;opacity:.9}
-    .hero-subtext{max-width:650px;margin:0 auto 2.5rem;font-size:.95rem;opacity:.65}
-    .hero-domains{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:2.5rem}
-    .hero-domain{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:#94a3b8;background:rgba(255,255,255,0.05);border:1px solid var(--card-border);border-radius:50px;padding:.35rem .9rem;transition:all .3s}
-    .hero-domain:hover{border-color:var(--primary);color:var(--primary);background:rgba(0,200,150,0.05)}
-    .hero-domain i{font-size:.7rem;color:var(--primary)}
-    .buttons{display:flex;gap:1.25rem;flex-wrap:wrap;justify-content:center}
-    .btn-download{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:.9rem 2.25rem;font-weight:600;font-size:1.1rem;border-radius:50px;border:none;cursor:pointer;transition:all .4s ease;position:relative;overflow:hidden;box-shadow:0 8px 25px rgba(0,200,150,0.4);display:inline-flex;align-items:center;gap:.5rem;text-decoration:none}
-    .btn-download::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);transition:.5s}
-    .btn-download:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,200,150,0.6);color:#fff}
-    .btn-download:hover::before{left:100%}
-    .trust-bar{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;margin-top:3rem;opacity:.6;font-size:.85rem}
-    .trust-item{display:flex;align-items:center;gap:.5rem}
-    .trust-item i{color:var(--primary)}
-    .section-title{text-align:center;font-size:2.5rem;margin-bottom:1rem;position:relative}
-    .section-title::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:80px;height:4px;background:var(--primary);border-radius:2px}
-    .section-subtitle{text-align:center;color:#94a3b8;font-size:1.05rem;max-width:600px;margin:1.5rem auto 3rem}
-    .data-tools-section{padding:6rem 5%;max-width:1200px;margin:0 auto}
-    .tool-showcase{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;margin-bottom:4rem}
-    .tool-info h3{font-size:1.8rem;margin-bottom:1rem;background:linear-gradient(to right,#fff,#a0e6d3);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .tool-info p{color:#cbd5e1;line-height:1.8;margin-bottom:1.5rem}
-    .tool-highlights{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem}
-    .tool-highlight{display:flex;align-items:center;gap:.75rem;font-size:.95rem}
-    .tool-highlight i{color:var(--primary);font-size:.8rem}
-    .tool-visual{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:2rem;backdrop-filter:blur(10px)}
-    .tool-visual-header{display:flex;align-items:center;gap:.5rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--card-border)}
-    .tool-visual-dot{width:10px;height:10px;border-radius:50%}
-    .tool-visual-dot:nth-child(1){background:#ef4444}
-    .tool-visual-dot:nth-child(2){background:#f59e0b}
-    .tool-visual-dot:nth-child(3){background:#22c55e}
-    .tool-flow{display:flex;flex-direction:column;gap:1rem}
-    .tool-flow-step{display:flex;align-items:center;gap:1rem;padding:.75rem 1rem;background:rgba(255,255,255,0.04);border-radius:8px;border:1px solid rgba(255,255,255,0.06)}
-    .tool-flow-step i{color:var(--primary);font-size:1.2rem;width:24px;text-align:center}
-    .tool-flow-arrow{text-align:center;color:var(--primary);font-size:1rem;opacity:.5}
-    .tool-price-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(0,200,150,0.1);border:1px solid rgba(0,200,150,0.3);border-radius:50px;padding:.5rem 1.25rem;font-weight:600;color:var(--primary);margin-bottom:1rem}
-    .use-cases-section{padding:4rem 5%;max-width:1200px;margin:0 auto}
-    .use-cases-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
-    .use-case-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:1.75rem;backdrop-filter:blur(10px);transition:transform .3s ease,box-shadow .3s ease}
-    .use-case-card:hover{transform:translateY(-4px);box-shadow:0 10px 25px rgba(0,0,0,0.3)}
-    .use-case-card h3{font-size:1.1rem;margin-bottom:.5rem}
-    .use-case-card p{font-size:.92rem;color:#94a3b8;line-height:1.6}
-    .use-case-card i{color:var(--primary);font-size:1.5rem;margin-bottom:.75rem;display:block}
-    .about-section{padding:6rem 5%;max-width:1200px;margin:0 auto}
-    .about-content{background:var(--card-bg);border-radius:16px;padding:3rem;border:1px solid var(--card-border);box-shadow:0 10px 30px rgba(0,0,0,0.3);backdrop-filter:blur(10px)}
-    .about-content p{font-size:1.1rem;line-height:1.8;margin-bottom:1.5rem;color:#e0e7ff}
-    .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-top:2rem}
-    .feature-card{background:rgba(30,35,60,0.4);border-radius:12px;padding:1.5rem;text-align:center;border:1px solid var(--card-border);transition:transform .3s ease,box-shadow .3s ease}
-    .feature-card:hover{transform:translateY(-5px);box-shadow:0 10px 20px rgba(0,0,0,0.2)}
-    .feature-card i{font-size:2rem;color:var(--primary);margin-bottom:1rem}
-    .feature-card h3{font-size:1.2rem;margin-bottom:.5rem}
-    .feature-card p{font-size:.95rem;margin:0;opacity:.8}
-    .faq-section{padding:6rem 5%;max-width:800px;margin:0 auto}
-    .faq-item{border-bottom:1px solid var(--card-border);padding:1.25rem 0}
-    .faq-question{display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:600;font-size:1.05rem;color:var(--text);background:none;border:none;width:100%;text-align:left;padding:.5rem 0;transition:color .3s;font-family:inherit}
-    .faq-question:hover{color:var(--primary)}
-    .faq-question i{transition:transform .3s;font-size:.8rem;color:var(--primary);flex-shrink:0;margin-left:1rem}
-    .faq-item.active .faq-question i{transform:rotate(180deg)}
-    .faq-answer{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;color:#94a3b8;font-size:.95rem;line-height:1.7}
-    .faq-item.active .faq-answer{max-height:300px;padding-top:.75rem}
-    .cta-section{text-align:center;padding:5rem 2rem;background:linear-gradient(135deg,rgba(0,200,150,0.08) 0%,rgba(0,168,127,0.04) 100%);border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border)}
-    .cta-section h2{font-size:2.2rem;margin-bottom:1rem;background:linear-gradient(to right,#fff,#a0e6d3);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .cta-section p{color:#94a3b8;margin-bottom:2rem;font-size:1.05rem}
-    .cta-buttons{display:flex;gap:1.25rem;flex-wrap:wrap;justify-content:center}
-    .tool-buttons{display:flex;gap:1rem;flex-wrap:wrap}
-    .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:1000;justify-content:center;align-items:center;padding:1.5rem;animation:fadeIn .3s ease}
-    .modal-overlay.active{display:flex}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes slideUp{from{opacity:0;transform:translateY(30px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-    .modal{background:linear-gradient(145deg,#111827,#0f172a);border:1px solid var(--card-border);border-radius:20px;padding:2.5rem;width:100%;max-width:500px;position:relative;box-shadow:0 25px 60px rgba(0,0,0,0.5),0 0 80px rgba(0,200,150,0.06);animation:slideUp .4s ease}
-    .modal-close{position:absolute;top:1.25rem;right:1.25rem;background:rgba(255,255,255,0.08);border:1px solid var(--card-border);color:var(--text);width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s}
-    .modal-close:hover{background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.4);color:#f87171;transform:rotate(90deg)}
-    .modal h2{font-size:1.6rem;margin-bottom:.4rem;background:linear-gradient(to right,#fff,#a0e6d3);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .modal .modal-subtitle{font-size:.9rem;color:#94a3b8;margin-bottom:2rem}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-    .form-group{margin-bottom:1.25rem}
-    .form-group label{display:block;font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-bottom:.4rem}
-    .form-group input,.form-group textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:.75rem 1rem;color:var(--text);font-family:inherit;font-size:.95rem;transition:all .3s ease;outline:none}
-    .form-group input::placeholder,.form-group textarea::placeholder{color:#4b5563}
-    .form-group input:focus,.form-group textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,200,150,0.15);background:rgba(255,255,255,0.08)}
-    .form-group textarea{resize:vertical;min-height:120px}
-    .btn-send{width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border:none;padding:.85rem;border-radius:50px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .4s ease;display:flex;align-items:center;justify-content:center;gap:.5rem;box-shadow:0 6px 20px rgba(0,200,150,0.3);margin-top:.5rem;position:relative;overflow:hidden}
-    .btn-send::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);transition:.5s}
-    .btn-send:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(0,200,150,0.5)}
-    .btn-send:hover::before{left:100%}
-    .btn-send:disabled{opacity:.6;cursor:not-allowed;transform:none}
-    .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .form-success{display:none;text-align:center;padding:2rem 1rem}
-    .form-success.active{display:block}
-    .form-success .checkmark{width:64px;height:64px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:1.8rem;box-shadow:0 8px 25px rgba(0,200,150,0.4);animation:scaleIn .4s ease}
-    @keyframes scaleIn{from{transform:scale(0)}to{transform:scale(1)}}
-    .form-success h3{font-size:1.3rem;margin-bottom:.5rem}
-    .form-success p{color:#94a3b8;font-size:.95rem}
-    footer{text-align:center;padding:3rem 2rem;font-size:.9rem;opacity:.7;border-top:1px solid var(--card-border);margin-top:2rem}
-    footer a{color:var(--primary);text-decoration:none}
-    footer a:hover{text-decoration:underline}
-    /* Video Demo Section */
-    .demo-section{padding:5rem 2rem;max-width:1000px;margin:0 auto;text-align:center}
-    .demo-section .section-title{margin-bottom:1rem}
-    .demo-section .section-subtitle{margin-bottom:2.5rem}
-    .video-container{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--card-border);box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 80px rgba(0,200,150,0.06);background:#000;max-width:900px;margin:0 auto}
-    .video-container video{width:100%;display:block}
-    .video-overlay{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);cursor:pointer;transition:all .4s ease;z-index:3}
-    .video-overlay:hover{background:rgba(0,0,0,0.3)}
-    .video-overlay.hidden{opacity:0;pointer-events:none}
-    .play-btn{width:80px;height:80px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(0,200,150,0.5);transition:all .3s ease;margin-bottom:1rem}
-    .play-btn:hover{transform:scale(1.1);box-shadow:0 12px 40px rgba(0,200,150,0.6)}
-    .play-btn i{color:#fff;font-size:1.8rem;margin-left:4px}
-    .video-overlay span{color:#fff;font-size:1rem;font-weight:600;opacity:.9;letter-spacing:.02em}
-    .video-glow{position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;border-radius:18px;background:linear-gradient(135deg,rgba(0,200,150,0.15),transparent,rgba(0,200,150,0.1));z-index:-1;filter:blur(1px)}
-    .video-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(0,200,150,0.1);border:1px solid rgba(0,200,150,0.25);border-radius:50px;padding:.4rem 1rem;font-size:.8rem;color:var(--primary);font-weight:600;margin-bottom:1.5rem}
-    .video-badge i{font-size:.7rem}
+    :root {
+      --primary: #00e5a8;
+      --primary-dark: #00b383;
+      --dark: #030712;
+      --dark-surface: #0f172a;
+      --gray: #e2e8f0;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --card-bg: rgba(15, 23, 42, 0.4);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --glass-glow: 0 0 20px rgba(0, 229, 168, 0.05);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--dark);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+      /* Super modern ambient mesh gradient background */
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(0, 229, 168, 0.06), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(0, 229, 168, 0.06), transparent 25%),
+        radial-gradient(circle at 50% 100%, rgba(15, 23, 42, 1), transparent 50%);
+      background-attachment: fixed;
+    }
+    
+    ::selection { background: var(--primary); color: #000; }
+
+    /* --- Header --- */
+    header {
+      display: flex; justify-content: space-between; align-items: center; 
+      padding: 1.25rem 5%; position: sticky; top: 0; z-index: 100;
+      background: rgba(3, 7, 18, 0.7); backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .logo {
+      display: flex; align-items: center; gap: 0.75rem; 
+      font-weight: 800; font-size: 1.5rem; text-decoration: none; color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .logo-icon {
+      position: relative; width: 32px; height: 32px; 
+      transform-style: preserve-3d; transform: rotateY(20deg) rotateX(15deg); 
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .logo-icon:hover { transform: rotateY(35deg) rotateX(25deg) scale(1.15); }
+    .logo-icon::before, .logo-icon::after {
+      content: ''; position: absolute; width: 100%; height: 100%; 
+      border-radius: 6px; 
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+      box-shadow: 0 8px 20px rgba(0,229,168,0.4);
+    }
+    .logo-icon::before { transform: translateZ(8px); }
+    .logo-icon::after { transform: translateZ(-8px) rotateY(180deg); opacity: 0.7; }
+    
+    nav ul { display: flex; list-style: none; gap: 2.5rem; }
+    nav a {
+      color: var(--text-muted); text-decoration: none; font-weight: 500; 
+      font-size: 0.95rem; transition: color 0.3s; position: relative; padding: 0.5rem 0;
+    }
+    nav a:hover { color: var(--text); }
+    nav a::after {
+      content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; 
+      background: var(--primary); transition: width 0.3s ease; border-radius: 2px;
+    }
+    nav a:hover::after { width: 100%; }
+    
+    .cta-btn {
+      background: rgba(255, 255, 255, 0.05); color: var(--text); 
+      border: 1px solid var(--card-border); padding: 0.6rem 1.5rem; 
+      border-radius: 50px; font-weight: 600; font-size: 0.9rem; cursor: pointer; 
+      transition: all 0.3s ease; backdrop-filter: blur(10px);
+    }
+    .cta-btn:hover {
+      background: var(--text); color: var(--dark);
+      transform: translateY(-2px); box-shadow: 0 10px 25px rgba(255,255,255,0.1);
+    }
+
+    /* --- Hero Section --- */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column; 
+      justify-content: center; align-items: center; text-align: center; 
+      padding: 6rem 2rem 4rem; position: relative; overflow: hidden;
+    }
+    .tag {
+      background: rgba(0, 229, 168, 0.1); border-radius: 50px; 
+      padding: 0.5rem 1.25rem; font-size: 0.85rem; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 0.6rem; 
+      margin-bottom: 2rem; border: 1px solid rgba(0, 229, 168, 0.2);
+      color: var(--primary); letter-spacing: 0.02em;
+    }
+    .tag::before {
+      content: ''; width: 6px; height: 6px; background: var(--primary); 
+      border-radius: 50%; box-shadow: 0 0 10px var(--primary);
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4.5rem); max-width: 900px; 
+      margin-bottom: 1.5rem; line-height: 1.1; font-weight: 800;
+      background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      letter-spacing: -0.03em;
+    }
+    .hero p {
+      max-width: 720px; margin: 0 auto 1.5rem; font-size: 1.15rem; 
+      color: var(--text-muted); line-height: 1.7;
+    }
+    .hero-subtext {
+      max-width: 650px; margin: 0 auto 2.5rem; font-size: 0.95rem; color: #64748b;
+    }
+    .hero-domains {
+      display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 3rem;
+    }
+    .hero-domain {
+      display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 500;
+      color: var(--text-muted); background: var(--card-bg); 
+      border: 1px solid var(--card-border); border-radius: 50px; 
+      padding: 0.4rem 1rem; transition: all 0.3s; backdrop-filter: blur(4px);
+    }
+    .hero-domain:hover {
+      border-color: rgba(0, 229, 168, 0.4); color: var(--text); 
+      background: rgba(0, 229, 168, 0.05); transform: translateY(-2px);
+    }
+    .hero-domain i { font-size: 0.6rem; color: var(--primary); }
+    
+    .buttons { display: flex; gap: 1.25rem; flex-wrap: wrap; justify-content: center; }
+    .btn-download {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+      color: #000; padding: 1rem 2.5rem; font-weight: 700; font-size: 1.1rem; 
+      border-radius: 50px; border: none; cursor: pointer; transition: all 0.4s ease; 
+      position: relative; overflow: hidden; display: inline-flex; align-items: center; 
+      gap: 0.75rem; text-decoration: none; letter-spacing: -0.01em;
+      box-shadow: 0 8px 25px rgba(0, 229, 168, 0.25), inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+    .btn-download::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; 
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); 
+      transition: 0.5s;
+    }
+    .btn-download:hover {
+      transform: translateY(-3px) scale(1.02); 
+      box-shadow: 0 15px 35px rgba(0, 229, 168, 0.4), inset 0 2px 0 rgba(255,255,255,0.3);
+    }
+    .btn-download:hover::before { left: 100%; }
+
+    .trust-bar {
+      display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; 
+      margin-top: 4rem; opacity: 0.8; font-size: 0.9rem; font-weight: 500;
+      color: var(--text-muted);
+    }
+    .trust-item { display: flex; align-items: center; gap: 0.5rem; }
+    .trust-item i { color: var(--primary); font-size: 1.1rem; }
+
+    /* --- General Section Styles --- */
+    .section-title {
+      text-align: center; font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1rem; 
+      font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(to right, #ffffff, #94a3b8);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .section-subtitle {
+      text-align: center; color: var(--text-muted); font-size: 1.1rem; 
+      max-width: 600px; margin: 0 auto 3.5rem; line-height: 1.6;
+    }
+
+    /* --- Video Demo Section --- */
+    .demo-section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; text-align: center; }
+    .video-container {
+      position: relative; border-radius: 20px; overflow: hidden; 
+      border: 1px solid rgba(255,255,255,0.1); 
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 100px rgba(0, 229, 168, 0.08); 
+      background: #000; margin: 0 auto; z-index: 10;
+    }
+    .video-container video { width: 100%; display: block; border-radius: 20px; }
+    .video-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; 
+      background: rgba(3, 7, 18, 0.5); backdrop-filter: blur(4px); cursor: pointer; 
+      transition: all 0.4s ease; z-index: 3; border-radius: 20px;
+    }
+    .video-overlay:hover { background: rgba(3, 7, 18, 0.3); backdrop-filter: blur(2px); }
+    .video-overlay.hidden { opacity: 0; pointer-events: none; backdrop-filter: blur(0); }
+    .play-btn {
+      width: 80px; height: 80px; background: var(--primary); color: #000;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+      box-shadow: 0 0 0 10px rgba(0,229,168,0.2), 0 10px 40px rgba(0,229,168,0.5); 
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-bottom: 1.5rem;
+    }
+    .play-btn:hover { transform: scale(1.15); box-shadow: 0 0 0 15px rgba(0,229,168,0.2), 0 15px 50px rgba(0,229,168,0.6); }
+    .play-btn i { font-size: 2rem; margin-left: 6px; }
+    .video-overlay span { color: #fff; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;}
+    
+    .video-glow {
+      position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px; 
+      border-radius: 22px; background: linear-gradient(135deg, rgba(0,229,168,0.4), transparent, rgba(0,229,168,0.2)); 
+      z-index: -1; filter: blur(15px);
+    }
+    .video-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem; 
+      background: rgba(0, 229, 168, 0.1); border: 1px solid rgba(0, 229, 168, 0.2); 
+      border-radius: 50px; padding: 0.4rem 1.2rem; font-size: 0.85rem; 
+      color: var(--primary); font-weight: 600; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    
     /* Video Controls */
-    .video-controls{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:1rem 1rem .75rem;display:flex;align-items:center;gap:.75rem;z-index:4;opacity:0;transition:opacity .3s ease}
-    .video-container:hover .video-controls,.video-container.show-controls .video-controls{opacity:1}
-    .video-controls button{background:none;border:none;color:#fff;cursor:pointer;font-size:1.1rem;padding:.25rem;transition:color .2s,transform .2s;display:flex;align-items:center;justify-content:center;width:32px;height:32px}
-    .video-controls button:hover{color:var(--primary);transform:scale(1.15)}
-    .video-progress{flex:1;height:4px;background:rgba(255,255,255,0.2);border-radius:4px;cursor:pointer;position:relative;transition:height .15s}
-    .video-progress:hover{height:6px}
-    .video-progress-filled{height:100%;background:var(--primary);border-radius:4px;width:0%;transition:width .1s linear;position:relative}
-    .video-progress-filled::after{content:'';position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:12px;height:12px;background:#fff;border-radius:50%;opacity:0;transition:opacity .15s;box-shadow:0 0 6px rgba(0,200,150,0.6)}
-    .video-progress:hover .video-progress-filled::after{opacity:1}
-    .video-time{font-size:.75rem;color:rgba(255,255,255,0.7);min-width:80px;text-align:center;font-variant-numeric:tabular-nums;user-select:none}
-    .video-container:fullscreen{border-radius:0;max-width:none;border:none;box-shadow:none}
-    .video-container:fullscreen .video-glow{display:none}
-    .video-container:-webkit-full-screen{border-radius:0;max-width:none;border:none;box-shadow:none}
-    .video-container:-webkit-full-screen .video-glow{display:none}
-    @media(max-width:768px){.hero h1{font-size:2.5rem}nav ul{flex-wrap:wrap;justify-content:center;gap:1rem;margin-top:1rem}header{flex-wrap:wrap;gap:.5rem}.buttons{flex-direction:column;align-items:center}.btn-download{width:100%;max-width:300px;justify-content:center}.about-content{padding:2rem 1.5rem}.section-title{font-size:2rem}.modal{padding:2rem 1.5rem}.form-row{grid-template-columns:1fr}.tool-showcase{grid-template-columns:1fr}.trust-bar{gap:1.25rem}.cta-buttons{flex-direction:column;align-items:center}.tool-buttons{flex-direction:column}.hero-domains{gap:.75rem}}
+    .video-controls {
+      position: absolute; bottom: 0; left: 0; right: 0; 
+      background: linear-gradient(transparent, rgba(0,0,0,0.9)); 
+      padding: 1.5rem 1.5rem 1rem; display: flex; align-items: center; gap: 1rem; 
+      z-index: 4; opacity: 0; transition: opacity 0.3s ease; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
+    }
+    .video-container:hover .video-controls, .video-container.show-controls .video-controls { opacity: 1; }
+    .video-controls button {
+      background: none; border: none; color: #fff; cursor: pointer; font-size: 1.2rem; 
+      transition: color 0.2s, transform 0.2s; display: flex; align-items: center; justify-content: center;
+    }
+    .video-controls button:hover { color: var(--primary); transform: scale(1.15); }
+    .video-progress {
+      flex: 1; height: 5px; background: rgba(255,255,255,0.2); border-radius: 4px; cursor: pointer; position: relative; transition: height 0.15s;
+    }
+    .video-progress:hover { height: 8px; }
+    .video-progress-filled {
+      height: 100%; background: var(--primary); border-radius: 4px; width: 0%; 
+      transition: width 0.1s linear; position: relative; box-shadow: 0 0 10px var(--primary);
+    }
+    .video-progress-filled::after {
+      content: ''; position: absolute; right: -6px; top: 50%; transform: translateY(-50%); 
+      width: 14px; height: 14px; background: #fff; border-radius: 50%; opacity: 0; transition: opacity 0.15s; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .video-progress:hover .video-progress-filled::after { opacity: 1; }
+    .video-time { font-size: 0.8rem; color: #fff; font-weight: 500; min-width: 80px; text-align: center; font-variant-numeric: tabular-nums; }
+
+    /* --- Data Tools Section --- */
+    .data-tools-section { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
+    .tool-showcase {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-bottom: 2rem;
+    }
+    .tool-info h3 {
+      font-size: 2.2rem; margin-bottom: 1.2rem; font-weight: 800;
+      background: linear-gradient(to right, #fff, var(--primary)); 
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .tool-info p { color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem; font-size: 1.05rem;}
+    .tool-highlights { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; }
+    .tool-highlight { display: flex; align-items: center; gap: 1rem; font-size: 1rem; font-weight: 500;}
+    .tool-highlight i { color: var(--primary); font-size: 1.1rem; background: rgba(0,229,168,0.1); padding: 0.3rem; border-radius: 50%;}
+    
+    .tool-visual {
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.6), rgba(3, 7, 18, 0.8));
+      border: 1px solid var(--card-border); border-radius: 24px; padding: 2.5rem; 
+      backdrop-filter: blur(12px); box-shadow: 0 20px 40px rgba(0,0,0,0.4), var(--glass-glow);
+      position: relative; overflow: hidden;
+    }
+    .tool-visual::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at top right, rgba(0,229,168,0.05), transparent 50%); pointer-events: none;
+    }
+    .tool-visual-header {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .tool-visual-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .tool-visual-dot:nth-child(1) { background: #ff5f56; }
+    .tool-visual-dot:nth-child(2) { background: #ffbd2e; }
+    .tool-visual-dot:nth-child(3) { background: #27c93f; }
+    .tool-flow { display: flex; flex-direction: column; gap: 1.2rem; }
+    .tool-flow-step {
+      display: flex; align-items: center; gap: 1.2rem; padding: 1rem 1.2rem; 
+      background: rgba(255,255,255,0.02); border-radius: 12px; 
+      border: 1px solid rgba(255,255,255,0.04); transition: transform 0.3s, background 0.3s;
+    }
+    .tool-flow-step:hover { transform: translateX(5px); background: rgba(255,255,255,0.04); border-color: rgba(0,229,168,0.2); }
+    .tool-flow-step i { color: var(--primary); font-size: 1.4rem; width: 28px; text-align: center; }
+    .tool-flow-step span { font-weight: 500; letter-spacing: -0.01em; }
+    .tool-flow-arrow { text-align: center; color: var(--primary); font-size: 1.2rem; opacity: 0.4; }
+    
+    .tool-price-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem; 
+      background: rgba(0,229,168,0.1); border: 1px solid rgba(0,229,168,0.3); 
+      border-radius: 50px; padding: 0.4rem 1rem; font-weight: 700; font-size: 0.85rem;
+      color: var(--primary); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    /* --- Use Cases / Features Section --- */
+    .use-cases-section { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
+    .use-cases-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+    .use-case-card {
+      background: linear-gradient(160deg, rgba(15,23,42,0.6) 0%, rgba(3,7,18,0.4) 100%);
+      border-top: 1px solid rgba(255,255,255,0.08); border-left: 1px solid rgba(255,255,255,0.04);
+      border-right: 1px solid rgba(0,0,0,0.5); border-bottom: 1px solid rgba(0,0,0,0.5);
+      border-radius: 20px; padding: 2.5rem 2rem; backdrop-filter: blur(12px); 
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .use-case-card:hover {
+      transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(0,229,168,0.05);
+      border-top: 1px solid rgba(0,229,168,0.3);
+    }
+    .use-case-card h3 { font-size: 1.25rem; margin-bottom: 0.75rem; font-weight: 700; color: #fff;}
+    .use-case-card p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; }
+    .use-case-card i {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      font-size: 2rem; margin-bottom: 1.2rem; display: block;
+    }
+
+    /* --- About Section --- */
+    .about-section { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
+    .about-content {
+      background: linear-gradient(145deg, rgba(15,23,42,0.5), rgba(3,7,18,0.8));
+      border-radius: 24px; padding: 4rem; border: 1px solid var(--card-border); 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4); backdrop-filter: blur(16px);
+      position: relative; overflow: hidden;
+    }
+    .about-content::before {
+      content: ''; position: absolute; right: 0; bottom: 0; width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(0,229,168,0.05), transparent 70%); pointer-events: none;
+    }
+    .about-content p { font-size: 1.15rem; line-height: 1.8; margin-bottom: 1.5rem; color: #e2e8f0; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; margin-top: 3rem; }
+    .feature-card { text-align: left; }
+    .feature-card i { font-size: 2rem; color: var(--primary); margin-bottom: 1rem; }
+    .feature-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; font-weight: 700;}
+    .feature-card p { font-size: 0.95rem; color: var(--text-muted); }
+
+    /* --- FAQ Section --- */
+    .faq-section { padding: 6rem 5%; max-width: 850px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1.5rem 0; }
+    .faq-question {
+      display: flex; justify-content: space-between; align-items: center; cursor: pointer; 
+      font-weight: 600; font-size: 1.1rem; color: #fff; background: none; border: none; 
+      width: 100%; text-align: left; padding: 0.5rem 0; transition: color 0.3s; font-family: inherit;
+    }
+    .faq-question:hover { color: var(--primary); }
+    .faq-question i { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1); font-size: 0.9rem; color: var(--primary); flex-shrink: 0; margin-left: 1rem; }
+    .faq-item.active .faq-question i { transform: rotate(180deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease, opacity 0.4s ease; 
+      color: var(--text-muted); font-size: 1rem; line-height: 1.7; opacity: 0;
+    }
+    .faq-item.active .faq-answer { max-height: 500px; padding-top: 1rem; opacity: 1; }
+
+    /* --- CTA Section --- */
+    .cta-section {
+      text-align: center; padding: 7rem 2rem; position: relative;
+      background: linear-gradient(180deg, transparent 0%, rgba(0, 229, 168, 0.03) 50%, transparent 100%);
+      border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border);
+    }
+    .cta-section h2 {
+      font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1.2rem; font-weight: 800;
+      background: linear-gradient(to right, #fff, #a1a1aa); -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .cta-section p { color: var(--text-muted); margin-bottom: 2.5rem; font-size: 1.15rem; max-width: 600px; margin-left: auto; margin-right: auto;}
+    
+    /* --- Footer --- */
+    footer { text-align: center; padding: 4rem 2rem; font-size: 0.95rem; color: var(--text-muted); }
+    footer a { color: var(--primary); text-decoration: none; font-weight: 500; transition: color 0.3s;}
+    footer a:hover { color: #fff; text-decoration: underline; }
+
+    /* --- Modal Form --- */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+      background: rgba(3, 7, 18, 0.8); backdrop-filter: blur(10px); z-index: 1000; 
+      justify-content: center; align-items: center; padding: 1.5rem; animation: fadeIn 0.3s ease;
+    }
+    .modal-overlay.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; backdrop-filter: blur(0); } to { opacity: 1; backdrop-filter: blur(10px); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    
+    .modal {
+      background: linear-gradient(145deg, #0f172a, #030712); border: 1px solid rgba(255,255,255,0.1); 
+      border-radius: 24px; padding: 3rem; width: 100%; max-width: 500px; position: relative; 
+      box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 100px rgba(0, 229, 168, 0.05); animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .modal-close {
+      position: absolute; top: 1.5rem; right: 1.5rem; background: rgba(255,255,255,0.05); 
+      border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); width: 36px; height: 36px; 
+      border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;
+    }
+    .modal-close:hover { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #f87171; transform: rotate(90deg); }
+    .modal h2 { font-size: 1.8rem; margin-bottom: 0.5rem; font-weight: 800; }
+    .modal .modal-subtitle { font-size: 1rem; color: var(--text-muted); margin-bottom: 2.5rem; }
+    
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label {
+      display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; 
+      letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.6rem;
+    }
+    .form-group input, .form-group textarea {
+      width: 100%; background: rgba(3, 7, 18, 0.5); border: 1px solid rgba(255,255,255,0.1); 
+      border-radius: 12px; padding: 1rem 1.25rem; color: #fff; font-family: inherit; font-size: 1rem; 
+      transition: all 0.3s ease; outline: none;
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: #475569; }
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,229,168,0.1); background: rgba(15, 23, 42, 0.8);
+    }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    
+    .btn-send {
+      width: 100%; background: var(--text); color: var(--dark); border: none; padding: 1rem; 
+      border-radius: 50px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; 
+      display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 1rem;
+    }
+    .btn-send:hover { background: var(--primary); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,229,168,0.3); }
+    .btn-send:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .spinner {
+      width: 20px; height: 20px; border: 2px solid rgba(0,0,0,0.2); border-top-color: #000; 
+      border-radius: 50%; animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .form-success { display: none; text-align: center; padding: 2rem 1rem; }
+    .form-success.active { display: block; animation: fadeIn 0.4s ease;}
+    .form-success .checkmark {
+      width: 72px; height: 72px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+      color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+      margin: 0 auto 1.5rem; font-size: 2rem; box-shadow: 0 10px 30px rgba(0,229,168,0.4); animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes scaleIn { from { transform: scale(0) rotate(-45deg); } to { transform: scale(1) rotate(0); } }
+    .form-success h3 { font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700;}
+    .form-success p { color: var(--text-muted); font-size: 1rem; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.5rem; }
+      nav ul { flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-top: 1rem; display: none; /* simple mobile nav approach */ }
+      header { flex-wrap: wrap; justify-content: center; gap: 1rem; padding: 1rem; }
+      nav { width: 100%; display: flex; justify-content: center;}
+      nav ul { display: flex; margin-top:0; }
+      .buttons { flex-direction: column; align-items: center; width: 100%;}
+      .btn-download { width: 100%; justify-content: center; }
+      .about-content { padding: 2.5rem 1.5rem; }
+      .modal { padding: 2rem 1.5rem; }
+      .form-row { grid-template-columns: 1fr; gap: 0;}
+      .tool-showcase { grid-template-columns: 1fr; gap: 2.5rem;}
+      .trust-bar { gap: 1.5rem; }
+    }
   </style>
 </head>
 <body>
@@ -328,155 +616,156 @@
     <button class="cta-btn" id="contactBtn">Contact Us</button>
   </header>
 
-  <section class="hero">
-    <div class="tag">Data Tools Platform for Professionals</div>
-    <h1>Professional Data Tools for Analytics, ETL &amp; Data Engineering</h1>
-    <p>DataAsh is building a suite of powerful, privacy-first data tools for data analytics, data science, ETL, data modeling, and data engineering. No cloud dependency, no subscriptions — just tools that work.</p>
-    <div class="hero-domains">
-      <span class="hero-domain"><i class="fas fa-circle"></i> Data Analytics</span>
-      <span class="hero-domain"><i class="fas fa-circle"></i> Data Engineering</span>
-      <span class="hero-domain"><i class="fas fa-circle"></i> ETL Pipelines</span>
-      <span class="hero-domain"><i class="fas fa-circle"></i> Data Modeling</span>
-      <span class="hero-domain"><i class="fas fa-circle"></i> Data Science</span>
-      <span class="hero-domain"><i class="fas fa-circle"></i> SQL Server</span>
-    </div>
-    <p class="hero-subtext">Starting with our flagship tool: DataImportTool — import Excel, CSV &amp; text files to SQL Server instantly.</p>
-    <div class="buttons">
-      <a class="btn-download" id="freeDownloadHero" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free">
-        <i class="fas fa-download"></i> Download Free — v3.0
-      </a>
-    </div>
-    <div class="trust-bar">
-      <div class="trust-item"><i class="fas fa-lock"></i> 100% Offline</div>
-      <div class="trust-item"><i class="fas fa-shield-alt"></i> No Cloud Upload</div>
-      <div class="trust-item"><i class="fas fa-user-shield"></i> No Admin Rights</div>
-      <div class="trust-item"><i class="fas fa-bolt"></i> Instant Import</div>
-    </div>
-  </section>
-
-  <!-- Video Demo Section -->
-  <section class="demo-section">
-    <div class="video-badge"><i class="fas fa-play-circle"></i> See It In Action</div>
-    <h2 class="section-title">Watch DataImportTool in Action</h2>
-    <p class="section-subtitle">Import Excel to SQL Server in under 60 seconds — drag, drop, done.</p>
-    <div class="video-container" id="videoContainer">
-      <div class="video-glow"></div>
-      <video id="demoVideo" preload="metadata" playsinline muted>
-        <source src="DataImportToolvideo.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-      <div class="video-overlay" id="videoOverlay">
-        <div class="play-btn"><i class="fas fa-play"></i></div>
-        <span>Watch Demo</span>
+  <main>
+    <section class="hero">
+      <div class="tag">Data Tools Platform for Professionals</div>
+      <h1>Professional Data Tools for Analytics, ETL &amp; Data Engineering</h1>
+      <p>DataAsh is building a suite of powerful, privacy-first data tools for data analytics, data science, ETL, data modeling, and data engineering. No cloud dependency, no subscriptions — just tools that work.</p>
+      <div class="hero-domains">
+        <span class="hero-domain"><i class="fas fa-circle"></i> Data Analytics</span>
+        <span class="hero-domain"><i class="fas fa-circle"></i> Data Engineering</span>
+        <span class="hero-domain"><i class="fas fa-circle"></i> ETL Pipelines</span>
+        <span class="hero-domain"><i class="fas fa-circle"></i> Data Modeling</span>
+        <span class="hero-domain"><i class="fas fa-circle"></i> Data Science</span>
+        <span class="hero-domain"><i class="fas fa-circle"></i> SQL Server</span>
       </div>
-      <div class="video-controls">
-        <button id="vidPlayPause" title="Play / Pause"><i class="fas fa-play"></i></button>
-        <div class="video-progress" id="vidProgress">
-          <div class="video-progress-filled" id="vidProgressFilled"></div>
-        </div>
-        <span class="video-time" id="vidTime">0:00 / 0:00</span>
-        <button id="vidFullscreen" title="Fullscreen"><i class="fas fa-expand"></i></button>
+      <p class="hero-subtext">Starting with our flagship tool: DataImportTool — import Excel, CSV &amp; text files to SQL Server instantly.</p>
+      <div class="buttons">
+        <a class="btn-download" id="freeDownloadHero" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free">
+          <i class="fas fa-download"></i> Download Free — v3.0
+        </a>
       </div>
-    </div>
-  </section>
+      <div class="trust-bar">
+        <div class="trust-item"><i class="fas fa-lock"></i> 100% Offline</div>
+        <div class="trust-item"><i class="fas fa-shield-alt"></i> No Cloud Upload</div>
+        <div class="trust-item"><i class="fas fa-user-shield"></i> No Admin Rights</div>
+        <div class="trust-item"><i class="fas fa-bolt"></i> Instant Import</div>
+      </div>
+    </section>
 
-  <section id="data-tools" class="data-tools-section">
-    <h2 class="section-title">Data Tools</h2>
-    <p class="section-subtitle">Professional-grade data tools built for speed, privacy, and simplicity. No bloat, no subscriptions, no cloud dependency.</p>
-    <div class="tool-showcase">
-      <div class="tool-info">
-        <div class="tool-price-tag"><i class="fas fa-gift"></i> Free &amp; Open</div>
-        <h3>DataImportTool v3.0</h3>
-        <p>The fastest way to get Excel, CSV, TSV, and text data into SQL Server. Built for data engineers, analysts, and IT professionals who need reliable, secure, offline data imports without complex configuration or expensive enterprise licenses.</p>
-        <div class="tool-highlights">
-          <div class="tool-highlight"><i class="fas fa-check-circle"></i> Excel to SQL Server (.xlsx, .xlsm, .xls)</div>
-          <div class="tool-highlight"><i class="fas fa-check-circle"></i> CSV, TSV, and text file imports</div>
-          <div class="tool-highlight"><i class="fas fa-check-circle"></i> Automatic data type &amp; delimiter detection</div>
-          <div class="tool-highlight"><i class="fas fa-check-circle"></i> European number formats (comma decimal)</div>
-          <div class="tool-highlight"><i class="fas fa-check-circle"></i> Date format auto-detection</div>
-          <div class="tool-highlight"><i class="fas fa-check-circle"></i> Bulk insert for millions of rows</div>
-          <div class="tool-highlight"><i class="fas fa-check-circle"></i> Portable — no install, no admin</div>
-          <div class="tool-highlight"><i class="fas fa-check-circle"></i> Privacy-first — 100% offline</div>
+    <section class="demo-section">
+      <div class="video-badge"><i class="fas fa-play-circle"></i> See It In Action</div>
+      <h2 class="section-title">Watch DataImportTool in Action</h2>
+      <p class="section-subtitle">Import Excel to SQL Server in under 60 seconds — drag, drop, done.</p>
+      <div class="video-container" id="videoContainer">
+        <div class="video-glow"></div>
+        <video id="demoVideo" preload="metadata" playsinline muted>
+          <source src="DataImportToolvideo.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay" id="videoOverlay">
+          <div class="play-btn"><i class="fas fa-play"></i></div>
+          <span>Watch Demo</span>
         </div>
-        <div class="tool-buttons">
-          <a class="btn-download" id="freeDownloadTools" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free">
-            <i class="fas fa-download"></i> Download Free — v3.0
-          </a>
+        <div class="video-controls">
+          <button id="vidPlayPause" title="Play / Pause"><i class="fas fa-play"></i></button>
+          <div class="video-progress" id="vidProgress">
+            <div class="video-progress-filled" id="vidProgressFilled"></div>
+          </div>
+          <span class="video-time" id="vidTime">0:00 / 0:00</span>
+          <button id="vidFullscreen" title="Fullscreen"><i class="fas fa-expand"></i></button>
         </div>
       </div>
-      <div class="tool-visual">
-        <div class="tool-visual-header">
-          <div class="tool-visual-dot"></div><div class="tool-visual-dot"></div><div class="tool-visual-dot"></div>
+    </section>
+
+    <section id="data-tools" class="data-tools-section">
+      <h2 class="section-title">Data Tools</h2>
+      <p class="section-subtitle">Professional-grade data tools built for speed, privacy, and simplicity. No bloat, no subscriptions, no cloud dependency.</p>
+      <div class="tool-showcase">
+        <div class="tool-info">
+          <div class="tool-price-tag"><i class="fas fa-gift"></i> Free &amp; Open</div>
+          <h3>DataImportTool v3.0</h3>
+          <p>The fastest way to get Excel, CSV, TSV, and text data into SQL Server. Built for data engineers, analysts, and IT professionals who need reliable, secure, offline data imports without complex configuration or expensive enterprise licenses.</p>
+          <div class="tool-highlights">
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Excel to SQL Server (.xlsx, .xlsm, .xls)</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> CSV, TSV, and text file imports</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Automatic data type &amp; delimiter detection</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> European number formats (comma decimal)</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Date format auto-detection</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Bulk insert for millions of rows</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Portable — no install, no admin</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Privacy-first — 100% offline</div>
+          </div>
+          <div class="tool-buttons">
+            <a class="btn-download" id="freeDownloadTools" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free">
+              <i class="fas fa-download"></i> Download Free — v3.0
+            </a>
+          </div>
         </div>
-        <div class="tool-flow">
-          <div class="tool-flow-step"><i class="fas fa-file-excel"></i><span>Drop your Excel, CSV, or text file</span></div>
-          <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
-          <div class="tool-flow-step"><i class="fas fa-magic"></i><span>Auto-detect types, formats &amp; delimiters</span></div>
-          <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
-          <div class="tool-flow-step"><i class="fas fa-database"></i><span>Import to SQL Server in seconds</span></div>
-          <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
-          <div class="tool-flow-step"><i class="fas fa-check-double"></i><span>Data ready — table auto-created</span></div>
+        <div class="tool-visual">
+          <div class="tool-visual-header">
+            <div class="tool-visual-dot"></div><div class="tool-visual-dot"></div><div class="tool-visual-dot"></div>
+          </div>
+          <div class="tool-flow">
+            <div class="tool-flow-step"><i class="fas fa-file-excel"></i><span>Drop your Excel, CSV, or text file</span></div>
+            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="tool-flow-step"><i class="fas fa-magic"></i><span>Auto-detect types, formats &amp; delimiters</span></div>
+            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="tool-flow-step"><i class="fas fa-database"></i><span>Import to SQL Server in seconds</span></div>
+            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="tool-flow-step"><i class="fas fa-check-double"></i><span>Data ready — table auto-created</span></div>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="use-cases-section">
-    <h2 class="section-title">Who Uses DataAsh Data Tools?</h2>
-    <p class="section-subtitle">Trusted by professionals who need fast, secure data imports without enterprise overhead.</p>
-    <div class="use-cases-grid">
-      <article class="use-case-card"><i class="fas fa-chart-line"></i><h3>Data Analysis &amp; Reporting</h3><p>Analysts use DataImportTool to quickly load Excel datasets into SQL Server for advanced querying, pivot analysis, and report generation. The best data analysis tool for SQL workflows.</p></article>
-      <article class="use-case-card"><i class="fas fa-exchange-alt"></i><h3>Excel to SQL Server Migration</h3><p>Migrate spreadsheet data to SQL Server tables instantly with automatic data type mapping. The easiest Excel to SQL converter available — no SSIS, no scripts, no complexity.</p></article>
-      <article class="use-case-card"><i class="fas fa-globe-europe"></i><h3>European &amp; German Data Formats</h3><p>Handles comma-decimal numbers, European date formats, and special characters natively. The top data tool for German, Austrian, Swiss, and European professionals.</p></article>
-      <article class="use-case-card"><i class="fas fa-building"></i><h3>Corporate IT &amp; Compliance</h3><p>No internet required, no data leaves the workstation. Meets corporate security policies and compliance requirements. A secure, offline data tool for enterprise environments.</p></article>
-      <article class="use-case-card"><i class="fas fa-project-diagram"></i><h3>ETL &amp; Data Engineering</h3><p>Speed up your ETL pipeline with quick file-to-database imports. Perfect for staging data, prototyping data models, and ad-hoc data loading tasks.</p></article>
-      <article class="use-case-card"><i class="fas fa-flag-usa"></i><h3>American &amp; International Teams</h3><p>Supports both American (MM/DD/YYYY, period decimal) and international formats. Works seamlessly for distributed teams across the US, Europe, and worldwide.</p></article>
-    </div>
-  </section>
-
-  <section id="about" class="about-section">
-    <h2 class="section-title">About DataAsh</h2>
-    <p class="section-subtitle">Building the best data tools platform for professionals who value speed, privacy, and simplicity.</p>
-    <div class="about-content">
-      <p>DataAsh is a data tools platform building professional-grade software for data analytics, data science, ETL, data modeling, and data engineering. Our mission is to create tools that are fast, secure, and work without cloud dependency or expensive subscriptions. Our flagship product, DataImportTool, is a lightweight desktop application that imports Excel (.xlsx, .xlsm, .xls), CSV, TSV, and text files directly into SQL Server — with zero configuration. More tools for data transformation, data quality, and pipeline automation are on the roadmap.</p>
-      <p>Whether you're looking for the best Excel to SQL Server tool, a secure offline data import solution, or professional data engineering tools — DataAsh has you covered. Used by professionals in Germany, the United States, and worldwide.</p>
-      <div class="features-grid">
-        <div class="feature-card"><i class="fas fa-bolt"></i><h3>Lightning Fast</h3><p>Import large datasets in seconds with optimized bulk processing</p></div>
-        <div class="feature-card"><i class="fas fa-shield-alt"></i><h3>Privacy First</h3><p>Your data never leaves your machine — no cloud, no telemetry</p></div>
-        <div class="feature-card"><i class="fas fa-cogs"></i><h3>Zero Configuration</h3><p>Automatic detection of data types, delimiters, and formats</p></div>
-        <div class="feature-card"><i class="fas fa-user-friends"></i><h3>Professional Grade</h3><p>Built for data engineers, analysts, and IT professionals</p></div>
+    <section class="use-cases-section">
+      <h2 class="section-title">Who Uses DataAsh Data Tools?</h2>
+      <p class="section-subtitle">Trusted by professionals who need fast, secure data imports without enterprise overhead.</p>
+      <div class="use-cases-grid">
+        <article class="use-case-card"><i class="fas fa-chart-line"></i><h3>Data Analysis &amp; Reporting</h3><p>Analysts use DataImportTool to quickly load Excel datasets into SQL Server for advanced querying, pivot analysis, and report generation. The best data analysis tool for SQL workflows.</p></article>
+        <article class="use-case-card"><i class="fas fa-exchange-alt"></i><h3>Excel to SQL Server Migration</h3><p>Migrate spreadsheet data to SQL Server tables instantly with automatic data type mapping. The easiest Excel to SQL converter available — no SSIS, no scripts, no complexity.</p></article>
+        <article class="use-case-card"><i class="fas fa-globe-europe"></i><h3>European &amp; German Data Formats</h3><p>Handles comma-decimal numbers, European date formats, and special characters natively. The top data tool for German, Austrian, Swiss, and European professionals.</p></article>
+        <article class="use-case-card"><i class="fas fa-building"></i><h3>Corporate IT &amp; Compliance</h3><p>No internet required, no data leaves the workstation. Meets corporate security policies and compliance requirements. A secure, offline data tool for enterprise environments.</p></article>
+        <article class="use-case-card"><i class="fas fa-project-diagram"></i><h3>ETL &amp; Data Engineering</h3><p>Speed up your ETL pipeline with quick file-to-database imports. Perfect for staging data, prototyping data models, and ad-hoc data loading tasks.</p></article>
+        <article class="use-case-card"><i class="fas fa-flag-usa"></i><h3>American &amp; International Teams</h3><p>Supports both American (MM/DD/YYYY, period decimal) and international formats. Works seamlessly for distributed teams across the US, Europe, and worldwide.</p></article>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="faq" class="faq-section">
-    <h2 class="section-title">Frequently Asked Questions</h2>
-    <p class="section-subtitle">Everything you need to know about DataAsh data tools.</p>
-    <div class="faq-list">
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">What is DataImportTool?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool by DataAsh is a lightweight, portable Windows desktop application that lets you import Excel (.xlsx, .xlsm, .xls), CSV, TSV, and text files directly into SQL Server with zero configuration. It automatically detects data types, delimiters, date formats, and European number formats. No installation, no admin rights, and no internet connection needed.</div></div>
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">How do I import Excel files to SQL Server without coding?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">With DataImportTool from DataAsh, simply drag and drop your Excel file into the application, select your SQL Server connection, and click import. The tool automatically creates the table and imports all data with correct data types. No SQL knowledge or coding required.</div></div>
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">Is DataImportTool safe and private?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. DataImportTool is a fully offline, privacy-first data tool. Your data never leaves your machine — there is no cloud upload, no telemetry, and no internet connection required after download. It runs entirely on your local workstation, making it ideal for corporate environments with strict security policies.</div></div>
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">Does it work with European number formats?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. DataImportTool automatically detects and supports European number formats where commas are used as decimal separators and periods as thousands separators — making it ideal for German, Austrian, Swiss, French, and other European data files.</div></div>
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">What file formats does it support?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool supports Excel (.xlsx, .xlsm, .xls), CSV, TSV, and generic text files with custom delimiters. It automatically detects the delimiter, data types, and date formats so you don't have to configure anything.</div></div>
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">Do I need admin rights or installation?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">No. DataImportTool is a portable application that requires no installation and no admin rights. Simply download, extract, and run. It works on any Windows 10 or Windows 11 machine.</div></div>
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">Can it handle large datasets with millions of rows?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. DataImportTool uses optimized bulk insert operations to handle large datasets efficiently. It can import files with millions of rows into SQL Server in seconds, making it one of the fastest data import tools available.</div></div>
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">What is the best offline data tool for SQL Server?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool by DataAsh combines automatic data type detection, European format support, drag-and-drop simplicity, and complete privacy in a single portable tool — completely free.</div></div>
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">Is DataImportTool free?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes! DataImportTool v3.0 is completely free to download and use. It includes full import functionality for Excel, CSV, and text files to SQL Server — no strings attached.</div></div>
-      <div class="faq-item"><button class="faq-question" aria-expanded="false">What data tools does DataAsh plan to release?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataAsh is building a growing platform of professional data tools. Beyond DataImportTool, we're working on tools for data transformation, data quality checks, data pipeline automation, and more — all following our core principles of speed, privacy, and zero cloud dependency.</div></div>
-    </div>
-  </section>
+    <section id="about" class="about-section">
+      <h2 class="section-title">About DataAsh</h2>
+      <p class="section-subtitle">Building the best data tools platform for professionals who value speed, privacy, and simplicity.</p>
+      <div class="about-content">
+        <p>DataAsh is a data tools platform building professional-grade software for data analytics, data science, ETL, data modeling, and data engineering. Our mission is to create tools that are fast, secure, and work without cloud dependency or expensive subscriptions. Our flagship product, DataImportTool, is a lightweight desktop application that imports Excel (.xlsx, .xlsm, .xls), CSV, TSV, and text files directly into SQL Server — with zero configuration. More tools for data transformation, data quality, and pipeline automation are on the roadmap.</p>
+        <p>Whether you're looking for the best Excel to SQL Server tool, a secure offline data import solution, or professional data engineering tools — DataAsh has you covered. Used by professionals in Germany, the United States, and worldwide.</p>
+        <div class="features-grid">
+          <div class="feature-card"><i class="fas fa-bolt"></i><h3>Lightning Fast</h3><p>Import large datasets in seconds with optimized bulk processing</p></div>
+          <div class="feature-card"><i class="fas fa-shield-alt"></i><h3>Privacy First</h3><p>Your data never leaves your machine — no cloud, no telemetry</p></div>
+          <div class="feature-card"><i class="fas fa-cogs"></i><h3>Zero Configuration</h3><p>Automatic detection of data types, delimiters, and formats</p></div>
+          <div class="feature-card"><i class="fas fa-user-friends"></i><h3>Professional Grade</h3><p>Built for data engineers, analysts, and IT professionals</p></div>
+        </div>
+      </div>
+    </section>
 
-  <section class="cta-section">
-    <h2>Ready to Simplify Your Data Workflows?</h2>
-    <p>Join data professionals worldwide who use DataAsh tools for analytics, ETL, and data engineering.</p>
-    <div class="cta-buttons">
-      <a class="btn-download" id="freeDownloadCta" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free"><i class="fas fa-download"></i> Download Free — v3.0</a>
-    </div>
-  </section>
+    <section id="faq" class="faq-section">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <p class="section-subtitle">Everything you need to know about DataAsh data tools.</p>
+      <div class="faq-list">
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">What is DataImportTool?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool by DataAsh is a lightweight, portable Windows desktop application that lets you import Excel (.xlsx, .xlsm, .xls), CSV, TSV, and text files directly into SQL Server with zero configuration. It automatically detects data types, delimiters, date formats, and European number formats. No installation, no admin rights, and no internet connection needed.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">How do I import Excel files to SQL Server without coding?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">With DataImportTool from DataAsh, simply drag and drop your Excel file into the application, select your SQL Server connection, and click import. The tool automatically creates the table and imports all data with correct data types. No SQL knowledge or coding required.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">Is DataImportTool safe and private?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. DataImportTool is a fully offline, privacy-first data tool. Your data never leaves your machine — there is no cloud upload, no telemetry, and no internet connection required after download. It runs entirely on your local workstation, making it ideal for corporate environments with strict security policies.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">Does it work with European number formats?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. DataImportTool automatically detects and supports European number formats where commas are used as decimal separators and periods as thousands separators — making it ideal for German, Austrian, Swiss, French, and other European data files.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">What file formats does it support?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool supports Excel (.xlsx, .xlsm, .xls), CSV, TSV, and generic text files with custom delimiters. It automatically detects the delimiter, data types, and date formats so you don't have to configure anything.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">Do I need admin rights or installation?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">No. DataImportTool is a portable application that requires no installation and no admin rights. Simply download, extract, and run. It works on any Windows 10 or Windows 11 machine.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">Can it handle large datasets with millions of rows?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. DataImportTool uses optimized bulk insert operations to handle large datasets efficiently. It can import files with millions of rows into SQL Server in seconds, making it one of the fastest data import tools available.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">What is the best offline data tool for SQL Server?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool by DataAsh combines automatic data type detection, European format support, drag-and-drop simplicity, and complete privacy in a single portable tool — completely free.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">Is DataImportTool free?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes! DataImportTool v3.0 is completely free to download and use. It includes full import functionality for Excel, CSV, and text files to SQL Server — no strings attached.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">What data tools does DataAsh plan to release?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataAsh is building a growing platform of professional data tools. Beyond DataImportTool, we're working on tools for data transformation, data quality checks, data pipeline automation, and more — all following our core principles of speed, privacy, and zero cloud dependency.</div></div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <h2>Ready to Simplify Your Data Workflows?</h2>
+      <p>Join data professionals worldwide who use DataAsh tools for analytics, ETL, and data engineering.</p>
+      <div class="cta-buttons">
+        <a class="btn-download" id="freeDownloadCta" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free"><i class="fas fa-download"></i> Download Free — v3.0</a>
+      </div>
+    </section>
+  </main>
 
   <footer>
     <p>&copy; 2026 <a href="https://dataash.de/">DataAsh</a>. All rights reserved. Built for privacy-first data engineering.</p>
-    <p style="margin-top:0.5rem;font-size:0.8rem">DataAsh — Data Tools Platform | Data Analytics | Data Engineering | ETL Tools | Data Science | Excel to SQL Server | Data Modeling</p>
+    <p style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);">DataAsh — Data Tools Platform | Data Analytics | Data Engineering | ETL Tools | Data Science | Excel to SQL Server | Data Modeling</p>
   </footer>
 
   <div class="modal-overlay" id="contactModal">
