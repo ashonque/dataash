@@ -397,8 +397,17 @@
     /* --- Data Tools Section --- */
     .data-tools-section { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
     .tool-showcase {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-bottom: 2rem;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-bottom: 6rem;
     }
+    
+    /* Alternating layout for tools */
+    .tool-showcase.reverse {
+      grid-template-columns: 1fr 1fr;
+    }
+    .tool-showcase.reverse .tool-visual {
+      order: -1; /* Puts visual on the left */
+    }
+
     .tool-info h3 {
       font-size: 2.2rem; margin-bottom: 1.2rem; font-weight: 800;
       background: linear-gradient(to right, #fff, var(--primary)); 
@@ -587,7 +596,7 @@
     /* Responsive */
     @media (max-width: 768px) {
       .hero h1 { font-size: 2.5rem; }
-      nav ul { flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-top: 1rem; display: none; /* simple mobile nav approach */ }
+      nav ul { flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-top: 1rem; display: none; }
       header { flex-wrap: wrap; justify-content: center; gap: 1rem; padding: 1rem; }
       nav { width: 100%; display: flex; justify-content: center;}
       nav ul { display: flex; margin-top:0; }
@@ -596,7 +605,8 @@
       .about-content { padding: 2.5rem 1.5rem; }
       .modal { padding: 2rem 1.5rem; }
       .form-row { grid-template-columns: 1fr; gap: 0;}
-      .tool-showcase { grid-template-columns: 1fr; gap: 2.5rem;}
+      .tool-showcase, .tool-showcase.reverse { grid-template-columns: 1fr; gap: 2.5rem;}
+      .tool-showcase.reverse .tool-visual { order: 0; }
       .trust-bar { gap: 1.5rem; }
     }
   </style>
@@ -629,17 +639,17 @@
         <span class="hero-domain"><i class="fas fa-circle"></i> Data Science</span>
         <span class="hero-domain"><i class="fas fa-circle"></i> SQL Server</span>
       </div>
-      <p class="hero-subtext">Starting with our flagship tool: DataImportTool — import Excel, CSV &amp; text files to SQL Server instantly.</p>
+      <p class="hero-subtext">Starting with our flagship tools: DataImportTool & UniversalETL.</p>
       <div class="buttons">
-        <a class="btn-download" id="freeDownloadHero" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free">
-          <i class="fas fa-download"></i> Download Free — v3.0
+        <a class="btn-download" id="freeDownloadHero" href="#data-tools" aria-label="Explore Data Tools">
+          <i class="fas fa-layer-group"></i> Explore Tools
         </a>
       </div>
       <div class="trust-bar">
         <div class="trust-item"><i class="fas fa-lock"></i> 100% Offline</div>
         <div class="trust-item"><i class="fas fa-shield-alt"></i> No Cloud Upload</div>
         <div class="trust-item"><i class="fas fa-user-shield"></i> No Admin Rights</div>
-        <div class="trust-item"><i class="fas fa-bolt"></i> Instant Import</div>
+        <div class="trust-item"><i class="fas fa-bolt"></i> Instant Processing</div>
       </div>
     </section>
 
@@ -671,6 +681,7 @@
     <section id="data-tools" class="data-tools-section">
       <h2 class="section-title">Data Tools</h2>
       <p class="section-subtitle">Professional-grade data tools built for speed, privacy, and simplicity. No bloat, no subscriptions, no cloud dependency.</p>
+      
       <div class="tool-showcase">
         <div class="tool-info">
           <div class="tool-price-tag"><i class="fas fa-gift"></i> Free &amp; Open</div>
@@ -682,13 +693,11 @@
             <div class="tool-highlight"><i class="fas fa-check-circle"></i> Automatic data type &amp; delimiter detection</div>
             <div class="tool-highlight"><i class="fas fa-check-circle"></i> European number formats (comma decimal)</div>
             <div class="tool-highlight"><i class="fas fa-check-circle"></i> Date format auto-detection</div>
-            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Bulk insert for millions of rows</div>
             <div class="tool-highlight"><i class="fas fa-check-circle"></i> Portable — no install, no admin</div>
-            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Privacy-first — 100% offline</div>
           </div>
           <div class="tool-buttons">
             <a class="btn-download" id="freeDownloadTools" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free">
-              <i class="fas fa-download"></i> Download Free — v3.0
+              <i class="fas fa-download"></i> Download Free
             </a>
           </div>
         </div>
@@ -707,6 +716,41 @@
           </div>
         </div>
       </div>
+
+      <div class="tool-showcase reverse">
+        <div class="tool-visual">
+          <div class="tool-visual-header">
+            <div class="tool-visual-dot"></div><div class="tool-visual-dot"></div><div class="tool-visual-dot"></div>
+          </div>
+          <div class="tool-flow">
+            <div class="tool-flow-step"><i class="fas fa-plug"></i><span>Connect to diverse data sources</span></div>
+            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="tool-flow-step"><i class="fas fa-random"></i><span>Transform & clean data securely</span></div>
+            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="tool-flow-step"><i class="fas fa-server"></i><span>Load structured data to destination</span></div>
+            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="tool-flow-step"><i class="fas fa-layer-group"></i><span>Automate data pipelines locally</span></div>
+          </div>
+        </div>
+        <div class="tool-info">
+          <div class="tool-price-tag"><i class="fas fa-rocket"></i> New Release</div>
+          <h3>Universal ETL Tool</h3>
+          <p>A versatile and universal ETL solution for seamless data extraction, transformation, and loading. Designed to handle complex pipeline needs with ultimate flexibility while keeping everything offline and strictly private.</p>
+          <div class="tool-highlights">
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Extract from multiple file formats & databases</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Powerful data transformation & cleaning rules</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Load into target databases seamlessly</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Zero cloud lock-in or subscription fees</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> Highly optimized for performance</div>
+            <div class="tool-highlight"><i class="fas fa-check-circle"></i> 100% private data processing environment</div>
+          </div>
+          <div class="tool-buttons">
+            <a class="btn-download" id="freeDownloadUniversalEtl" href="https://github.com/ashonque/universaletltoo/releases/latest" aria-label="Download Universal ETL Tool" target="_blank" rel="noopener noreferrer">
+              <i class="fab fa-github"></i> View & Download on GitHub
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="use-cases-section">
@@ -717,7 +761,7 @@
         <article class="use-case-card"><i class="fas fa-exchange-alt"></i><h3>Excel to SQL Server Migration</h3><p>Migrate spreadsheet data to SQL Server tables instantly with automatic data type mapping. The easiest Excel to SQL converter available — no SSIS, no scripts, no complexity.</p></article>
         <article class="use-case-card"><i class="fas fa-globe-europe"></i><h3>European &amp; German Data Formats</h3><p>Handles comma-decimal numbers, European date formats, and special characters natively. The top data tool for German, Austrian, Swiss, and European professionals.</p></article>
         <article class="use-case-card"><i class="fas fa-building"></i><h3>Corporate IT &amp; Compliance</h3><p>No internet required, no data leaves the workstation. Meets corporate security policies and compliance requirements. A secure, offline data tool for enterprise environments.</p></article>
-        <article class="use-case-card"><i class="fas fa-project-diagram"></i><h3>ETL &amp; Data Engineering</h3><p>Speed up your ETL pipeline with quick file-to-database imports. Perfect for staging data, prototyping data models, and ad-hoc data loading tasks.</p></article>
+        <article class="use-case-card"><i class="fas fa-project-diagram"></i><h3>ETL &amp; Data Engineering</h3><p>Speed up your ETL pipeline with UniversalETL and quick file-to-database imports. Perfect for staging data, prototyping data models, and ad-hoc data loading tasks.</p></article>
         <article class="use-case-card"><i class="fas fa-flag-usa"></i><h3>American &amp; International Teams</h3><p>Supports both American (MM/DD/YYYY, period decimal) and international formats. Works seamlessly for distributed teams across the US, Europe, and worldwide.</p></article>
       </div>
     </section>
@@ -726,10 +770,10 @@
       <h2 class="section-title">About DataAsh</h2>
       <p class="section-subtitle">Building the best data tools platform for professionals who value speed, privacy, and simplicity.</p>
       <div class="about-content">
-        <p>DataAsh is a data tools platform building professional-grade software for data analytics, data science, ETL, data modeling, and data engineering. Our mission is to create tools that are fast, secure, and work without cloud dependency or expensive subscriptions. Our flagship product, DataImportTool, is a lightweight desktop application that imports Excel (.xlsx, .xlsm, .xls), CSV, TSV, and text files directly into SQL Server — with zero configuration. More tools for data transformation, data quality, and pipeline automation are on the roadmap.</p>
+        <p>DataAsh is a data tools platform building professional-grade software for data analytics, data science, ETL, data modeling, and data engineering. Our mission is to create tools that are fast, secure, and work without cloud dependency or expensive subscriptions. Our flagship products, DataImportTool and UniversalETL, are lightweight applications that handle massive data pipelines securely — with zero configuration.</p>
         <p>Whether you're looking for the best Excel to SQL Server tool, a secure offline data import solution, or professional data engineering tools — DataAsh has you covered. Used by professionals in Germany, the United States, and worldwide.</p>
         <div class="features-grid">
-          <div class="feature-card"><i class="fas fa-bolt"></i><h3>Lightning Fast</h3><p>Import large datasets in seconds with optimized bulk processing</p></div>
+          <div class="feature-card"><i class="fas fa-bolt"></i><h3>Lightning Fast</h3><p>Process large datasets in seconds with optimized operations</p></div>
           <div class="feature-card"><i class="fas fa-shield-alt"></i><h3>Privacy First</h3><p>Your data never leaves your machine — no cloud, no telemetry</p></div>
           <div class="feature-card"><i class="fas fa-cogs"></i><h3>Zero Configuration</h3><p>Automatic detection of data types, delimiters, and formats</p></div>
           <div class="feature-card"><i class="fas fa-user-friends"></i><h3>Professional Grade</h3><p>Built for data engineers, analysts, and IT professionals</p></div>
@@ -743,14 +787,12 @@
       <div class="faq-list">
         <div class="faq-item"><button class="faq-question" aria-expanded="false">What is DataImportTool?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool by DataAsh is a lightweight, portable Windows desktop application that lets you import Excel (.xlsx, .xlsm, .xls), CSV, TSV, and text files directly into SQL Server with zero configuration. It automatically detects data types, delimiters, date formats, and European number formats. No installation, no admin rights, and no internet connection needed.</div></div>
         <div class="faq-item"><button class="faq-question" aria-expanded="false">How do I import Excel files to SQL Server without coding?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">With DataImportTool from DataAsh, simply drag and drop your Excel file into the application, select your SQL Server connection, and click import. The tool automatically creates the table and imports all data with correct data types. No SQL knowledge or coding required.</div></div>
-        <div class="faq-item"><button class="faq-question" aria-expanded="false">Is DataImportTool safe and private?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. DataImportTool is a fully offline, privacy-first data tool. Your data never leaves your machine — there is no cloud upload, no telemetry, and no internet connection required after download. It runs entirely on your local workstation, making it ideal for corporate environments with strict security policies.</div></div>
-        <div class="faq-item"><button class="faq-question" aria-expanded="false">Does it work with European number formats?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. DataImportTool automatically detects and supports European number formats where commas are used as decimal separators and periods as thousands separators — making it ideal for German, Austrian, Swiss, French, and other European data files.</div></div>
-        <div class="faq-item"><button class="faq-question" aria-expanded="false">What file formats does it support?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool supports Excel (.xlsx, .xlsm, .xls), CSV, TSV, and generic text files with custom delimiters. It automatically detects the delimiter, data types, and date formats so you don't have to configure anything.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">What is the Universal ETL Tool?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Our newest release, Universal ETL Tool, expands upon our standard import functionalities, offering robust Extraction, Transformation, and Loading pipelines tailored for complex workflows while retaining our core offline-first, private philosophy.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">Are DataAsh tools safe and private?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. DataAsh tools are fully offline, privacy-first software. Your data never leaves your machine — there is no cloud upload, no telemetry, and no internet connection required after download. They run entirely on your local workstation, making them ideal for corporate environments with strict security policies.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">Do they work with European number formats?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. Our tools automatically detect and support European number formats where commas are used as decimal separators and periods as thousands separators — making them ideal for German, Austrian, Swiss, French, and other European data files.</div></div>
         <div class="faq-item"><button class="faq-question" aria-expanded="false">Do I need admin rights or installation?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">No. DataImportTool is a portable application that requires no installation and no admin rights. Simply download, extract, and run. It works on any Windows 10 or Windows 11 machine.</div></div>
-        <div class="faq-item"><button class="faq-question" aria-expanded="false">Can it handle large datasets with millions of rows?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. DataImportTool uses optimized bulk insert operations to handle large datasets efficiently. It can import files with millions of rows into SQL Server in seconds, making it one of the fastest data import tools available.</div></div>
-        <div class="faq-item"><button class="faq-question" aria-expanded="false">What is the best offline data tool for SQL Server?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataImportTool by DataAsh combines automatic data type detection, European format support, drag-and-drop simplicity, and complete privacy in a single portable tool — completely free.</div></div>
-        <div class="faq-item"><button class="faq-question" aria-expanded="false">Is DataImportTool free?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes! DataImportTool v3.0 is completely free to download and use. It includes full import functionality for Excel, CSV, and text files to SQL Server — no strings attached.</div></div>
-        <div class="faq-item"><button class="faq-question" aria-expanded="false">What data tools does DataAsh plan to release?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">DataAsh is building a growing platform of professional data tools. Beyond DataImportTool, we're working on tools for data transformation, data quality checks, data pipeline automation, and more — all following our core principles of speed, privacy, and zero cloud dependency.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">Can it handle large datasets with millions of rows?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. Our software uses optimized bulk processing operations to handle large datasets efficiently, allowing you to import and transform files with millions of rows in seconds.</div></div>
+        <div class="faq-item"><button class="faq-question" aria-expanded="false">Are DataAsh tools free?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes! DataImportTool v3.0 and UniversalETL are completely free to download and use — no strings attached.</div></div>
       </div>
     </section>
 
@@ -758,7 +800,7 @@
       <h2>Ready to Simplify Your Data Workflows?</h2>
       <p>Join data professionals worldwide who use DataAsh tools for analytics, ETL, and data engineering.</p>
       <div class="cta-buttons">
-        <a class="btn-download" id="freeDownloadCta" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free"><i class="fas fa-download"></i> Download Free — v3.0</a>
+        <a class="btn-download" href="#data-tools"><i class="fas fa-layer-group"></i> Get Data Tools Now</a>
       </div>
     </section>
   </main>
@@ -797,12 +839,16 @@
     // ===== GA4 Free Download Tracking =====
     document.querySelectorAll('.btn-download').forEach(btn => {
       btn.addEventListener('click', function() {
-        gtag('event', 'free_download_click', {
-          event_category: 'download',
-          event_label: 'DataImportTool_v3_free',
-          link_url: this.href,
-          button_location: this.id || 'unknown'
-        });
+        if(this.id) {
+          // Differentiate between the two downloads for Google Analytics
+          let label = this.id === 'freeDownloadUniversalEtl' ? 'UniversalETL_free' : 'DataImportTool_v3_free';
+          gtag('event', 'free_download_click', {
+            event_category: 'download',
+            event_label: label,
+            link_url: this.href,
+            button_location: this.id
+          });
+        }
       });
     });
 
@@ -820,7 +866,14 @@
     form.addEventListener('submit',async e=>{e.preventDefault();replyToField.value=emailInput.value;sendBtn.innerHTML='<div class="spinner"></div> Sending...';sendBtn.disabled=true;try{const r=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}});if(r.ok){document.getElementById('contactForm').style.display='none';document.getElementById('formSuccess').classList.add('active')}else throw new Error('Failed')}catch(err){sendBtn.innerHTML='<i class="fas fa-exclamation-triangle"></i> Failed — Try Again';sendBtn.disabled=false;setTimeout(()=>{sendBtn.innerHTML='<i class="fas fa-paper-plane"></i> Send Message'},3000)}});
 
     // ===== Smooth Scroll =====
-    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t)window.scrollTo({top:t.offsetTop-80,behavior:'smooth'})})});
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){
+      // Allow external links like github to work normally
+      if(this.getAttribute('href').startsWith('#')) {
+        e.preventDefault();
+        const t=document.querySelector(this.getAttribute('href'));
+        if(t)window.scrollTo({top:t.offsetTop-80,behavior:'smooth'})
+      }
+    })});
 
     // ===== Video Player =====
     const demoVideo = document.getElementById('demoVideo');
