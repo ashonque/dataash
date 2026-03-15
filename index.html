@@ -12,7 +12,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DataAsh | Best Data Tools for Analytics, ETL & Data Engineering</title>
   <meta name="description" content="DataAsh builds professional data tools for data analytics, data science, ETL, data modeling, and data engineering. Import Excel, CSV to SQL Server instantly — offline, secure, no coding. The best data tools platform for professionals.">
-  <meta name="keywords" content="data tools, data analytics tools, data science tools, data engineering tools, ETL tools, data modeling tools, excel to sql server tool, data analysis tool, excel to sql converter, csv to sql server, data import tool, best data tools, top data tools, offline data tools, secure data tools, german data tools, data tools for download, dataash, data tools windows, excel to database, sql server import tool, data engineering tools, ETL tool, excel sql import, data migration tool, best excel to sql tool, free data tools, data analysis, data processing tool, portable data tools, no install data tool, drag and drop sql import, european data tools, american data tools, data pipeline tools, data warehouse tools, data transformation tools, free data engineering tools, data tools platform">
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
@@ -20,26 +19,13 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="canonical" href="https://dataash.de/" />
-  <link rel="alternate" hreflang="en" href="https://dataash.de/" />
-  <link rel="alternate" hreflang="x-default" href="https://dataash.de/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="DataAsh | Best Data Tools for Analytics, ETL & Data Engineering" />
   <meta property="og:description" content="Professional data tools platform for data analytics, data science, ETL, and data engineering. Import Excel, CSV to SQL Server instantly — offline, secure, no coding." />
   <meta property="og:url" content="https://dataash.de/" />
   <meta property="og:site_name" content="DataAsh" />
   <meta property="og:image" content="https://dataash.de/og-image.png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:locale" content="en_US" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="DataAsh | Best Data Tools for Analytics, ETL & Data Engineering" />
-  <meta name="twitter:description" content="Professional data tools platform for data analytics, data science, ETL, and data engineering. Offline, secure, no coding required." />
-  <meta name="twitter:image" content="https://dataash.de/og-image.png" />
-  <meta name="author" content="DataAsh" />
-  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="theme-color" content="#00e5a8" />
-  <meta name="application-name" content="DataAsh Data Tools" />
-  <meta name="msapplication-tooltip" content="Data Tools for Analytics, ETL & Data Engineering — DataAsh" />
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -48,8 +34,6 @@
       --primary: #00e5a8;
       --primary-dark: #00b383;
       --dark: #030712;
-      --dark-surface: #0f172a;
-      --gray: #e2e8f0;
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --card-bg: rgba(15, 23, 42, 0.4);
@@ -69,7 +53,6 @@
         radial-gradient(circle at 50% 100%, rgba(15, 23, 42, 1), transparent 50%);
       background-attachment: fixed;
     }
-    
     ::selection { background: var(--primary); color: #000; }
 
     /* --- Header --- */
@@ -77,18 +60,16 @@
       display: flex; justify-content: space-between; align-items: center; 
       padding: 1.25rem 5%; position: sticky; top: 0; z-index: 100;
       background: rgba(3, 7, 18, 0.7); backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--card-border);
     }
     .logo {
       display: flex; align-items: center; gap: 0.75rem; 
       font-weight: 800; font-size: 1.5rem; text-decoration: none; color: var(--text);
-      letter-spacing: -0.02em;
     }
     .logo-icon {
       position: relative; width: 32px; height: 32px; 
       transform-style: preserve-3d; transform: rotateY(20deg) rotateX(15deg); 
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: transform 0.4s ease;
     }
     .logo-icon:hover { transform: rotateY(35deg) rotateX(25deg) scale(1.15); }
     .logo-icon::before, .logo-icon::after {
@@ -134,7 +115,7 @@
       padding: 0.5rem 1.25rem; font-size: 0.85rem; font-weight: 600;
       display: inline-flex; align-items: center; gap: 0.6rem; 
       margin-bottom: 2rem; border: 1px solid rgba(0, 229, 168, 0.2);
-      color: var(--primary); letter-spacing: 0.02em;
+      color: var(--primary);
     }
     .tag::before {
       content: ''; width: 6px; height: 6px; background: var(--primary); 
@@ -145,15 +126,12 @@
       margin-bottom: 1.5rem; line-height: 1.1; font-weight: 800;
       background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
       -webkit-background-clip: text; background-clip: text; color: transparent;
-      letter-spacing: -0.03em;
     }
     .hero p {
       max-width: 720px; margin: 0 auto 1.5rem; font-size: 1.15rem; 
       color: var(--text-muted); line-height: 1.7;
     }
-    .hero-subtext {
-      max-width: 650px; margin: 0 auto 2.5rem; font-size: 0.95rem; color: #64748b;
-    }
+    .hero-subtext { max-width: 650px; margin: 0 auto 2.5rem; font-size: 0.95rem; color: #64748b; }
     .hero-domains {
       display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 3rem;
     }
@@ -175,7 +153,7 @@
       color: #000; padding: 1rem 2.5rem; font-weight: 700; font-size: 1.1rem; 
       border-radius: 50px; border: none; cursor: pointer; transition: all 0.4s ease; 
       position: relative; overflow: hidden; display: inline-flex; align-items: center; 
-      gap: 0.75rem; text-decoration: none; letter-spacing: -0.01em;
+      gap: 0.75rem; text-decoration: none;
       box-shadow: 0 8px 25px rgba(0, 229, 168, 0.25), inset 0 2px 0 rgba(255,255,255,0.2);
     }
     .btn-download::before {
@@ -200,7 +178,7 @@
     /* --- General Section Styles --- */
     .section-title {
       text-align: center; font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1rem; 
-      font-weight: 800; letter-spacing: -0.02em;
+      font-weight: 800;
       background: linear-gradient(to right, #ffffff, #94a3b8);
       -webkit-background-clip: text; background-clip: text; color: transparent;
     }
@@ -230,11 +208,11 @@
       width: 80px; height: 80px; background: var(--primary); color: #000;
       border-radius: 50%; display: flex; align-items: center; justify-content: center; 
       box-shadow: 0 0 0 10px rgba(0,229,168,0.2), 0 10px 40px rgba(0,229,168,0.5); 
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-bottom: 1.5rem;
+      transition: all 0.4s ease; margin-bottom: 1.5rem;
     }
     .play-btn:hover { transform: scale(1.15); box-shadow: 0 0 0 15px rgba(0,229,168,0.2), 0 15px 50px rgba(0,229,168,0.6); }
     .play-btn i { font-size: 2rem; margin-left: 6px; }
-    .video-overlay span { color: #fff; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;}
+    .video-overlay span { color: #fff; font-size: 1.1rem; font-weight: 600; text-transform: uppercase;}
     
     .video-glow {
       position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px; 
@@ -245,7 +223,7 @@
       display: inline-flex; align-items: center; gap: 0.5rem; 
       background: rgba(0, 229, 168, 0.1); border: 1px solid rgba(0, 229, 168, 0.2); 
       border-radius: 50px; padding: 0.4rem 1.2rem; font-size: 0.85rem; 
-      color: var(--primary); font-weight: 600; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--primary); font-weight: 600; margin-bottom: 1.5rem; text-transform: uppercase;
     }
     
     /* Video Controls */
@@ -319,32 +297,15 @@
     }
     .tool-flow-step:hover { transform: translateX(5px); background: rgba(255,255,255,0.04); border-color: rgba(0,229,168,0.2); }
     .tool-flow-step i { color: var(--primary); font-size: 1.4rem; width: 28px; text-align: center; }
-    .tool-flow-step span { font-weight: 500; letter-spacing: -0.01em; }
+    .tool-flow-step span { font-weight: 500; }
     .tool-flow-arrow { text-align: center; color: var(--primary); font-size: 1.2rem; opacity: 0.4; }
     
     .tool-price-tag {
       display: inline-flex; align-items: center; gap: 0.5rem; 
       background: rgba(0,229,168,0.1); border: 1px solid rgba(0,229,168,0.3); 
       border-radius: 50px; padding: 0.4rem 1rem; font-weight: 700; font-size: 0.85rem;
-      color: var(--primary); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--primary); margin-bottom: 1.5rem; text-transform: uppercase;
     }
-
-    /* Hash Box */
-    .hash-container {
-      margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);
-      display: flex; flex-direction: column; gap: 0.4rem;
-    }
-    .hash-box {
-      background: rgba(0, 0, 0, 0.4); border: 1px solid var(--card-border);
-      padding: 0.5rem 0.8rem; border-radius: 8px; font-family: 'Courier New', Courier, monospace;
-      display: inline-flex; align-items: center; justify-content: space-between;
-      gap: 1rem; word-break: break-all; width: fit-content;
-    }
-    .hash-box button {
-      background: none; border: none; color: var(--primary); cursor: pointer; 
-      font-size: 1rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
-    }
-    .hash-box button:hover { color: #fff; transform: scale(1.15); }
 
     /* --- Use Cases / Features Section --- */
     .use-cases-section { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
@@ -354,7 +315,7 @@
       border-top: 1px solid rgba(255,255,255,0.08); border-left: 1px solid rgba(255,255,255,0.04);
       border-right: 1px solid rgba(0,0,0,0.5); border-bottom: 1px solid rgba(0,0,0,0.5);
       border-radius: 20px; padding: 2.5rem 2rem; backdrop-filter: blur(12px); 
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.4s ease;
     }
     .use-case-card:hover {
       transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(0,229,168,0.05);
@@ -396,7 +357,7 @@
       width: 100%; text-align: left; padding: 0.5rem 0; transition: color 0.3s; font-family: inherit;
     }
     .faq-question:hover { color: var(--primary); }
-    .faq-question i { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1); font-size: 0.9rem; color: var(--primary); flex-shrink: 0; margin-left: 1rem; }
+    .faq-question i { transition: transform 0.3s ease; font-size: 0.9rem; color: var(--primary); flex-shrink: 0; margin-left: 1rem; }
     .faq-item.active .faq-question i { transform: rotate(180deg); }
     .faq-answer {
       max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease, opacity 0.4s ease; 
@@ -434,7 +395,7 @@
     .modal {
       background: linear-gradient(145deg, #0f172a, #030712); border: 1px solid rgba(255,255,255,0.1); 
       border-radius: 24px; padding: 3rem; width: 100%; max-width: 500px; position: relative; 
-      box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 100px rgba(0, 229, 168, 0.05); animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 100px rgba(0, 229, 168, 0.05); animation: slideUp 0.4s ease;
     }
     .modal-close {
       position: absolute; top: 1.5rem; right: 1.5rem; background: rgba(255,255,255,0.05); 
@@ -480,7 +441,7 @@
     .form-success .checkmark {
       width: 72px; height: 72px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
       color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-      margin: 0 auto 1.5rem; font-size: 2rem; box-shadow: 0 10px 30px rgba(0,229,168,0.4); animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      margin: 0 auto 1.5rem; font-size: 2rem; box-shadow: 0 10px 30px rgba(0,229,168,0.4); animation: scaleIn 0.5s ease;
     }
     @keyframes scaleIn { from { transform: scale(0) rotate(-45deg); } to { transform: scale(1) rotate(0); } }
     .form-success h3 { font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700;}
@@ -501,8 +462,6 @@
       .tool-showcase, .tool-showcase.reverse { grid-template-columns: 1fr; gap: 2.5rem;}
       .tool-showcase.reverse .tool-visual { order: 0; }
       .trust-bar { gap: 1.5rem; }
-      .hash-box { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-      .hash-box button { align-self: flex-end; }
     }
   </style>
 </head>
@@ -591,7 +550,7 @@
             <div class="tool-highlight"><i class="fas fa-check-circle"></i> Portable — no install, no admin</div>
           </div>
           <div class="tool-buttons">
-            <a class="btn-download" id="freeDownloadTools" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" download aria-label="Download DataImportTool v3.0 Free">
+            <a class="btn-download" id="freeDownloadTools" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free">
               <i class="fas fa-download"></i> Download Free
             </a>
           </div>
@@ -640,18 +599,9 @@
             <div class="tool-highlight"><i class="fas fa-check-circle"></i> Highly portable — no installations required</div>
           </div>
           <div class="tool-buttons">
-            <a class="btn-download" id="freeDownloadUniversalEtl" href="https://github.com/ashonque/universaletltoo/releases/latest/download/UniversalETLStudio.zip" download aria-label="Download Universal ETL Studio">
+            <a class="btn-download" id="freeDownloadUniversalEtl" href="https://github.com/ashonque/universaletltoo/archive/refs/tags/universaletl.zip" aria-label="Download Universal ETL Studio">
               <i class="fas fa-download"></i> Download Free
             </a>
-          </div>
-          <div class="hash-container">
-            <span>Security Hash (SHA-256):</span>
-            <div class="hash-box">
-              <span>5553bd46ae56c10b01da2c7e93fab8e5a1b80dd67568c90cf49e10f6943edba4</span>
-              <button onclick="navigator.clipboard.writeText('5553bd46ae56c10b01da2c7e93fab8e5a1b80dd67568c90cf49e10f6943edba4'); const btn = this; btn.innerHTML='<i class=\'fas fa-check\'></i>'; setTimeout(() => btn.innerHTML='<i class=\'far fa-copy\'></i>', 2000);" title="Copy Hash" aria-label="Copy SHA-256 Hash">
-                <i class="far fa-copy"></i>
-              </button>
-            </div>
           </div>
         </div>
       </div>
