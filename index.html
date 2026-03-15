@@ -329,6 +329,23 @@
       color: var(--primary); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em;
     }
 
+    /* Hash Box */
+    .hash-container {
+      margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);
+      display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .hash-box {
+      background: rgba(0, 0, 0, 0.4); border: 1px solid var(--card-border);
+      padding: 0.5rem 0.8rem; border-radius: 8px; font-family: 'Courier New', Courier, monospace;
+      display: inline-flex; align-items: center; justify-content: space-between;
+      gap: 1rem; word-break: break-all; width: fit-content;
+    }
+    .hash-box button {
+      background: none; border: none; color: var(--primary); cursor: pointer; 
+      font-size: 1rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+    }
+    .hash-box button:hover { color: #fff; transform: scale(1.15); }
+
     /* --- Use Cases / Features Section --- */
     .use-cases-section { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
     .use-cases-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
@@ -484,6 +501,8 @@
       .tool-showcase, .tool-showcase.reverse { grid-template-columns: 1fr; gap: 2.5rem;}
       .tool-showcase.reverse .tool-visual { order: 0; }
       .trust-bar { gap: 1.5rem; }
+      .hash-box { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .hash-box button { align-self: flex-end; }
     }
   </style>
 </head>
@@ -624,6 +643,15 @@
             <a class="btn-download" id="freeDownloadUniversalEtl" href="https://github.com/ashonque/universaletltoo/releases/latest/download/UniversalETLStudio.zip" download aria-label="Download Universal ETL Studio">
               <i class="fas fa-download"></i> Download Free
             </a>
+          </div>
+          <div class="hash-container">
+            <span>Security Hash (SHA-256):</span>
+            <div class="hash-box">
+              <span>5553bd46ae56c10b01da2c7e93fab8e5a1b80dd67568c90cf49e10f6943edba4</span>
+              <button onclick="navigator.clipboard.writeText('5553bd46ae56c10b01da2c7e93fab8e5a1b80dd67568c90cf49e10f6943edba4'); const btn = this; btn.innerHTML='<i class=\'fas fa-check\'></i>'; setTimeout(() => btn.innerHTML='<i class=\'far fa-copy\'></i>', 2000);" title="Copy Hash" aria-label="Copy SHA-256 Hash">
+                <i class="far fa-copy"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
