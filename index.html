@@ -11,40 +11,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   
-  <title>DataAsh | Best Excel to SQL Server Tool & ETL Tools Platform</title>
+  <title>DataAsh | Automated Data Warehouse & Modeling Architecture</title>
   
-  <meta name="description" content="DataAsh provides professional ETL tools and the fastest Excel to SQL Server converter. The best offline alternative to SSMS for data engineering and data analytics.">
-  
-  <meta name="keywords" content="dataash, data ash, dataash.de, datacash, datahash, excel to sql server, excel to sql tool, ssms, sql tools, ETL tools, data analytics tools, data engineering tools, offline data tools, csv to sql server">
-  
-  <link rel="icon" href="/favicon.ico" sizes="48x48" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="description" content="Visualize, automate, and build Staging, Data Warehouses, and Data Marts directly from your raw data lake using optimal OLAP methodologies.">
   <link rel="canonical" href="https://dataash.de/" />
   
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="DataAsh | Best Excel to SQL Server Tool & ETL Tools Platform" />
-  <meta property="og:description" content="Professional offline ETL tools and Excel to SQL Server importers. The ultimate secure alternative to SSMS." />
+  <meta property="og:title" content="DataAsh | Automated Data Warehouse & Modeling Architecture" />
+  <meta property="og:description" content="Automate Staging DDLs, Kimball, Inmon, and Data Vault schemas straight from raw data." />
   <meta property="og:url" content="https://dataash.de/" />
   <meta property="og:site_name" content="DataAsh" />
-  <meta property="og:image" content="https://dataash.de/og-image.png" />
-  <meta name="theme-color" content="#DF7861" />
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "DataAsh ETL & SQL Tools",
-    "alternateName": ["datacash", "datahash", "data ash", "DataAsh"],
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "Windows",
-    "description": "Professional suite of ETL tools and the fastest Excel to SQL Server import tool. A faster, easier alternative to SSMS (SQL Server Management Studio) for data ingestion.",
-    "url": "https://dataash.de/"
-  }
-  </script>
+  <meta name="theme-color" content="#94B49F" />
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -132,9 +109,9 @@
     }
 
     .hero {
-      min-height: 100vh; display: flex; flex-direction: column; 
+      min-height: 85vh; display: flex; flex-direction: column; 
       justify-content: center; align-items: center; text-align: center; 
-      padding: 6rem 2rem 4rem; position: relative; overflow: hidden;
+      padding: 5rem 2rem 3rem; position: relative; overflow: hidden;
     }
     .tag {
       background: var(--sage-light); border-radius: 50px; 
@@ -148,207 +125,94 @@
       border-radius: 50%; box-shadow: 0 0 10px var(--terracotta);
     }
     .hero h1 {
-      font-size: clamp(2.5rem, 5vw, 4.5rem); max-width: 900px; 
-      margin-bottom: 1.5rem; line-height: 1.1; font-weight: 800;
+      font-size: clamp(2.3rem, 4.8vw, 4.2rem); max-width: 950px; 
+      margin-bottom: 1.5rem; line-height: 1.15; font-weight: 800;
       color: var(--dark-text);
     }
     .hero p {
-      max-width: 720px; margin: 0 auto 1.5rem; font-size: 1.15rem; 
+      max-width: 780px; margin: 0 auto 1.5rem; font-size: 1.15rem; 
       color: var(--text-muted); line-height: 1.7;
     }
-    .hero-subtext { max-width: 650px; margin: 0 auto 2.5rem; font-size: 0.95rem; color: var(--text-muted); }
+    
     .hero-domains {
-      display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 3rem;
+      display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem;
     }
     .hero-domain {
       display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600;
       color: var(--dark-text); background: var(--card-bg); 
       border: 1px solid var(--card-border); border-radius: 50px; 
-      padding: 0.4rem 1rem; transition: all 0.3s; backdrop-filter: blur(4px);
+      padding: 0.4rem 1rem; transition: all 0.3s;
       box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-    }
-    .hero-domain:hover {
-      border-color: var(--warm-peach); color: var(--terracotta); 
-      background: #ffffff; transform: translateY(-2px);
     }
     .hero-domain i { font-size: 0.6rem; color: var(--terracotta); }
     
     .buttons { display: flex; gap: 1.25rem; flex-wrap: wrap; justify-content: center; }
-    .btn-download {
+    .btn-primary {
       background: linear-gradient(135deg, var(--terracotta), var(--terracotta-dark)); 
-      color: #ffffff; padding: 1rem 2.5rem; font-weight: 700; font-size: 1.1rem; 
+      color: #ffffff; padding: 1rem 2.5rem; font-weight: 700; font-size: 1.05rem; 
       border-radius: 50px; border: none; cursor: pointer; transition: all 0.4s ease; 
-      position: relative; overflow: hidden; display: inline-flex; align-items: center; 
-      gap: 0.75rem; text-decoration: none;
-      box-shadow: 0 8px 25px rgba(223, 120, 97, 0.35), inset 0 2px 0 rgba(255,255,255,0.2);
+      display: inline-flex; align-items: center; gap: 0.75rem; text-decoration: none;
+      box-shadow: 0 8px 25px rgba(223, 120, 97, 0.35);
     }
-    .btn-download::before {
-      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; 
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); 
-      transition: 0.5s;
-    }
-    .btn-download:hover {
+    .btn-primary:hover {
       transform: translateY(-3px) scale(1.02); 
-      box-shadow: 0 15px 35px rgba(223, 120, 97, 0.45), inset 0 2px 0 rgba(255,255,255,0.3);
+      box-shadow: 0 15px 35px rgba(223, 120, 97, 0.45);
     }
-    .btn-download:hover::before { left: 100%; }
-
-    .trust-bar {
-      display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; 
-      margin-top: 4rem; opacity: 0.9; font-size: 0.9rem; font-weight: 600;
-      color: var(--text-muted);
-    }
-    .trust-item { display: flex; align-items: center; gap: 0.5rem; }
-    .trust-item i { color: var(--terracotta); font-size: 1.1rem; }
 
     .section-title {
-      text-align: center; font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1rem; 
+      text-align: center; font-size: clamp(2rem, 4vw, 2.8rem); margin-bottom: 1rem; 
       font-weight: 800; color: var(--dark-text);
     }
     .section-subtitle {
       text-align: center; color: var(--text-muted); font-size: 1.1rem; 
-      max-width: 600px; margin: 0 auto 3.5rem; line-height: 1.6;
+      max-width: 650px; margin: 0 auto 3.5rem; line-height: 1.6;
     }
 
-    .demo-section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; text-align: center; }
-    .video-container {
-      position: relative; border-radius: 20px; overflow: hidden; 
-      border: 2px solid var(--sage-green); 
-      box-shadow: 0 30px 60px rgba(44, 53, 49, 0.15), 0 0 50px rgba(148, 180, 159, 0.3); 
-      background: #000; margin: 0 auto; z-index: 10;
+    /* Pipeline Step Diagram */
+    .pipeline-section { padding: 5rem 5%; max-width: 1200px; margin: 0 auto; }
+    .pipeline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+    .pipeline-card {
+      background: #ffffff; border: 1px solid var(--card-border);
+      border-radius: 20px; padding: 2rem 1.5rem; position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: all 0.3s ease;
     }
-    .video-container video { width: 100%; display: block; border-radius: 20px; }
-    .video-overlay {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-      display: flex; flex-direction: column; align-items: center; justify-content: center; 
-      background: rgba(44, 53, 49, 0.4); backdrop-filter: blur(4px); cursor: pointer; 
-      transition: all 0.4s ease; z-index: 3; border-radius: 20px;
+    .pipeline-card:hover { transform: translateY(-5px); border-color: var(--warm-peach); }
+    .pipeline-step-num {
+      width: 36px; height: 36px; background: var(--sage-light); color: var(--dark-text);
+      border: 1px solid var(--sage-green); border-radius: 50%; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;
     }
-    .video-overlay:hover { background: rgba(44, 53, 49, 0.25); backdrop-filter: blur(2px); }
-    .video-overlay.hidden { opacity: 0; pointer-events: none; backdrop-filter: blur(0); }
-    .play-btn {
-      width: 80px; height: 80px; background: var(--terracotta); color: #fff;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-      box-shadow: 0 0 0 10px rgba(223, 120, 97, 0.3), 0 10px 40px rgba(223, 120, 97, 0.5); 
-      transition: all 0.4s ease; margin-bottom: 1.5rem;
-    }
-    .play-btn:hover { transform: scale(1.15); box-shadow: 0 0 0 15px rgba(223, 120, 97, 0.3), 0 15px 50px rgba(223, 120, 97, 0.6); }
-    .play-btn i { font-size: 2rem; margin-left: 6px; }
-    .video-overlay span { color: #fff; font-size: 1.1rem; font-weight: 700; text-transform: uppercase;}
-    
-    .video-glow {
-      position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px; 
-      border-radius: 22px; background: linear-gradient(135deg, rgba(148,180,159,0.4), transparent, rgba(236,179,144,0.3)); 
-      z-index: -1; filter: blur(15px);
-    }
-    .video-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem; 
-      background: var(--sage-light); border: 1px solid var(--sage-green); 
-      border-radius: 50px; padding: 0.4rem 1.2rem; font-size: 0.85rem; 
-      color: var(--dark-text); font-weight: 700; margin-bottom: 1.5rem; text-transform: uppercase;
-    }
-    
-    .video-controls {
-      position: absolute; bottom: 0; left: 0; right: 0; 
-      background: linear-gradient(transparent, rgba(44, 53, 49, 0.9)); 
-      padding: 1.5rem 1.5rem 1rem; display: flex; align-items: center; gap: 1rem; 
-      z-index: 4; opacity: 0; transition: opacity 0.3s ease; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
-    }
-    .video-container:hover .video-controls, .video-container.show-controls .video-controls { opacity: 1; }
-    .video-controls button {
-      background: none; border: none; color: #fff; cursor: pointer; font-size: 1.2rem; 
-      transition: color 0.2s, transform 0.2s; display: flex; align-items: center; justify-content: center;
-    }
-    .video-controls button:hover { color: var(--warm-peach); transform: scale(1.15); }
-    .video-progress {
-      flex: 1; height: 5px; background: rgba(255,255,255,0.3); border-radius: 4px; cursor: pointer; position: relative; transition: height 0.15s;
-    }
-    .video-progress:hover { height: 8px; }
-    .video-progress-filled {
-      height: 100%; background: var(--terracotta); border-radius: 4px; width: 0%; 
-      transition: width 0.1s linear; position: relative; box-shadow: 0 0 10px var(--terracotta);
-    }
-    .video-progress-filled::after {
-      content: ''; position: absolute; right: -6px; top: 50%; transform: translateY(-50%); 
-      width: 14px; height: 14px; background: #fff; border-radius: 50%; opacity: 0; transition: opacity 0.15s; box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-    .video-progress:hover .video-progress-filled::after { opacity: 1; }
-    .video-time { font-size: 0.8rem; color: #fff; font-weight: 500; min-width: 80px; text-align: center; font-variant-numeric: tabular-nums; }
+    .pipeline-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; font-weight: 700; }
+    .pipeline-card p { font-size: 0.9rem; color: var(--text-muted); }
 
-    .data-tools-section { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
-    .tool-showcase {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-bottom: 6rem;
+    /* OLAP Methodologies Grid */
+    .methodologies-section { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
+    .methodology-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+    .methodology-card {
+      background: #ffffff; border: 1px solid var(--card-border);
+      border-radius: 20px; padding: 2.5rem 2rem; transition: all 0.4s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between;
     }
-    .tool-showcase.reverse { grid-template-columns: 1fr 1fr; }
-    .tool-showcase.reverse .tool-visual { order: -1; }
-
-    .tool-info h3 {
-      font-size: 2.2rem; margin-bottom: 1.2rem; font-weight: 800; color: var(--dark-text);
-    }
-    .tool-info p { color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem; font-size: 1.05rem;}
-    .tool-highlights { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; }
-    .tool-highlight { display: flex; align-items: center; gap: 1rem; font-size: 1rem; font-weight: 600; color: var(--dark-text);}
-    .tool-highlight i { color: var(--terracotta); font-size: 1.1rem; background: var(--sage-light); padding: 0.4rem; border-radius: 50%;}
-    
-    .tool-visual {
-      background: #ffffff;
-      border: 1px solid var(--card-border); border-radius: 24px; padding: 2.5rem; 
-      backdrop-filter: blur(12px); box-shadow: 0 20px 40px rgba(44, 53, 49, 0.06), var(--glass-glow);
-      position: relative; overflow: hidden;
-    }
-    .tool-visual::before {
-      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(circle at top right, rgba(236,179,144,0.15), transparent 50%); pointer-events: none;
-    }
-    .tool-visual-header {
-      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--card-border);
-    }
-    .tool-visual-dot { width: 12px; height: 12px; border-radius: 50%; }
-    .tool-visual-dot:nth-child(1) { background: #DF7861; }
-    .tool-visual-dot:nth-child(2) { background: #ECB390; }
-    .tool-visual-dot:nth-child(3) { background: #94B49F; }
-    .tool-flow { display: flex; flex-direction: column; gap: 1.2rem; }
-    .tool-flow-step {
-      display: flex; align-items: center; gap: 1.2rem; padding: 1rem 1.2rem; 
-      background: var(--bg-cream); border-radius: 12px; 
-      border: 1px solid var(--card-border); transition: transform 0.3s, background 0.3s;
-    }
-    .tool-flow-step:hover { transform: translateX(5px); background: #ffffff; border-color: var(--terracotta); }
-    .tool-flow-step i { color: var(--terracotta); font-size: 1.4rem; width: 28px; text-align: center; }
-    .tool-flow-step span { font-weight: 600; color: var(--dark-text); }
-    .tool-flow-arrow { text-align: center; color: var(--sage-green); font-size: 1.2rem; opacity: 0.8; }
-    
-    .tool-price-tag {
-      display: inline-flex; align-items: center; gap: 0.5rem; 
-      background: rgba(236, 179, 144, 0.25); border: 1px solid var(--warm-peach); 
-      border-radius: 50px; padding: 0.4rem 1rem; font-weight: 700; font-size: 0.85rem;
-      color: var(--terracotta-dark); margin-bottom: 1.5rem; text-transform: uppercase;
-    }
-
-    .use-cases-section { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
-    .use-cases-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-    .use-case-card {
-      background: #ffffff;
-      border: 1px solid var(--card-border);
-      border-radius: 20px; padding: 2.5rem 2rem; backdrop-filter: blur(12px); 
-      transition: all 0.4s ease;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-    }
-    .use-case-card:hover {
+    .methodology-card:hover {
       transform: translateY(-8px); box-shadow: 0 20px 40px rgba(148, 180, 159, 0.25);
       border-color: var(--warm-peach);
     }
-    .use-case-card h3 { font-size: 1.25rem; margin-bottom: 0.75rem; font-weight: 700; color: var(--dark-text);}
-    .use-case-card p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; }
-    .use-case-card i {
-      color: var(--terracotta);
-      font-size: 2rem; margin-bottom: 1.2rem; display: block;
+    .methodology-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .methodology-icon {
+      width: 48px; height: 48px; background: var(--sage-light); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; color: var(--terracotta); font-size: 1.3rem;
+    }
+    .methodology-card h3 { font-size: 1.3rem; font-weight: 800; color: var(--dark-text); margin-bottom: 0.5rem; }
+    .methodology-card p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; }
+    .methodology-tag {
+      display: inline-block; background: var(--bg-cream); border: 1px solid var(--card-border);
+      padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; color: var(--terracotta-dark);
     }
 
     .faq-section { padding: 6rem 5%; max-width: 850px; margin: 0 auto; }
     .faq-item { border-bottom: 1px solid var(--card-border); padding: 1.5rem 0; }
     .faq-question {
-      display: flex; justify-space-between; align-items: center; cursor: pointer; 
+      display: flex; justify-content: space-between; align-items: center; cursor: pointer; 
       font-weight: 700; font-size: 1.1rem; color: var(--dark-text); background: none; border: none; 
       width: 100%; text-align: left; padding: 0.5rem 0; transition: color 0.3s; font-family: inherit;
     }
@@ -374,7 +238,6 @@
     
     footer { text-align: center; padding: 4rem 2rem; font-size: 0.95rem; color: var(--text-muted); }
     footer a { color: var(--terracotta); text-decoration: none; font-weight: 600; transition: color 0.3s;}
-    footer a:hover { color: var(--terracotta-dark); text-decoration: underline; }
 
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -382,20 +245,17 @@
       justify-content: center; align-items: center; padding: 1.5rem; animation: fadeIn 0.3s ease;
     }
     .modal-overlay.active { display: flex; }
-    @keyframes fadeIn { from { opacity: 0; backdrop-filter: blur(0); } to { opacity: 1; backdrop-filter: blur(10px); } }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     
     .modal {
       background: #ffffff; border: 1px solid var(--card-border); 
       border-radius: 24px; padding: 3rem; width: 100%; max-width: 500px; position: relative; 
-      box-shadow: 0 25px 60px rgba(0,0,0,0.15); animation: slideUp 0.4s ease;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.15);
     }
     .modal-close {
       position: absolute; top: 1.5rem; right: 1.5rem; background: var(--bg-cream); 
       border: 1px solid var(--card-border); color: var(--text-muted); width: 36px; height: 36px; 
-      border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;
+      border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
-    .modal-close:hover { background: rgba(223, 120, 97, 0.15); border-color: var(--terracotta); color: var(--terracotta); transform: rotate(90deg); }
     .modal h2 { font-size: 1.8rem; margin-bottom: 0.5rem; font-weight: 800; color: var(--dark-text); }
     .modal .modal-subtitle { font-size: 1rem; color: var(--text-muted); margin-bottom: 2.5rem; }
     
@@ -408,374 +268,245 @@
     .form-group input, .form-group textarea {
       width: 100%; background: var(--bg-cream); border: 1px solid var(--card-border); 
       border-radius: 12px; padding: 1rem 1.25rem; color: var(--dark-text); font-family: inherit; font-size: 1rem; 
-      transition: all 0.3s ease; outline: none;
+      outline: none;
     }
-    .form-group input::placeholder, .form-group textarea::placeholder { color: #A0ABA6; }
-    .form-group input:focus, .form-group textarea:focus {
-      border-color: var(--terracotta); box-shadow: 0 0 0 4px rgba(223,120,97,0.15); background: #ffffff;
-    }
-    .form-group textarea { resize: vertical; min-height: 120px; }
     
     .btn-send {
       width: 100%; background: var(--terracotta); color: #ffffff; border: none; padding: 1rem; 
-      border-radius: 50px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; 
-      display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 1rem;
-      box-shadow: 0 8px 20px rgba(223,120,97,0.3);
+      border-radius: 50px; font-size: 1.05rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.75rem;
     }
-    .btn-send:hover { background: var(--terracotta-dark); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(223,120,97,0.4); }
-    .btn-send:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-    .spinner {
-      width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; 
-      border-radius: 50%; animation: spin 0.6s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    
-    .form-success { display: none; text-align: center; padding: 2rem 1rem; }
-    .form-success.active { display: block; animation: fadeIn 0.4s ease;}
-    .form-success .checkmark {
-      width: 72px; height: 72px; background: linear-gradient(135deg, var(--sage-green), var(--warm-peach)); 
-      color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-      margin: 0 auto 1.5rem; font-size: 2rem; box-shadow: 0 10px 30px rgba(148,180,159,0.4); animation: scaleIn 0.5s ease;
-    }
-    @keyframes scaleIn { from { transform: scale(0) rotate(-45deg); } to { transform: scale(1) rotate(0); } }
-    .form-success h3 { font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700; color: var(--dark-text);}
-    .form-success p { color: var(--text-muted); font-size: 1rem; }
 
     @media (max-width: 768px) {
-      .hero h1 { font-size: 2.5rem; }
-      nav ul { flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-top: 1rem; display: none; }
+      .hero h1 { font-size: 2.3rem; }
+      nav ul { flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-top: 1rem; }
       header { flex-wrap: wrap; justify-content: center; gap: 1rem; padding: 1rem; }
-      nav { width: 100%; display: flex; justify-content: center;}
-      nav ul { display: flex; margin-top:0; }
-      .buttons { flex-direction: column; align-items: center; width: 100%;}
-      .btn-download { width: 100%; justify-content: center; }
-      .modal { padding: 2rem 1.5rem; }
       .form-row { grid-template-columns: 1fr; gap: 0;}
-      .tool-showcase, .tool-showcase.reverse { grid-template-columns: 1fr; gap: 2.5rem;}
-      .tool-showcase.reverse .tool-visual { order: 0; }
-      .trust-bar { gap: 1.5rem; }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <a href="index.html" class="logo" aria-label="DataAsh Home"><div class="logo-icon"></div>DataAsh</a>
+    <a href="index.html" class="logo" aria-label="DataAsh Home"><div class="logo-icon"></div>DataAsh Architecture Studio</a>
     <nav aria-label="Main navigation">
       <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="solutions.html">Solutions</a></li>
-        <li><a href="#data-tools">ETL & SQL Tools</a></li>
-        <li><a href="#about">About</a></li>
+        <li><a href="#pipeline">Pipeline Flow</a></li>
+        <li><a href="#methodologies">OLAP Methodologies</a></li>
         <li><a href="#faq">FAQ</a></li>
       </ul>
     </nav>
-    <button class="cta-btn" id="contactBtn">Contact Us</button>
+    <button class="cta-btn" id="contactBtn">Request Demo</button>
   </header>
 
   <main>
     <section class="hero">
-      <div class="tag">Top Rated ETL Tools & SQL Converters</div>
-      <h1>Professional ETL Tools &amp; Excel to SQL Server Converters</h1>
-      <p>DataAsh is building a suite of powerful, privacy-first data tools. From lightning-fast Excel to SQL Server imports to robust ETL pipelines. The ultimate offline alternative to SSMS (SQL Server Management Studio).</p>
+      <div class="tag">Automated Data Warehouse & OLAP Engine</div>
+      <h1>Visualize, Automate &amp; Transform Raw Data into Production Warehouses</h1>
+      <p>Transform messy data lakes into fully orchestrated Staging layers, Enterprise Data Warehouses, and targeted Data Marts. Select the optimal OLAP architecture logic suited specifically to your business metrics.</p>
+      
       <div class="hero-domains">
-        <span class="hero-domain"><i class="fas fa-circle"></i> ETL Tools</span>
-        <span class="hero-domain"><i class="fas fa-circle"></i> Excel to SQL Server</span>
-        <span class="hero-domain"><i class="fas fa-circle"></i> SQL Tools</span>
-        <span class="hero-domain"><i class="fas fa-circle"></i> Data Engineering</span>
+        <span class="hero-domain"><i class="fas fa-circle"></i> Staging DDL Automation</span>
+        <span class="hero-domain"><i class="fas fa-circle"></i> Enterprise Data Warehouse (EDW)</span>
+        <span class="hero-domain"><i class="fas fa-circle"></i> Interactive Data Marts</span>
+        <span class="hero-domain"><i class="fas fa-circle"></i> Automated OLAP Modeling</span>
       </div>
-      <p class="hero-subtext">Starting with our flagship downloads: DataImportTool & Universal ETL Studio.</p>
+
       <div class="buttons">
-        <a class="btn-download" id="freeDownloadHero" href="solutions.html" aria-label="Explore Data Tools">
-          <i class="fas fa-layer-group"></i> Explore Tools
+        <a class="btn-primary" href="#methodologies" aria-label="Explore Methodologies">
+          <i class="fas fa-sitemap"></i> Explore Warehousing Methodologies
         </a>
       </div>
-      <div class="trust-bar">
-        <div class="trust-item"><i class="fas fa-lock"></i> 100% Offline</div>
-        <div class="trust-item"><i class="fas fa-bolt"></i> SSMS Alternative</div>
-        <div class="trust-item"><i class="fas fa-shield-alt"></i> No Cloud Upload</div>
-      </div>
     </section>
 
-    <section class="demo-section">
-      <div class="video-badge"><i class="fas fa-play-circle"></i> See It In Action</div>
-      <h2 class="section-title">Convert Excel to SQL Server Instantly</h2>
-      <p class="section-subtitle">Watch how our tool imports Excel to SQL Server in under 60 seconds — faster than SSMS.</p>
-      <div class="video-container" id="videoContainer">
-        <div class="video-glow"></div>
-        <video id="demoVideo" preload="metadata" playsinline muted>
-          <source src="DataImportToolvideo.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-        <div class="video-overlay" id="videoOverlay">
-          <div class="play-btn"><i class="fas fa-play"></i></div>
-          <span>Watch Demo</span>
-        </div>
-        <div class="video-controls">
-          <button id="vidPlayPause" title="Play / Pause"><i class="fas fa-play"></i></button>
-          <div class="video-progress" id="vidProgress">
-            <div class="video-progress-filled" id="vidProgressFilled"></div>
-          </div>
-          <span class="video-time" id="vidTime">0:00 / 0:00</span>
-          <button id="vidFullscreen" title="Fullscreen"><i class="fas fa-expand"></i></button>
-        </div>
-      </div>
-    </section>
-
-    <section id="data-tools" class="data-tools-section">
-      <h2 class="section-title">Our ETL &amp; SQL Tools</h2>
-      <p class="section-subtitle">Professional-grade data tools built for speed and privacy. No subscriptions, no complex SSMS setups.</p>
+    <!-- Visualized Pipeline Execution Flow -->
+    <section id="pipeline" class="pipeline-section">
+      <h2 class="section-title">End-to-End Data Lake to Mart Pipeline</h2>
+      <p class="section-subtitle">Automate each layer of your modern data architecture seamlessly.</p>
       
-      <div class="tool-showcase">
-        <div class="tool-info">
-          <div class="tool-price-tag"><i class="fas fa-gift"></i> Free &amp; Open</div>
-          <h3>Excel to SQL Server: DataImportTool</h3>
-          <p>The absolute fastest way to get Excel, CSV, TSV, and text data into your database. Built as a lightweight alternative to SQL Server Management Studio (SSMS) Import Wizard, avoiding all the complex configuration errors.</p>
-          <div class="tool-highlights">
-            <div class="tool-highlight"><i class="fas fa-check"></i> Better than SSMS Import/Export Wizard</div>
-            <div class="tool-highlight"><i class="fas fa-check"></i> Auto-detects Excel & CSV Data Types</div>
-            <div class="tool-highlight"><i class="fas fa-check"></i> European number formats (comma decimal) supported</div>
-            <div class="tool-highlight"><i class="fas fa-check"></i> Portable — no install, no admin</div>
-          </div>
-          <div class="tool-buttons">
-            <a class="btn-download" id="freeDownloadTools" href="https://github.com/ashonque/DataImportTool/releases/download/v3.0/DataImportTool.v3.zip" aria-label="Download DataImportTool v3.0 Free">
-              <i class="fas fa-download"></i> Download Free
-            </a>
-          </div>
+      <div class="pipeline-grid">
+        <div class="pipeline-card">
+          <div class="pipeline-step-num">1</div>
+          <h3>Raw Lake Ingestion</h3>
+          <p>Connect your raw semi-structured JSON, CSVs, or operational databases directly into the automated visual canvas.</p>
         </div>
-        <div class="tool-visual">
-          <div class="tool-visual-header">
-            <div class="tool-visual-dot"></div><div class="tool-visual-dot"></div><div class="tool-visual-dot"></div>
-          </div>
-          <div class="tool-flow">
-            <div class="tool-flow-step"><i class="fas fa-file-excel"></i><span>Drop your Excel, CSV, or text file</span></div>
-            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
-            <div class="tool-flow-step"><i class="fas fa-magic"></i><span>Auto-detect types &amp; delimiters</span></div>
-            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
-            <div class="tool-flow-step"><i class="fas fa-database"></i><span>Import to SQL Server instantly</span></div>
-            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
-            <div class="tool-flow-step"><i class="fas fa-check-double"></i><span>Table automatically created</span></div>
-          </div>
+        <div class="pipeline-card">
+          <div class="pipeline-step-num">2</div>
+          <h3>Automated Staging</h3>
+          <p>Auto-generate clean, isolated Staging DDL scripts, schema definitions, type casting, and duplicate removal rules.</p>
+        </div>
+        <div class="pipeline-card">
+          <div class="pipeline-step-num">3</div>
+          <h3>OLAP Modeling</h3>
+          <p>Select your preferred analytical methodology to structure your central Data Warehouse or Hub-Satellite network.</p>
+        </div>
+        <div class="pipeline-card">
+          <div class="pipeline-step-num">4</div>
+          <h3>Data Mart Generation</h3>
+          <p>Expose highly accessible, performant Data Marts ready for business intelligence, reporting dashboards, and analytics.</p>
         </div>
       </div>
+    </section>
 
-      <div class="tool-showcase reverse">
-        <div class="tool-visual">
-          <div class="tool-visual-header">
-            <div class="tool-visual-dot"></div><div class="tool-visual-dot"></div><div class="tool-visual-dot"></div>
-          </div>
-          <div class="tool-flow">
-            <div class="tool-flow-step"><i class="fas fa-plug"></i><span>Connect to local or network SQL Servers</span></div>
-            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
-            <div class="tool-flow-step"><i class="fas fa-project-diagram"></i><span>Visually map source to destination</span></div>
-            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
-            <div class="tool-flow-step"><i class="fas fa-random"></i><span>Auto-generate keys & custom business logic</span></div>
-            <div class="tool-flow-arrow"><i class="fas fa-arrow-down"></i></div>
-            <div class="tool-flow-step"><i class="fas fa-server"></i><span>Refresh or Delta load with real-time progress</span></div>
+    <!-- Analytical & Data Warehousing Methodologies -->
+    <section id="methodologies" class="methodologies-section">
+      <h2 class="section-title">Supported Analytical Methodologies</h2>
+      <p class="section-subtitle">Apply the exact relational logic and schema design best suited to your operational requirements.</p>
+
+      <div class="methodology-grid">
+        <!-- 1. Kimball -->
+        <div class="methodology-card">
+          <div>
+            <div class="methodology-header">
+              <div class="methodology-icon"><i class="fas fa-cubes"></i></div>
+              <span class="methodology-tag">Dimensional Modeling</span>
+            </div>
+            <h3>Kimball Method</h3>
+            <p>Deconstruct business processes into optimized Star and Snowflake schemas using Fact tables, Conformed Dimensions, and surrogate keys for lightning-fast BI query performance.</p>
           </div>
         </div>
-        <div class="tool-info">
-          <div class="tool-price-tag"><i class="fas fa-rocket"></i> New Release</div>
-          <h3>Universal ETL Studio</h3>
-          <p>A lightweight, standalone ETL tool designed to seamlessly extract, transform, and move data between SQL Server databases. Visually map source data, apply custom transformations like surrogate keys, and monitor execution via a sleek real-time progress ring.</p>
-          <div class="tool-highlights">
-            <div class="tool-highlight"><i class="fas fa-check"></i> Dedicated ETL tool for SQL Server</div>
-            <div class="tool-highlight"><i class="fas fa-check"></i> Apply custom business & transformation logic</div>
-            <div class="tool-highlight"><i class="fas fa-check"></i> Truncate-and-load or incremental delta loads</div>
-            <div class="tool-highlight"><i class="fas fa-check"></i> Real-time visual progress ring tracking</div>
-            <div class="tool-highlight"><i class="fas fa-check"></i> Highly portable — no installations required</div>
+
+        <!-- 2. Inmon -->
+        <div class="methodology-card">
+          <div>
+            <div class="methodology-header">
+              <div class="methodology-icon"><i class="fas fa-building"></i></div>
+              <span class="methodology-tag">Corporate Info Factory</span>
+            </div>
+            <h3>Inmon Method</h3>
+            <p>Construct an enterprise-wide, normalized 3NF central repository before deriving department-specific dependent Data Marts for standardized operational reporting.</p>
           </div>
-          <div class="tool-buttons">
-            <a class="btn-download" id="freeDownloadUniversalEtl" href="https://github.com/ashonque/universaletltoo/releases/download/universaletl/universl.etl.tool.git.zip" aria-label="Download Universal ETL Studio">
-              <i class="fas fa-download"></i> Download Free
-            </a>
+        </div>
+
+        <!-- 3. Data Vault 2.0 -->
+        <div class="methodology-card">
+          <div>
+            <div class="methodology-header">
+              <div class="methodology-icon"><i class="fas fa-link"></i></div>
+              <span class="methodology-tag">Agile Enterprise</span>
+            </div>
+            <h3>Data Vault 2.0</h3>
+            <p>Architect highly scalable, flexible systems composed of Hubs, Links, and Satellites designed to handle parallel loading, auditability, and massive data scale.</p>
+          </div>
+        </div>
+
+        <!-- 4. One Big Table (OBT) -->
+        <div class="methodology-card">
+          <div>
+            <div class="methodology-header">
+              <div class="methodology-icon"><i class="fas fa-table"></i></div>
+              <span class="methodology-tag">Denormalized Analytics</span>
+            </div>
+            <h3>One Big Table (OBT)</h3>
+            <p>Flatten complex multidimensional data into ultra-wide, fully denormalized tables optimized for modern cloud analytical engines (BigQuery, Snowflake, ClickHouse).</p>
+          </div>
+        </div>
+
+        <!-- 5. Anchor Modeling -->
+        <div class="methodology-card">
+          <div>
+            <div class="methodology-header">
+              <div class="methodology-icon"><i class="fas fa-anchor"></i></div>
+              <span class="methodology-tag">Highly Normalized</span>
+            </div>
+            <h3>Anchor Modeling</h3>
+            <p>Utilize 6NF temporal modeling featuring Anchors, Attributes, Ties, and Knots to handle continuous structural schema evolution without breaking existing queries.</p>
+          </div>
+        </div>
+
+        <!-- 6. Activity Schema -->
+        <div class="methodology-card">
+          <div>
+            <div class="methodology-header">
+              <div class="methodology-icon"><i class="fas fa-stream"></i></div>
+              <span class="methodology-tag">Time-Series & Event Driven</span>
+            </div>
+            <h3>Activity Schema</h3>
+            <p>Model customer journey processes into a single append-only activity table using standard timestamps, entities, and JSON payload attributes.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="use-cases-section">
-      <h2 class="section-title">Why Data Professionals Choose DataAsh</h2>
-      <p class="section-subtitle">Trusted by data engineers who need fast SQL tools without enterprise overhead.</p>
-      <div class="use-cases-grid">
-        <article class="use-case-card"><i class="fas fa-exchange-alt"></i><h3>Excel to SQL Server Migration</h3><p>Migrate spreadsheet data to SQL Server tables instantly. The absolute easiest Excel to SQL tool available — no scripts, no SSMS errors, no complexity.</p></article>
-        <article class="use-case-card"><i class="fas fa-project-diagram"></i><h3>ETL Tools & Data Engineering</h3><p>Speed up your ETL pipeline with Universal ETL Studio. Perfect for staging data, prototyping data models, and bypassing heavy legacy enterprise software.</p></article>
-        <article class="use-case-card"><i class="fas fa-database"></i><h3>SSMS Alternative</h3><p>Stop fighting with the SQL Server Management Studio (SSMS) import wizard's data type errors. Our tool auto-detects everything for a flawless upload.</p></article>
-      </div>
-    </section>
-
+    <!-- FAQ Section -->
     <section id="faq" class="faq-section">
       <h2 class="section-title">Frequently Asked Questions</h2>
       <div class="faq-list">
-        <div class="faq-item"><button class="faq-question" aria-expanded="false">Is DataAsh better than the SSMS Import Wizard?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes. Many users find the built-in SSMS (SQL Server Management Studio) import wizard frustrating due to strict data type errors and truncation issues. DataImportTool automatically scans your Excel/CSV files, determines the safest SQL data types, and creates the table for you instantly.</div></div>
-        <div class="faq-item"><button class="faq-question" aria-expanded="false">What is an ETL Tool?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">ETL stands for Extract, Transform, Load. Universal ETL Studio is our dedicated ETL tool that lets you pull data from a source database, apply business logic and transformations to it, and push it into a destination SQL Server seamlessly.</div></div>
-        
-        <div class="faq-item"><button class="faq-question" aria-expanded="false">Is it DataAsh, Datacash, or Datahash?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Our official name is <strong>DataAsh</strong>. However, because of autocorrect and typos, some people search for us using terms like "datacash", "datahash", or "data ash". No matter how you spell it, you are in the right place for the best SQL and ETL tools!</div></div>
-        
-        <div class="faq-item"><button class="faq-question" aria-expanded="false">Are these SQL Tools free?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes! Both DataImportTool and Universal ETL Studio are completely free to download and use offline.</div></div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">How does automated Staging creation work?<i class="fas fa-chevron-down"></i></button>
+          <div class="faq-answer">The engine profiles incoming raw data schemas, automatically maps appropriate SQL data types, strips invalid characters, and outputs standardized DDL statements to set up your initial staging database layer.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">Which modeling methodology should I select?<i class="fas fa-chevron-down"></i></button>
+          <div class="faq-answer">It depends on your business goals: Kimball is optimal for rapid BI reporting, Data Vault 2.0 suits large teams needing scalable parallel loads and audit trails, while One Big Table (OBT) delivers ultra-fast query performance on columnar cloud databases.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">Can I export generated SQL DDLs and ETL logic?<i class="fas fa-chevron-down"></i></button>
+          <div class="faq-answer">Yes, the studio lets you inspect and export target SQL scripts, staging migrations, and transformation mappings to deploy in your preferred database engine or orchestrator.</div>
+        </div>
       </div>
     </section>
 
     <section class="cta-section">
-      <h2>Ready to Simplify Your Data Workflows?</h2>
-      <p>Download the best ETL tools and Excel to SQL converters on the market.</p>
-      <div class="cta-buttons">
-        <a class="btn-download" href="solutions.html"><i class="fas fa-layer-group"></i> View All Solutions</a>
-      </div>
+      <h2>Transform Your Data Architecture</h2>
+      <p>Automate your Data Lake to Data Mart pipeline with optimal OLAP logic.</p>
     </section>
   </main>
 
   <footer>
-    <p>&copy; 2026 <a href="https://dataash.de/">DataAsh</a>. All rights reserved. Built for privacy-first data engineering.</p>
-    <p style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);">DataAsh | Datacash | Datahash | Excel to SQL Server | ETL Tools | SSMS Alternatives | SQL Tools</p>
+    <p>&copy; 2026 DataAsh Architecture Studio. All rights reserved.</p>
   </footer>
 
+  <!-- Contact / Request Demo Modal -->
   <div class="modal-overlay" id="contactModal">
     <div class="modal">
       <button class="modal-close" id="modalClose">&#10005;</button>
       <div id="contactForm">
-        <h2>Get in Touch</h2>
-        <p class="modal-subtitle">Have a question or feedback? We'd love to hear from you.</p>
+        <h2>Request Platform Access</h2>
+        <p class="modal-subtitle">Interested in testing the automated schema modeling suite? Get in touch with us.</p>
         <form id="emailForm" action="https://formspree.io/f/mkovgrqj" method="POST">
-          <input type="hidden" name="_replyto" id="replyToField">
           <div class="form-row">
-            <div class="form-group"><label for="firstName">First Name</label><input type="text" id="firstName" name="firstName" placeholder="John" required /></div>
-            <div class="form-group"><label for="lastName">Last Name</label><input type="text" id="lastName" name="lastName" placeholder="Doe" required /></div>
+            <div class="form-group"><label for="firstName">First Name</label><input type="text" id="firstName" name="firstName" placeholder="Jane" required /></div>
+            <div class="form-group"><label for="lastName">Last Name</label><input type="text" id="lastName" name="lastName" placeholder="Smith" required /></div>
           </div>
-          <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="john@example.com" required /></div>
-          <div class="form-group"><label for="message">Message</label><textarea id="message" name="message" placeholder="Tell us what's on your mind..." required></textarea></div>
-          <button type="submit" class="btn-send" id="sendBtn"><i class="fas fa-paper-plane"></i> Send Message</button>
+          <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="jane@company.com" required /></div>
+          <div class="form-group"><label for="message">Project Requirements</label><textarea id="message" name="message" placeholder="Tell us about your target data warehouse architecture..." required></textarea></div>
+          <button type="submit" class="btn-send" id="sendBtn"><i class="fas fa-paper-plane"></i> Submit Request</button>
         </form>
-      </div>
-      <div class="form-success" id="formSuccess">
-        <div class="checkmark">&#10003;</div>
-        <h3>Message Sent!</h3>
-        <p>Thank you for reaching out. We'll get back to you shortly.</p>
       </div>
     </div>
   </div>
 
   <script>
-    document.querySelectorAll('.btn-download').forEach(btn => {
-      btn.addEventListener('click', function() {
-        if(this.id) {
-          let label = this.id === 'freeDownloadUniversalEtl' ? 'UniversalETL_free' : 'DataImportTool_v3_free';
-          gtag('event', 'free_download_click', {
-            event_category: 'download',
-            event_label: label,
-            link_url: this.href,
-            button_location: this.id
-          });
+    // Modal toggle
+    const modal = document.getElementById('contactModal');
+    const contactBtn = document.getElementById('contactBtn');
+    const modalClose = document.getElementById('modalClose');
+    
+    contactBtn.addEventListener('click', () => { modal.classList.add('active'); document.body.style.overflow='hidden'; });
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
+    function closeModal() { modal.classList.remove('active'); document.body.style.overflow=''; }
+
+    // Smooth scroll for anchors
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', function(e) {
+        if(this.getAttribute('href').startsWith('#')) {
+          e.preventDefault();
+          const t = document.querySelector(this.getAttribute('href'));
+          if(t) window.scrollTo({top: t.offsetTop - 80, behavior: 'smooth'});
         }
       });
     });
 
-    const modal=document.getElementById('contactModal'),contactBtn=document.getElementById('contactBtn'),modalClose=document.getElementById('modalClose');
-    contactBtn.addEventListener('click',()=>{modal.classList.add('active');document.body.style.overflow='hidden'});
-    modalClose.addEventListener('click',closeModal);
-    modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
-    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-    function closeModal(){modal.classList.remove('active');document.body.style.overflow='';setTimeout(()=>{document.getElementById('contactForm').style.display='';document.getElementById('formSuccess').classList.remove('active');document.getElementById('emailForm').reset();sendBtn.innerHTML='<i class="fas fa-paper-plane"></i> Send Message';sendBtn.disabled=false},300)}
-
-    const form=document.getElementById('emailForm'),sendBtn=document.getElementById('sendBtn'),emailInput=document.getElementById('email'),replyToField=document.getElementById('replyToField');
-    emailInput.addEventListener('input',()=>{replyToField.value=emailInput.value});
-    form.addEventListener('submit',async e=>{e.preventDefault();replyToField.value=emailInput.value;sendBtn.innerHTML='<div class="spinner"></div> Sending...';sendBtn.disabled=true;try{const r=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}});if(r.ok){document.getElementById('contactForm').style.display='none';document.getElementById('formSuccess').classList.add('active')}else throw new Error('Failed')}catch(err){sendBtn.innerHTML='<i class="fas fa-exclamation-triangle"></i> Failed — Try Again';sendBtn.disabled=false;setTimeout(()=>{sendBtn.innerHTML='<i class="fas fa-paper-plane"></i> Send Message'},3000)}});
-
-    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){
-      if(this.getAttribute('href').startsWith('#')) {
-        e.preventDefault();
-        const t=document.querySelector(this.getAttribute('href'));
-        if(t)window.scrollTo({top:t.offsetTop-80,behavior:'smooth'})
-      }
-    })});
-
-    const demoVideo = document.getElementById('demoVideo');
-    const videoOverlay = document.getElementById('videoOverlay');
-    const videoContainer = document.getElementById('videoContainer');
-    const vidPlayPause = document.getElementById('vidPlayPause');
-    const vidProgress = document.getElementById('vidProgress');
-    const vidProgressFilled = document.getElementById('vidProgressFilled');
-    const vidTime = document.getElementById('vidTime');
-    const vidFullscreen = document.getElementById('vidFullscreen');
-    let hideControlsTimer;
-
-    if (demoVideo && videoOverlay) {
-      function fmtTime(s){if(isNaN(s))return'0:00';const m=Math.floor(s/60);return m+':'+(Math.floor(s%60)+'').padStart(2,'0')}
-      function flashControls(){videoContainer.classList.add('show-controls');clearTimeout(hideControlsTimer);hideControlsTimer=setTimeout(()=>{if(!demoVideo.paused)videoContainer.classList.remove('show-controls')},2500)}
-
-      videoOverlay.addEventListener('click', () => {
-        videoOverlay.classList.add('hidden');
-        demoVideo.muted = false;
-        demoVideo.play();
-        flashControls();
-        gtag('event', 'video_play', { event_category: 'engagement', event_label: 'demo_video' });
+    // FAQ Accordion
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.parentElement;
+        const isActive = item.classList.contains('active');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+        if(!isActive) item.classList.add('active');
       });
-
-      demoVideo.addEventListener('click', () => {
-        if (demoVideo.paused) { demoVideo.play(); } else { demoVideo.pause(); }
-        flashControls();
-      });
-
-      vidPlayPause.addEventListener('click', () => {
-        if (demoVideo.paused) { demoVideo.play(); } else { demoVideo.pause(); }
-      });
-
-      demoVideo.addEventListener('play', () => { vidPlayPause.innerHTML = '<i class="fas fa-pause"></i>'; });
-      demoVideo.addEventListener('pause', () => { vidPlayPause.innerHTML = '<i class="fas fa-play"></i>'; videoContainer.classList.add('show-controls'); });
-
-      demoVideo.addEventListener('timeupdate', () => {
-        if (demoVideo.duration) {
-          vidProgressFilled.style.width = (demoVideo.currentTime / demoVideo.duration * 100) + '%';
-          vidTime.textContent = fmtTime(demoVideo.currentTime) + ' / ' + fmtTime(demoVideo.duration);
-        }
-      });
-
-      let seeking = false;
-      function seekTo(e) {
-        const rect = vidProgress.getBoundingClientRect();
-        const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-        demoVideo.currentTime = pct * demoVideo.duration;
-        vidProgressFilled.style.width = (pct * 100) + '%';
-      }
-      vidProgress.addEventListener('mousedown', (e) => { seeking = true; seekTo(e); });
-      document.addEventListener('mousemove', (e) => { if (seeking) seekTo(e); });
-      document.addEventListener('mouseup', () => { seeking = false; });
-      vidProgress.addEventListener('touchstart', (e) => { seekTo(e.touches[0]); }, {passive:true});
-      vidProgress.addEventListener('touchmove', (e) => { seekTo(e.touches[0]); }, {passive:true});
-
-      vidFullscreen.addEventListener('click', () => {
-        if (document.fullscreenElement || document.webkitFullscreenElement) {
-          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-        } else {
-          (videoContainer.requestFullscreen || videoContainer.webkitRequestFullscreen).call(videoContainer);
-        }
-      });
-      function onFSChange() {
-        const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-        vidFullscreen.innerHTML = isFS ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
-        vidFullscreen.title = isFS ? 'Exit Fullscreen' : 'Fullscreen';
-      }
-      document.addEventListener('fullscreenchange', onFSChange);
-      document.addEventListener('webkitfullscreenchange', onFSChange);
-
-      document.addEventListener('keydown', (e) => {
-        if (videoOverlay.classList.contains('hidden') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-          if (e.key === 'f' || e.key === 'F') { vidFullscreen.click(); e.preventDefault(); }
-          if (e.key === 'Escape' && (document.fullscreenElement || document.webkitFullscreenElement)) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
-        }
-      });
-
-      videoContainer.addEventListener('mousemove', flashControls);
-
-      demoVideo.addEventListener('ended', () => {
-        videoOverlay.classList.remove('hidden');
-        vidPlayPause.innerHTML = '<i class="fas fa-play"></i>';
-        videoContainer.classList.add('show-controls');
-        gtag('event', 'video_complete', { event_category: 'engagement', event_label: 'demo_video' });
-      });
-    }
-
-    document.querySelectorAll('.faq-question').forEach(btn=>{btn.addEventListener('click',()=>{const item=btn.parentElement,isActive=item.classList.contains('active');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.faq-question').forEach(q=>q.setAttribute('aria-expanded','false'));if(!isActive){item.classList.add('active');btn.setAttribute('aria-expanded','true')}})});
+    });
   </script>
 </body>
 </html>
