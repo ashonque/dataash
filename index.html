@@ -18,7 +18,7 @@
   
   <meta property="og:type" content="website" />
   <meta property="og:title" content="DataAsh | Automated Data Warehouse & Modeling Architecture" />
-  <meta property="og:description" content="Automate Staging DDLs, Kimball, Inmon, and Data Vault schemas straight from raw data." />
+  <meta property="og:description" content="Automate Staging DDLs, Kimball, Medallion, Data Vault, and Galaxy schemas straight from raw data." />
   <meta property="og:url" content="https://dataash.de/" />
   <meta property="og:site_name" content="DataAsh" />
   <meta name="theme-color" content="#94B49F" />
@@ -168,7 +168,6 @@
       max-width: 650px; margin: 0 auto 3.5rem; line-height: 1.6;
     }
 
-    /* Pipeline Step Diagram */
     .pipeline-section { padding: 5rem 5%; max-width: 1200px; margin: 0 auto; }
     .pipeline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
     .pipeline-card {
@@ -185,7 +184,6 @@
     .pipeline-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; font-weight: 700; }
     .pipeline-card p { font-size: 0.9rem; color: var(--text-muted); }
 
-    /* OLAP Methodologies Grid */
     .methodologies-section { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
     .methodology-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
     .methodology-card {
@@ -305,10 +303,10 @@
       <p>Transform messy data lakes into fully orchestrated Staging layers, Enterprise Data Warehouses, and targeted Data Marts. Select the optimal OLAP architecture logic suited specifically to your business metrics.</p>
       
       <div class="hero-domains">
+        <span class="hero-domain"><i class="fas fa-circle"></i> Medallion Pipelines</span>
+        <span class="hero-domain"><i class="fas fa-circle"></i> Galaxy Schema Mapping</span>
         <span class="hero-domain"><i class="fas fa-circle"></i> Staging DDL Automation</span>
-        <span class="hero-domain"><i class="fas fa-circle"></i> Enterprise Data Warehouse (EDW)</span>
-        <span class="hero-domain"><i class="fas fa-circle"></i> Interactive Data Marts</span>
-        <span class="hero-domain"><i class="fas fa-circle"></i> Automated OLAP Modeling</span>
+        <span class="hero-domain"><i class="fas fa-circle"></i> Enterprise Data Warehouse</span>
       </div>
 
       <div class="buttons">
@@ -337,7 +335,7 @@
         <div class="pipeline-card">
           <div class="pipeline-step-num">3</div>
           <h3>OLAP Modeling</h3>
-          <p>Select your preferred analytical methodology to structure your central Data Warehouse or Hub-Satellite network.</p>
+          <p>Select your preferred analytical methodology to structure your central Data Warehouse, Medallion layer, or Hub-Satellite network.</p>
         </div>
         <div class="pipeline-card">
           <div class="pipeline-step-num">4</div>
@@ -353,7 +351,31 @@
       <p class="section-subtitle">Apply the exact relational logic and schema design best suited to your operational requirements.</p>
 
       <div class="methodology-grid">
-        <!-- 1. Kimball -->
+        <!-- 1. Medallion Architecture -->
+        <div class="methodology-card">
+          <div>
+            <div class="methodology-header">
+              <div class="methodology-icon"><i class="fas fa-layer-group"></i></div>
+              <span class="methodology-tag">Lakehouse Standard</span>
+            </div>
+            <h3>Medallion Architecture</h3>
+            <p>Organize raw data incrementally into Bronze (raw ingestion), Silver (cleaned/conformed data), and Gold (aggregated business-level data marts) layers for modern lakehouses.</p>
+          </div>
+        </div>
+
+        <!-- 2. Galaxy Schema -->
+        <div class="methodology-card">
+          <div>
+            <div class="methodology-header">
+              <div class="methodology-icon"><i class="fas fa-atom"></i></div>
+              <span class="methodology-tag">Fact Constellation</span>
+            </div>
+            <h3>Galaxy Schema</h3>
+            <p>Interlink multiple Fact tables sharing common conformed dimension tables across complex cross-functional business domains without repeating dimension storage.</p>
+          </div>
+        </div>
+
+        <!-- 3. Kimball -->
         <div class="methodology-card">
           <div>
             <div class="methodology-header">
@@ -361,11 +383,11 @@
               <span class="methodology-tag">Dimensional Modeling</span>
             </div>
             <h3>Kimball Method</h3>
-            <p>Deconstruct business processes into optimized Star and Snowflake schemas using Fact tables, Conformed Dimensions, and surrogate keys for lightning-fast BI query performance.</p>
+            <p>Deconstruct business processes into optimized Star schemas using Fact tables, Conformed Dimensions, and surrogate keys for lightning-fast BI query performance.</p>
           </div>
         </div>
 
-        <!-- 2. Inmon -->
+        <!-- 4. Inmon -->
         <div class="methodology-card">
           <div>
             <div class="methodology-header">
@@ -377,7 +399,7 @@
           </div>
         </div>
 
-        <!-- 3. Data Vault 2.0 -->
+        <!-- 5. Data Vault 2.0 -->
         <div class="methodology-card">
           <div>
             <div class="methodology-header">
@@ -389,7 +411,7 @@
           </div>
         </div>
 
-        <!-- 4. One Big Table (OBT) -->
+        <!-- 6. One Big Table (OBT) -->
         <div class="methodology-card">
           <div>
             <div class="methodology-header">
@@ -401,7 +423,7 @@
           </div>
         </div>
 
-        <!-- 5. Anchor Modeling -->
+        <!-- 7. Anchor Modeling -->
         <div class="methodology-card">
           <div>
             <div class="methodology-header">
@@ -413,7 +435,7 @@
           </div>
         </div>
 
-        <!-- 6. Activity Schema -->
+        <!-- 8. Activity Schema -->
         <div class="methodology-card">
           <div>
             <div class="methodology-header">
@@ -432,12 +454,12 @@
       <h2 class="section-title">Frequently Asked Questions</h2>
       <div class="faq-list">
         <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">How does automated Staging creation work?<i class="fas fa-chevron-down"></i></button>
-          <div class="faq-answer">The engine profiles incoming raw data schemas, automatically maps appropriate SQL data types, strips invalid characters, and outputs standardized DDL statements to set up your initial staging database layer.</div>
+          <button class="faq-question" aria-expanded="false">What is Medallion Architecture?<i class="fas fa-chevron-down"></i></button>
+          <div class="faq-answer">Medallion Architecture structures data lakehouses into Bronze (raw ingestion), Silver (transformed/cleaned tables), and Gold (pre-aggregated business analytics) layers for data quality and isolation.</div>
         </div>
         <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">Which modeling methodology should I select?<i class="fas fa-chevron-down"></i></button>
-          <div class="faq-answer">It depends on your business goals: Kimball is optimal for rapid BI reporting, Data Vault 2.0 suits large teams needing scalable parallel loads and audit trails, while One Big Table (OBT) delivers ultra-fast query performance on columnar cloud databases.</div>
+          <button class="faq-question" aria-expanded="false">How does a Galaxy Schema differ from a standard Star Schema?<i class="fas fa-chevron-down"></i></button>
+          <div class="faq-answer">While a Star Schema centers around a single Fact table, a Galaxy Schema (Fact Constellation) contains multiple Fact tables sharing common conformed Dimensions across multiple enterprise business processes.</div>
         </div>
         <div class="faq-item">
           <button class="faq-question" aria-expanded="false">Can I export generated SQL DDLs and ETL logic?<i class="fas fa-chevron-down"></i></button>
@@ -477,7 +499,6 @@
   </div>
 
   <script>
-    // Modal toggle
     const modal = document.getElementById('contactModal');
     const contactBtn = document.getElementById('contactBtn');
     const modalClose = document.getElementById('modalClose');
@@ -487,7 +508,6 @@
     modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
     function closeModal() { modal.classList.remove('active'); document.body.style.overflow=''; }
 
-    // Smooth scroll for anchors
     document.querySelectorAll('a[href^="#"]').forEach(a => {
       a.addEventListener('click', function(e) {
         if(this.getAttribute('href').startsWith('#')) {
@@ -498,7 +518,6 @@
       });
     });
 
-    // FAQ Accordion
     document.querySelectorAll('.faq-question').forEach(btn => {
       btn.addEventListener('click', () => {
         const item = btn.parentElement;
