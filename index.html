@@ -84,12 +84,13 @@
     header {
       display: flex; justify-content: space-between; align-items: center; 
       padding: 1.25rem 5%; position: sticky; top: 0; z-index: 100;
-      background: rgba(252, 248, 232, 0.85); backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--card-border);
+      background: var(--sage-green); backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 20px rgba(44, 53, 49, 0.08);
     }
     .logo {
       display: flex; align-items: center; gap: 0.75rem; 
-      font-weight: 800; font-size: 1.5rem; text-decoration: none; color: var(--dark-text);
+      font-weight: 800; font-size: 1.5rem; text-decoration: none; color: #ffffff;
     }
     .logo-icon {
       position: relative; width: 32px; height: 32px; 
@@ -108,26 +109,26 @@
     
     nav ul { display: flex; list-style: none; gap: 2.5rem; }
     nav a {
-      color: var(--text-muted); text-decoration: none; font-weight: 600; 
+      color: rgba(255, 255, 255, 0.88); text-decoration: none; font-weight: 600; 
       font-size: 0.95rem; transition: color 0.3s; position: relative; padding: 0.5rem 0;
     }
-    nav a:hover { color: var(--terracotta); }
+    nav a:hover { color: #ffffff; }
     nav a::after {
-      content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; 
-      background: var(--terracotta); transition: width 0.3s ease; border-radius: 2px;
+      content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2.5px; 
+      background: #ffffff; transition: width 0.3s ease; border-radius: 2px;
     }
     nav a:hover::after { width: 100%; }
     
     .cta-btn {
       background: #ffffff; color: var(--dark-text); 
-      border: 1px solid var(--card-border); padding: 0.6rem 1.5rem; 
-      border-radius: 50px; font-weight: 600; font-size: 0.9rem; cursor: pointer; 
+      border: 1px solid rgba(255, 255, 255, 0.3); padding: 0.6rem 1.5rem; 
+      border-radius: 50px; font-weight: 700; font-size: 0.9rem; cursor: pointer; 
       transition: all 0.3s ease; backdrop-filter: blur(10px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
     .cta-btn:hover {
       background: var(--terracotta); color: #ffffff; border-color: var(--terracotta);
-      transform: translateY(-2px); box-shadow: 0 10px 25px rgba(223, 120, 97, 0.25);
+      transform: translateY(-2px); box-shadow: 0 10px 25px rgba(223, 120, 97, 0.35);
     }
 
     .hero {
@@ -347,7 +348,7 @@
     .faq-section { padding: 6rem 5%; max-width: 850px; margin: 0 auto; }
     .faq-item { border-bottom: 1px solid var(--card-border); padding: 1.5rem 0; }
     .faq-question {
-      display: flex; justify-content: space-between; align-items: center; cursor: pointer; 
+      display: flex; justify-space-between; align-items: center; cursor: pointer; 
       font-weight: 700; font-size: 1.1rem; color: var(--dark-text); background: none; border: none; 
       width: 100%; text-align: left; padding: 0.5rem 0; transition: color 0.3s; font-family: inherit;
     }
