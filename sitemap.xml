@@ -3,9 +3,16 @@
 
   <url>
     <loc>https://dataash.de/</loc>
-    <lastmod>2026-09-01</lastmod>
+    <lastmod>2026-09-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://dataash.de/excel-to-sql-server.html</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 
 </urlset>

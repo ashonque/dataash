@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Excel to SQL Server without losing what is in the spreadsheet</title>
+  <meta name="description" content="What actually goes wrong when a spreadsheet becomes a SQL Server table - dates, mixed columns, sampled schemas - and what a careful import does instead." />
+  <link rel="canonical" href="https://dataash.de/excel-to-sql-server.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Excel to SQL Server: importing a spreadsheet without losing what is in it" />
+  <meta property="og:description" content="Dates that are really numbers, columns that hold two kinds of thing, and schemas guessed from the first hundred rows. What goes wrong, and what to do instead." />
+  <meta property="og:url" content="https://dataash.de/excel-to-sql-server.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Excel to SQL Server, without losing what is in the spreadsheet" />
+  <meta name="twitter:description" content="Dates that are really numbers, columns that hold two kinds of thing, and schemas guessed from the first hundred rows." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* The site's own tokens, carried here rather than shared from a
+       stylesheet: this page cannot then break the home page, and there is no
+       build step to keep in step. */
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(30px, 5.2vw, 46px); line-height: 1.12;
+      letter-spacing: -0.02em; margin: 14px 0 10px;
+    }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 28px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 46px 0 12px;
+    }
+    h3 { font-size: 19px; margin: 30px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+    table {
+      width: 100%; border-collapse: collapse; margin: 22px 0; font-size: 15.5px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+    .wide { overflow-x: auto; }
+
+    .faq { margin-top: 12px; }
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 50px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 56px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) { body { font-size: 16px; } .cta { padding: 24px; } }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/">&larr; Back to Netune</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; Excel to SQL Server
+  </nav>
+
+  <h1>Excel to SQL Server, without losing what is in the spreadsheet</h1>
+  <p class="standfirst">
+    Getting a spreadsheet into a database looks like a five-minute job. It is,
+    until the dates arrive as numbers, one column turns out to hold two kinds
+    of thing, and the field that only appears on row 551 is in neither the
+    schema nor the table.
+  </p>
+
+  <p>
+    Almost every import tool does the same four things, and three of them are
+    guesses. It reads the top of the file, decides what each column is,
+    creates a table, and pushes the rows in. When a value disagrees with the
+    guess, something has to give — and what usually gives is the value.
+  </p>
+  <p>
+    This page is about what actually goes wrong on that path, and what an
+    import has to do instead. It is written from the inside: these are the
+    problems Netune's own spreadsheet reader had to solve before it could be
+    trusted with anybody's data.
+  </p>
+
+  <h2>A date in Excel is not a date</h2>
+  <p>
+    This is the one that catches everybody, because a date cell <em>looks</em>
+    like a date. Underneath, it is a number — the count of days since the
+    30th of December 1899 — wearing a number format that displays it as a
+    date. The cell holding <code>45000</code> is either forty-five thousand or
+    the 3rd of March 2023, and nothing in the cell itself tells you which. The
+    answer is in the workbook's style table, in a different file inside the
+    <code>.xlsx</code> archive.
+  </p>
+  <p>
+    So a reader that ignores styles turns every date column into a column of
+    five-digit integers. One that reads them carelessly does something worse.
+    Consider a currency column formatted as <code>"Sold" #,##0.00</code>. That
+    format string contains the letter <code>d</code>, and a naive check for
+    date-like characters will find it — and quietly convert an entire column of
+    prices into dates in 2023. The format code has to be scanned
+    <strong>outside its quoted literals</strong>, or your revenue becomes a
+    calendar.
+  </p>
+  <div class="note">
+    <p>
+      <strong>Why 1899-12-30, and not the 31st?</strong> Excel believes 1900
+      was a leap year. It was not. The base date is shifted by a day so that
+      the bug and the correction cancel out for every date after February 1900
+      — which is every date anyone is importing. It is a thirty-year-old
+      compatibility decision that every reader still has to honour.
+    </p>
+  </div>
+
+  <h2>The schema is guessed from a sample, and the file is not the sample</h2>
+  <p>
+    Most importers read the first few hundred rows to work out the shape, then
+    read the whole file to load it. That is two different views of the same
+    data, and the gap between them is where columns go missing.
+  </p>
+  <p>
+    A field that first appears on row 551 is in the file but not in the
+    sample. It gets a column in neither the schema nor the table, and the load
+    reports success. Nobody is told. The same thing happens to a column that
+    holds clean integers for four hundred rows and then a
+    <code>N/A</code>: sampled, it is an integer; loaded, it is an integer with
+    seven failed rows in it.
+  </p>
+  <p>
+    The fix is not a bigger sample. It is to plan from the rows you are about
+    to write — read the file once, in full, decide the columns from what is
+    actually there, and then create the table. A preview may still sample,
+    because a spreadsheet's columns are its first row and showing them quickly
+    is worth something. The <em>run</em> must not.
+  </p>
+
+  <h2>One column, two kinds of thing</h2>
+  <p>
+    Real spreadsheets have a column that is a number 493 times and text 7
+    times, because somebody typed "approx 40" in a hurry two years ago. There
+    are three ways to handle that, and only one of them is honest:
+  </p>
+  <div class="wide">
+  <table>
+    <thead>
+      <tr><th>What the tool does</th><th>What actually happens</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Types the column as a number and imports</td>
+        <td>Seven rows fail, or seven values become <code>NULL</code>. Often reported as a row count that nobody compares against the file.</td>
+      </tr>
+      <tr>
+        <td>Types everything as text to be safe</td>
+        <td>Nothing fails, and nothing is usable. Every later query has to cast, and every sort is alphabetical.</td>
+      </tr>
+      <tr>
+        <td>Says what it found, before the table exists</td>
+        <td>"Holds number in 493, text in 7." Now it is a decision rather than a surprise.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p>
+    The third one costs nothing extra — the file has already been read — and
+    it is the only one where the person who knows what "approx 40" meant gets
+    to decide what happens to it.
+  </p>
+
+  <h2>What a careful import actually does</h2>
+  <ol>
+    <li>
+      <strong>Reads the whole file before creating anything.</strong> The
+      columns come from the rows that are about to be written, not from a
+      sample of them.
+    </li>
+    <li>
+      <strong>Reads the workbook's styles</strong>, so a date is a date and a
+      price formatted with the word "Sold" in it is still a price.
+    </li>
+    <li>
+      <strong>Reports the mess rather than resolving it silently.</strong> How
+      many values of each shape a column really holds, shown before the table
+      is made.
+    </li>
+    <li>
+      <strong>Lets every inference be overridden.</strong> Rename the column,
+      change the type, leave the column out entirely. Asking somebody to write
+      a schema for a messy file up front asks them to already understand the
+      mess; showing them the inference and letting them correct it does not.
+    </li>
+    <li>
+      <strong>Creates the table and inserts the rows in one transaction.</strong>
+      A table that exists and is empty because the insert failed is worse than
+      no table, because it looks finished.
+    </li>
+    <li>
+      <strong>Names the rows it could not convert.</strong> Not a count — the
+      rows.
+    </li>
+  </ol>
+
+  <h2>Getting the types right in SQL Server</h2>
+  <p>
+    Once the values are understood, the target types are mostly
+    straightforward. Two are worth stating because they are so often wrong:
+  </p>
+  <ul>
+    <li>
+      <strong>Money is not <code>FLOAT</code>.</strong> Floating point cannot
+      represent 0.1 exactly, and a column of prices summed as
+      <code>FLOAT</code> will disagree with the spreadsheet by pennies that
+      nobody can find. <code>DECIMAL(19,4)</code> is the safe default.
+    </li>
+    <li>
+      <strong>An unsized <code>NVARCHAR</code> is a decision, not a default.</strong>
+      <code>NVARCHAR(MAX)</code> cannot be indexed usefully and cannot be part
+      of a key. Size it from the data you actually read.
+    </li>
+    <li>
+      <strong>Dates with an offset lose the offset.</strong>
+      <code>DATETIME2</code> has nowhere to keep it. Convert to UTC on the way
+      in and record that you did — silently dropping a timezone is how two
+      systems come to disagree by an hour twice a year.
+    </li>
+  </ul>
+
+  <h2>Where Netune fits</h2>
+  <p>
+    Netune imports a spreadsheet by doing all of the above, and then treats
+    the result as what it is: a table in a database, ready to be profiled,
+    modeled and built into a warehouse alongside everything else. The import
+    is not a separate tool bolted on — it is the way data with no database
+    behind it gets in.
+  </p>
+  <p>
+    It reads <code>.xlsx</code> and <code>.xlsm</code> directly, with no
+    spreadsheet software and no heavyweight libraries involved. It shows you
+    every column it inferred, what each one holds and where it is unsure,
+    before anything is created. And it never writes into the database it read
+    from — a rule that runs through everything Netune does.
+  </p>
+  <div class="note">
+    <p>
+      <strong>One honest limitation.</strong> The old <code>.xls</code> format
+      is not a zipped set of XML files but a compound binary document from the
+      1990s — a different format wearing a similar name. Netune says so
+      plainly rather than failing with an error about a corrupt archive. Open
+      it once in Excel and save it as <code>.xlsx</code>.
+    </p>
+  </div>
+
+  <h2>Questions people ask</h2>
+  <div class="faq">
+    <div class="faq-item">
+      <h3>Why do my dates import as five-digit numbers?</h3>
+      <p>
+        Because in Excel that is what they are: the number of days since
+        1899-12-30. Whether a cell is a date lives in the workbook's style
+        table, not in the cell, so a reader that does not open the styles sees
+        only the number. Any tool that gets this right has read
+        <code>styles.xml</code>.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>Why is a column missing after the import?</h3>
+      <p>
+        Usually because the field first appears further down the file than the
+        importer sampled. The schema was decided from the first few hundred
+        rows and the field was not in them, so no column was created — and the
+        load still reported success. An importer that reads the whole file
+        before creating the table cannot have this fault.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>What should a mixed column be typed as?</h3>
+      <p>
+        It depends on what the odd values mean, which is why the tool should
+        not decide alone. What it owes you is the count — "number in 493, text
+        in 7" — before the table exists. Typing everything as text avoids the
+        error and moves the cost to every query you write afterwards.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>Can I import a spreadsheet straight into a data warehouse?</h3>
+      <p>
+        Into a table, yes. Into a warehouse, not directly — a warehouse table
+        has keys, history and a grain, and a spreadsheet has none of those.
+        The useful path is to land it as a table first, profile it alongside
+        your other sources, and let it be modeled with them.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>Does .xls work?</h3>
+      <p>
+        No. It is a compound binary document rather than zipped XML — a
+        genuinely different format. Save it as <code>.xlsx</code> first.
+      </p>
+    </div>
+  </div>
+
+  <div class="cta">
+    <h2>Bring the spreadsheet. Netune will show you the model.</h2>
+    <p>
+      Netune reads raw data, shows you the warehouse it implies, and generates
+      the staging, warehouse and mart layers in the methodology that fits.
+      Access is opening in stages.
+    </p>
+    <a href="/#access">Request early access</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; <span id="year">2026</span> DataAsh. Netune is a DataAsh product.
+    &nbsp;&middot;&nbsp; <a href="/">dataash.de</a>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Excel to SQL Server, without losing what is in the spreadsheet",
+  "description": "What actually goes wrong when a spreadsheet becomes a SQL Server table - dates that are really numbers, columns that hold two kinds of thing, schemas guessed from a sample - and what a careful import does instead.",
+  "url": "https://dataash.de/excel-to-sql-server.html",
+  "image": "https://dataash.de/og.png",
+  "inLanguage": "en",
+  "author": { "@type": "Organization", "name": "DataAsh", "url": "https://dataash.de/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/",
+    "logo": { "@type": "ImageObject", "url": "https://dataash.de/og.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://dataash.de/excel-to-sql-server.html" },
+  "about": [
+    { "@type": "Thing", "name": "Microsoft Excel" },
+    { "@type": "Thing", "name": "Microsoft SQL Server" },
+    { "@type": "Thing", "name": "Data import" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why do my dates import as five-digit numbers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because in Excel that is what they are: the number of days since 1899-12-30. Whether a cell is a date lives in the workbook's style table, not in the cell, so a reader that does not open the styles sees only the number. Any tool that gets this right has read styles.xml."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is a column missing after the import?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Usually because the field first appears further down the file than the importer sampled. The schema was decided from the first few hundred rows and the field was not in them, so no column was created - and the load still reported success. An importer that reads the whole file before creating the table cannot have this fault."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What should a mixed column be typed as?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It depends on what the odd values mean, which is why the tool should not decide alone. What it owes you is the count - number in 493, text in 7 - before the table exists. Typing everything as text avoids the error and moves the cost to every query you write afterwards."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I import a spreadsheet straight into a data warehouse?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Into a table, yes. Into a warehouse, not directly - a warehouse table has keys, history and a grain, and a spreadsheet has none of those. The useful path is to land it as a table first, profile it alongside your other sources, and let it be modeled with them."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does .xls work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It is a compound binary document rather than zipped XML - a genuinely different format. Save it as .xlsx first."
+      }
+    }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Netune", "item": "https://dataash.de/" },
+    { "@type": "ListItem", "position": 2, "name": "Excel to SQL Server", "item": "https://dataash.de/excel-to-sql-server.html" }
+  ]
+}
+</script>
+
+</body>
+</html>
