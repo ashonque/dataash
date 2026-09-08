@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-5P4PHQCGXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -9,11 +11,9 @@
     gtag('config', 'G-5P4PHQCGXX');
   </script>
 
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Netune — Automate Your Data Lake into a Modeled Data Warehouse</title>
-  <meta name="description" content="Netune visualizes and automates the path from raw data lake to Staging, Data Warehouse and Data Marts — in the OLAP methodology you choose: Kimball, Inmon, Data Vault 2.0, Medallion, Galaxy, OBT, Anchor Modeling or Activity Schema." />
+  <meta name="description" content="Netune turns a raw data lake into a modeled data warehouse: staging, warehouse and marts, generated in the methodology that fits your data." />
   <link rel="canonical" href="https://dataash.de/" />
 
   <meta property="og:type" content="website" />
@@ -21,6 +21,16 @@
   <meta property="og:description" content="From raw data to Staging, Warehouse and Marts — modeled with the OLAP methodology that fits your business." />
   <meta property="og:url" content="https://dataash.de/" />
   <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Netune - from a raw data lake to a modeled data warehouse" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Netune - Automate Your Data Lake into a Modeled Data Warehouse" />
+  <meta name="twitter:description" content="Staging, warehouse and marts, generated in the methodology that fits your data." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+  <meta name="twitter:image:alt" content="Netune - from a raw data lake to a modeled data warehouse" />
   <meta name="theme-color" content="#1E3A6B" />
 
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
@@ -657,6 +667,83 @@
       .footer-inner { flex-direction: column; align-items: flex-start; }
     }
   </style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What exactly is Netune?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Netune is a web app for designing and automating data warehouses. You point it at raw data, choose a modeling methodology, and it visualizes and generates the Staging, Data Warehouse and Data Mart layers — including the SQL and the transformation logic between them."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to know which methodology to pick?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Netune profiles your data first and suggests the methodologies that suit its shape and your reporting needs. You can compare how the same source data models under each one, then commit to the design you prefer."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does a Galaxy schema differ from a standard Star schema?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A Star schema centers on a single fact table surrounded by its dimensions. A Galaxy schema — also called a fact constellation — holds multiple fact tables that share the same conformed dimensions, so several business processes can be analyzed together without duplicating dimension storage."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is Medallion architecture?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Medallion structures a lakehouse into three progressively refined layers: Bronze holds raw data exactly as it landed, Silver holds cleaned and conformed tables, and Gold holds the aggregated, business-level tables that reporting reads from. Each layer can be rebuilt from the one before it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I export the generated SQL and ETL logic?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Everything Netune produces is inspectable and exportable — staging migrations, warehouse DDL and the transformation mappings — so you can review it and deploy it in your own database engine or orchestrator."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Netune available today?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Netune is in active development and access is opening in stages. Request early access and we'll get in touch — tell us about your sources and your target architecture, and we'll prioritize accordingly."
+      }
+    }
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Netune",
+  "alternateName": [
+    "DataAsh",
+    "Netune by DataAsh",
+    "Netune data warehouse"
+  ],
+  "url": "https://dataash.de/",
+  "inLanguage": "en",
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "alternateName": "Netune",
+    "url": "https://dataash.de/",
+    "logo": "https://dataash.de/og.png"
+  }
+}
+  </script>
 </head>
 <body>
 

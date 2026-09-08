@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Not here &mdash; Netune</title>
+  <meta name="robots" content="noindex, follow" />
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --ground:   #F7F3EA;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      background: var(--ground);
+      color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .box { max-width: 560px; }
+    .mark {
+      font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--navy-500); font-weight: 700; margin-bottom: 18px;
+    }
+    h1 { font-size: clamp(28px, 5vw, 42px); line-height: 1.15; margin: 0 0 14px; }
+    p { font-size: 17px; line-height: 1.6; color: var(--ink-dim); margin: 0 0 26px; }
+    a.home {
+      display: inline-block; padding: 13px 22px; border-radius: 10px;
+      background: var(--navy-700); color: #fff; text-decoration: none;
+      font-weight: 600; font-size: 15px;
+    }
+    a.home:hover { background: var(--navy-500); }
+    small { display: block; margin-top: 34px; font-size: 13px; color: var(--ink-dim); }
+    small a { color: var(--navy-700); }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="mark">Netune</div>
+    <h1>There is nothing at this address.</h1>
+    <p>
+      The page you asked for has either moved or never existed. Netune's site
+      is a single page, so the way back is short.
+    </p>
+    <a class="home" href="/">Go to dataash.de</a>
+    <small>
+      Netune is a <a href="/">DataAsh</a> product.
+    </small>
+  </div>
+</body>
+</html>

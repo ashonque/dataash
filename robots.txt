@@ -1,0 +1,10 @@
+# dataash.de
+#
+# Everything here is public and meant to be found. The one line that earns
+# its place is the sitemap: it is how a crawler is told what exists rather
+# than left to discover it by following links.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://dataash.de/sitemap.xml
