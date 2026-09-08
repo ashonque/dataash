@@ -3,13 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5P4PHQCGXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-5P4PHQCGXX');
-  </script>
+  <!-- Measurement lives in one file, so three pages cannot come to disagree
+       about what they count. It loads gtag itself. -->
+  <script src="/analytics.js" defer></script>
 
 
   <title>Netune — Automate Your Data Lake into a Modeled Data Warehouse</title>
@@ -2019,6 +2015,12 @@
       successWrap.hidden = false;
       if (typeof gtag === 'function') {
         gtag('event', 'early_access_submit', { event_category: 'conversion' });
+        /* GA4's own name for this. The line above is kept so the history
+           stays continuous, but generate_lead is what the built-in reports
+           and the key-event setting actually recognise. */
+        gtag('event', 'generate_lead', {
+          methodology: (form.methodology && form.methodology.value) || 'not stated'
+        });
       }
     }).catch(function () {
       status.textContent = 'Something went wrong. Email us at hello@dataash.de instead.';
