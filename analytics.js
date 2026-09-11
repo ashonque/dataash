@@ -127,6 +127,29 @@
         say("open_access_modal", { link_text: trim(ev.currentTarget.textContent, 40) });
       });
     }
+    /* The download itself: the button on the beta page, with the version
+       it hands out, and the "Download the beta" button on the home page
+       that leads there. download_beta is the one to mark as a key event in
+       GA4 - it is the moment a visitor became a user. Enhanced measurement
+       also fires its generic file_download for the .zip; this one carries
+       the version and is named for what it is. */
+    var get = document.querySelector(".download a.get");
+    if (get) {
+      get.addEventListener("click", function () {
+        var v = document.getElementById("dlVersion");
+        say("download_beta", {
+          version: trim(v ? v.textContent.replace(/^Version\s*/, "") : "", 20),
+          file_name: (get.href.split("/").pop() || ""),
+          link_url: get.href
+        });
+      });
+    }
+    var toBeta = document.querySelectorAll('a.btn-beta, a.nav-beta, a[href="/netune-free-beta.html"]');
+    for (var t = 0; t < toBeta.length; t++) {
+      toBeta[t].addEventListener("click", function (ev) {
+        say("download_page_open", { link_text: trim(ev.currentTarget.textContent, 40) });
+      });
+    }
     /* the one-line installer: how often the command is selected (it is
        copied by the person, never by a script - see the beta page) */
     var cmd = document.getElementById("cmdPs");
