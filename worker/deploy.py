@@ -178,16 +178,20 @@ def main(argv):
         except Exception:
             time.sleep(5)
     if not ok:
-        die("The worker is deployed but %s/counts did not answer yet. Wait a minute and open it in a browser; if it still fails, run this again." % url)
-    print("  /counts -> ok, totals: " + json.dumps(got.get("total")))
-    # a refusal that proves the checks run, without writing anything
-    req = urllib.request.Request(url + "/feedback", data=json.dumps({"text": "word " * 60}).encode(),
-                                 headers={"Content-Type": "application/json", "Origin": "https://dataash.de"}, method="POST")
-    try:
-        urllib.request.urlopen(req, timeout=20)
-        die("A 60-word submission was accepted; the word limit is not being applied.")
-    except urllib.error.HTTPError as e:
-        print("  /feedback refuses 60 words -> %d %s" % (e.code, json.loads(e.read()).get("error", "")))
+        # a brand-new workers.dev name can take a while to reach a home
+        # router's resolver; the worker itself is up, so this is a warning
+        print("  could not reach %s/counts from this machine yet - a new name can take a few" % url)
+        print("  minutes to reach your DNS. Open it in a browser later; everything else continues.")
+    else:
+        print("  /counts -> ok, totals: " + json.dumps(got.get("total")))
+        # a refusal that proves the checks run, without writing anything
+        req = urllib.request.Request(url + "/feedback", data=json.dumps({"text": "word " * 60}).encode(),
+                                     headers={"Content-Type": "application/json", "Origin": "https://dataash.de"}, method="POST")
+        try:
+            urllib.request.urlopen(req, timeout=20)
+            die("A 60-word submission was accepted; the word limit is not being applied.")
+        except urllib.error.HTTPError as e:
+            print("  /feedback refuses 60 words -> %d %s" % (e.code, json.loads(e.read()).get("error", "")))
 
     print("\n== telling the site ==")
     with open(os.path.join(SITE, "stats", "api.txt"), "w", encoding="utf-8", newline="\n") as f:

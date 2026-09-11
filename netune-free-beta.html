@@ -471,7 +471,7 @@
   /* The small server behind the counters and the feedback box - a
      Cloudflare Worker, see worker/index.js in the repository. worker/deploy.py
      fills this in; while it is empty nothing below is sent anywhere. */
-  var API = "";
+  var API = "https://netune-stats.dataash.workers.dev";
 
   /* a bare count, no cookie and no identifier: which button, how often */
   function ping(event) {
