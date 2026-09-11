@@ -144,6 +144,35 @@
     .cmd .copy:hover { background: rgba(255,255,255,.14); }
     .cmd .copy.done { background: #1F7A4D; }
 
+    /* the feedback box */
+    .fb { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+    .fb textarea {
+      width: 100%; font: inherit; font-size: 16px; line-height: 1.55; color: var(--ink);
+      border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; resize: vertical;
+      background: var(--ground);
+    }
+    .fb textarea:focus { outline: none; border-color: var(--navy-500); box-shadow: 0 0 0 3px var(--navy-050); }
+    .fb .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .fb-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
+    .fb-count { font-size: 13px; color: var(--ink-dim); }
+    .fb-count.over { color: #B3261E; font-weight: 600; }
+    .fb-send {
+      border: 0; background: var(--navy-700); color: #fff; font: inherit; font-weight: 700;
+      font-size: 15px; padding: 11px 22px; border-radius: 10px; cursor: pointer;
+    }
+    .fb-send:hover { background: var(--navy-900); }
+    .fb-send:disabled { opacity: .55; cursor: default; }
+    .fb-status { margin: 10px 0 0; font-size: 14px; color: var(--ink-dim); min-height: 1.4em; }
+    .fb-status.ok { color: var(--ok); }
+    .fb-status.err { color: #B3261E; }
+    .fb-recent { margin-top: 22px; }
+    .fb-recent h3 { margin: 0 0 8px; font-size: 16px; color: var(--ink-dim); font-weight: 600; }
+    .fb-recent ul { list-style: none; padding: 0; margin: 0; }
+    .fb-recent li { padding: 10px 0; border-top: 1px solid var(--line); font-size: 15.5px; }
+    .fb-recent li time { display: block; font-size: 12px; color: var(--ink-dim); margin-bottom: 2px; }
+    .fb-all { font-size: 13px; color: var(--ink-dim); margin: 10px 0 0; }
+
     .note {
       background: var(--surface); border: 1px solid var(--line);
       border-left: 4px solid var(--navy-500);
@@ -358,6 +387,28 @@
     saved projects contain no passwords, so they are safe to send.
   </p>
 
+  <h2 id="feedback">Leave a line of feedback</h2>
+  <p>
+    Fifty words at most, and it is appended — as written, with the date — to a
+    public text file in Netune's repository, oldest first. No name, no e-mail,
+    nothing else is stored. So say what you found, not who you are.
+  </p>
+  <form class="fb" id="fbForm" novalidate>
+    <label class="sr" for="fbText">Your feedback, up to fifty words</label>
+    <textarea id="fbText" name="text" rows="3" maxlength="400" placeholder="What worked, what did not, what you would need to see next…" required></textarea>
+    <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    <div class="fb-row">
+      <span class="fb-count" id="fbCount">0 / 50 words</span>
+      <button type="submit" class="fb-send" id="fbSend">Send</button>
+    </div>
+    <p class="fb-status" id="fbStatus" role="status" aria-live="polite"></p>
+  </form>
+  <div class="fb-recent" id="fbRecent" hidden>
+    <h3>What others have written</h3>
+    <ul id="fbList"></ul>
+    <p class="fb-all"><a href="https://github.com/ashonque/dataash/blob/main/feedback/feedback.txt">The whole file</a>, on GitHub.</p>
+  </div>
+
   <h2>The small print</h2>
   <p>
     The free edition is free to use, including at work. The licence travels in
@@ -414,11 +465,28 @@
 <script>
 (function () {
   "use strict";
+  /* The small server behind the counters and the feedback box - a
+     Cloudflare Worker, see worker/index.js in the repository. worker/deploy.py
+     fills this in; while it is empty nothing below is sent anywhere. */
+  var API = "";
+
+  /* a bare count, no cookie and no identifier: which button, how often */
+  function ping(event) {
+    if (!API) return;
+    try {
+      if (navigator.sendBeacon) { navigator.sendBeacon(API + "/count", event); return; }
+      fetch(API + "/count", { method: "POST", body: event, keepalive: true })["catch"](function () {});
+    } catch (e) { /* a count is never worth an error */ }
+  }
+  var get = document.querySelector(".download a.get");
+  if (get) get.addEventListener("click", function () { ping("download_click"); });
+
   /* the copy buttons */
   var buttons = document.querySelectorAll(".copy[data-copy]");
   for (var i = 0; i < buttons.length; i++) {
     buttons[i].addEventListener("click", function (ev) {
       var b = ev.currentTarget, text = document.getElementById(b.getAttribute("data-copy")).textContent;
+      ping(b.getAttribute("data-copy") === "cmdCmd" ? "copy_cmd" : "copy_ps");
       var done = function () {
         b.textContent = "Copied"; b.className = "copy done";
         setTimeout(function () { b.textContent = "Copy"; b.className = "copy"; }, 1800);
@@ -428,6 +496,57 @@
       } else { window.prompt("Copy this:", text); }
     });
   }
+
+  /* the feedback box */
+  var form = document.getElementById("fbForm"), box = document.getElementById("fbText"),
+      count = document.getElementById("fbCount"), send = document.getElementById("fbSend"),
+      status = document.getElementById("fbStatus");
+  function words(s) { s = String(s || "").replace(/\s+/g, " ").trim(); return s ? s.split(" ").length : 0; }
+  function tell(text, kind) { status.textContent = text; status.className = "fb-status" + (kind ? " " + kind : ""); }
+  function recount() {
+    var n = words(box.value);
+    count.textContent = n + " / 50 words";
+    count.className = "fb-count" + (n > 50 ? " over" : "");
+    send.disabled = n === 0 || n > 50;
+  }
+  box.addEventListener("input", recount); recount();
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function showRecent() {
+    if (!API) return;
+    fetch(API + "/feedback?n=5").then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.items || !d.items.length) return;
+      var list = document.getElementById("fbList"), h = [];
+      for (var i = 0; i < d.items.length; i++) {
+        h.push("<li><time>" + esc(d.items[i].at) + "</time>" + esc(d.items[i].text) + "</li>");
+      }
+      list.innerHTML = h.join("");
+      document.getElementById("fbRecent").hidden = false;
+    })["catch"](function () {});
+  }
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    if (!API) { tell("The feedback box is not switched on yet - please write to dataash@proton.me instead.", "err"); return; }
+    var n = words(box.value);
+    if (n === 0) { tell("Write something first.", "err"); return; }
+    if (n > 50) { tell("That is " + n + " words; the limit is 50.", "err"); return; }
+    send.disabled = true; tell("Sending…");
+    fetch(API + "/feedback", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: box.value, page: location.pathname, website: form.website.value })
+    }).then(function (r) { return r.json().then(function (d) { return { status: r.status, body: d }; }); })
+      .then(function (res) {
+        var d = res.body || {};
+        if (res.status === 200 && d.ok) {
+          box.value = ""; recount();
+          tell(d.committed ? "Thank you - it is in the file." : "Thank you - it is saved, and reaches the file with the next one.", "ok");
+          showRecent();
+        } else {
+          tell(d.error || "That did not go through; please try again in a moment.", "err");
+          send.disabled = false;
+        }
+      })["catch"](function () { tell("Could not reach the feedback server; please try again in a moment.", "err"); send.disabled = false; });
+  });
+  showRecent();
   /* The numbers on the download card come from netune-latest.json, the same
      file the installer reads, so a new release changes them without this
      page being edited. What is written in the markup is the fallback. */

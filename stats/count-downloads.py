@@ -41,7 +41,7 @@ HEADER = """# Netune downloads, counted by GitHub on the release assets.
 # One line per day the total changed, oldest first; a day with no line had
 # no downloads. Written by stats/count-downloads.py from a nightly Action.
 #
-# date        total   today   per release
+# date        total   today   per release                 |  what the page counted
 """
 
 
@@ -63,6 +63,29 @@ def counts():
                 if a.get("name", "").lower().endswith(".zip"))
         out[rel.get("tag_name") or "?"] = n
     return out
+
+
+def clicks():
+    """What the page's own counters say - copy buttons and download clicks -
+    from the worker named in stats/api.txt, once it has been deployed.
+    Intentions, beside the downloads that are facts; absent, the line is
+    just shorter."""
+    where = os.path.join(HERE, "api.txt")
+    if not os.path.exists(where):
+        return ""
+    with open(where, encoding="utf-8") as f:
+        api = f.read().strip().rstrip("/")
+    if not api:
+        return ""
+    try:
+        req = urllib.request.Request(api + "/counts", headers={"User-Agent": "netune-stats"})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            got = json.loads(r.read()).get("total") or {}
+    except Exception as e:
+        print("  (the click counter did not answer: %s)" % e)
+        return ""
+    return "clicks %d  copies ps %d cmd %d  feedback %d" % (
+        got.get("download_click", 0), got.get("copy_ps", 0), got.get("copy_cmd", 0), got.get("feedback", 0))
 
 
 def last_total(text):
@@ -89,10 +112,14 @@ def main(argv):
     # rather than repeated, and "today" is then counted from the day before
     kept = [ln for ln in existing.splitlines() if not ln.startswith(today + "  ")]
     before = last_total("\n".join(kept))
-    line = "%s  %6d  %6d   %s" % (today, total, total - before,
-                                  "  ".join("%s %d" % kv for kv in per.items()))
+    extra = clicks()
+    line = "%s  %6d  %6d   %s%s" % (today, total, total - before,
+                                    "  ".join("%s %d" % kv for kv in per.items()),
+                                    ("   |  " + extra) if extra else "")
     print(line)
 
+    # the download total is what decides whether a day gets a line; the
+    # click counts ride along on it rather than earning commits of their own
     if existing and total == last_total(existing):
         print("unchanged since the last line; nothing written")
         return 0
