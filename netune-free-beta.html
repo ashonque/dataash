@@ -127,22 +127,17 @@
     }
     .hash b { color: #fff; font-weight: 600; }
 
-    .cmd {
-      display: flex; align-items: stretch; margin: 0 0 18px;
-      background: var(--navy-900); border-radius: 10px; overflow: hidden;
-    }
+    .terminal-h { margin-top: 40px; font-size: 20px; }
+    .cmd { margin: 0 0 14px; background: var(--navy-900); border-radius: 10px; overflow: hidden; }
     .cmd code {
-      flex: 1 1 auto; background: none; color: #E8EEF9; padding: 14px 16px;
-      font-size: 14px; border-radius: 0; white-space: pre; overflow-x: auto;
+      display: block; background: none; color: #E8EEF9; padding: 14px 16px;
+      font-size: 15px; border-radius: 0; white-space: pre; overflow-x: auto;
+      cursor: text; user-select: all; -webkit-user-select: all;
     }
-    .cmd code::before { content: "> "; color: #7FA6E6; }
-    .cmd .copy {
-      flex: 0 0 auto; border: 0; border-left: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06); color: #fff; font: inherit; font-size: 13px;
-      font-weight: 600; padding: 0 18px; cursor: pointer;
-    }
-    .cmd .copy:hover { background: rgba(255,255,255,.14); }
-    .cmd .copy.done { background: #1F7A4D; }
+    .cmd code::before { content: "> "; color: #7FA6E6; user-select: none; -webkit-user-select: none; }
+    .cmd code:focus { outline: 2px solid #7FA6E6; outline-offset: -2px; }
+    .why-warn { font-size: 15px; color: var(--ink-dim); }
+    .why-warn strong { color: var(--ink); }
 
     /* the feedback box */
     .fb { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
@@ -265,19 +260,27 @@
     <p class="hash"><b>SHA-256</b> <span id="dlHash">067a6595b18baf18affecbe9fd83027a949de2471b24fc5820027e336c99152e</span> &nbsp;&middot;&nbsp; check it with <code style="background:rgba(255,255,255,.14);color:#fff">certutil -hashfile Netune-1.0.0-free.zip SHA256</code></p>
   </section>
 
-  <h2 id="install">Or install it from one line</h2>
+  <h3 id="install" class="terminal-h">If you prefer a terminal</h3>
   <p>
-    If you would rather not click through a zip, open <strong>PowerShell</strong>
-    (press the Windows key, type <em>powershell</em>, Enter) and paste:
+    The zip above is the ordinary way in. For people who would rather type, there
+    is one line for <strong>PowerShell</strong> (press the Windows key, type
+    <em>powershell</em>, Enter; in a Command Prompt, type <code>powershell</code>
+    first). Select it and copy it yourself &mdash; there is deliberately no Copy
+    button:
   </p>
-  <div class="cmd"><code id="cmdPs">irm https://dataash.de/install.ps1 | iex</code><button type="button" class="copy" data-copy="cmdPs">Copy</button></div>
-  <p>From a plain <strong>Command Prompt</strong> the same thing is:</p>
-  <div class="cmd"><code id="cmdCmd">powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://dataash.de/install.ps1 | iex"</code><button type="button" class="copy" data-copy="cmdCmd">Copy</button></div>
+  <div class="cmd"><code id="cmdPs" tabindex="0" title="Click to select, then Ctrl+C">irm https://dataash.de/install.ps1 | iex</code></div>
+  <p class="why-warn">
+    <strong>If your browser or ad-blocker warns about this line, that is a good
+    instinct.</strong> Scams use the same shape &mdash; a web page that puts a
+    PowerShell command on your clipboard and asks you to paste it. That is why
+    nothing here writes to your clipboard, and why the script is plain text you
+    can <a href="/install.ps1">read first</a>. If you would rather not run a
+    command from a website at all, download the zip: it needs none.
+  </p>
   <p>
-    It does six things, in this order, and you can <a href="/install.ps1">read the
-    script</a> before running it: asks this site which version is current; downloads
-    the zip; <strong>checks it against the published SHA-256 and stops if it does not
-    match</strong>; unpacks it into your own user folder
+    The script does six things, in this order: asks this site which version is
+    current; downloads the zip; <strong>checks it against the published SHA-256 and
+    stops if it does not match</strong>; unpacks it into your own user folder
     (<code>%LOCALAPPDATA%\Programs\Netune</code> — no administrator rights, nothing
     under Program Files); puts a Netune shortcut on the Desktop and in the Start menu
     and lists Netune under <em>Settings &rsaquo; Apps</em> so it can be uninstalled
@@ -481,19 +484,18 @@
   var get = document.querySelector(".download a.get");
   if (get) get.addEventListener("click", function () { ping("download_click"); });
 
-  /* the copy buttons */
-  var buttons = document.querySelectorAll(".copy[data-copy]");
-  for (var i = 0; i < buttons.length; i++) {
-    buttons[i].addEventListener("click", function (ev) {
-      var b = ev.currentTarget, text = document.getElementById(b.getAttribute("data-copy")).textContent;
-      ping(b.getAttribute("data-copy") === "cmdCmd" ? "copy_cmd" : "copy_ps");
-      var done = function () {
-        b.textContent = "Copied"; b.className = "copy done";
-        setTimeout(function () { b.textContent = "Copy"; b.className = "copy"; }, 1800);
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done, function () { window.prompt("Copy this:", text); });
-      } else { window.prompt("Copy this:", text); }
+  /* The command is selected on click and copied by the person, never by a
+     script. A page that writes a PowerShell line to the clipboard is the
+     shape of the "ClickFix" scam, and blockers rightly stop it; so this does
+     not. The click is still counted, as the intention it is. */
+  var cmd = document.getElementById("cmdPs");
+  if (cmd) {
+    cmd.addEventListener("click", function () {
+      try {
+        var range = document.createRange(); range.selectNodeContents(cmd);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      } catch (e) { /* selecting by hand still works */ }
+      ping("copy_ps");
     });
   }
 

@@ -4,8 +4,7 @@
   Run from PowerShell:
       irm https://dataash.de/install.ps1 | iex
 
-  or from a Command Prompt:
-      powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://dataash.de/install.ps1 | iex"
+  (from a Command Prompt, type  powershell  first, then the line above)
 
   What it does, in order, and nothing else:
     1. Reads https://dataash.de/netune-latest.json to learn the current
