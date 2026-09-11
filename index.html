@@ -766,6 +766,7 @@
         <li><a href="#methodologies">Methodologies</a></li>
         <li><a href="#layers">What it builds</a></li>
         <li><a href="#faq">FAQ</a></li>
+        <li><a href="/netune-free-beta.html">Netune Free Beta Version</a></li>
         <li class="nav-cta"><button class="btn btn-primary" data-open-modal>Request early access</button></li>
       </ul>
     </nav>
@@ -799,7 +800,10 @@
             Request early access
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </button>
-          <a class="btn btn-ghost" href="#methodologies">Explore the methodologies</a>
+          <a class="btn btn-ghost" href="/netune-free-beta.html">
+            Download the free beta
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+          </a>
         </div>
 
         <div class="hero-methods">
@@ -1227,8 +1231,9 @@
       <li><a href="#how">How it works</a></li>
       <li><a href="#methodologies">Methodologies</a></li>
       <li><a href="#faq">FAQ</a></li>
+      <li><a href="/netune-free-beta.html">Netune Free Beta Version</a></li>
       <li><a href="/excel-to-sql-server.html">Excel to SQL Server</a></li>
-      <li><a href="#" data-open-modal>Contact</a></li>
+      <li><a href="#contact" data-open-modal>Contact</a></li>
     </ul>
   </div>
 </footer>
@@ -1992,6 +1997,8 @@
   document.querySelectorAll('[data-open-modal]').forEach(function (el) {
     el.addEventListener('click', openModal);
   });
+  // the beta page links to /#contact: arriving with that hash opens the form
+  if (location.hash === '#contact') openModal();
   document.getElementById('modalClose').addEventListener('click', closeModal);
   modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', function (e) {
@@ -2039,8 +2046,12 @@
   "@type": "SoftwareApplication",
   "name": "Netune",
   "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Web",
+  "operatingSystem": "Windows 10, Windows 11",
+  "softwareVersion": "1.0.0-beta",
   "url": "https://dataash.de/",
+  "downloadUrl": "https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip",
+  "installUrl": "https://dataash.de/netune-free-beta.html",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR", "description": "Free edition" },
   "description": "Netune visualizes and automates the creation of Staging, Data Warehouse and Data Mart layers from a raw data lake, using the OLAP methodology you choose: Kimball, Inmon, Data Vault 2.0, Medallion, Galaxy, One Big Table, Anchor Modeling or Activity Schema.",
   "publisher": { "@type": "Organization", "name": "DataAsh", "url": "https://dataash.de/" }
 }

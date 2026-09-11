@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>Netune Free Beta Version — download the data warehouse advisor for SQL Server</title>
+  <meta name="description" content="Download the free beta of Netune for Windows. Point it at a SQL Server database and it profiles the data, scores eight warehouse methodologies against it, designs the target and writes the T-SQL. Runs on your own machine; nothing leaves it." />
+  <link rel="canonical" href="https://dataash.de/netune-free-beta.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Netune Free Beta Version" />
+  <meta property="og:description" content="The free beta of Netune for Windows: profile a SQL Server database, see the warehouse it implies, and get the SQL. Runs on your machine; nothing leaves it." />
+  <meta property="og:url" content="https://dataash.de/netune-free-beta.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Netune Free Beta Version" />
+  <meta name="twitter:description" content="Profile a SQL Server database, see the warehouse it implies, get the SQL. Free, on your own machine." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* The site's own tokens, carried here rather than shared from a
+       stylesheet, as excel-to-sql-server.html does: this page cannot then
+       break the home page, and there is no build step to keep in step. */
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    .eyebrow {
+      display: inline-block; margin-top: 18px; font-size: 12px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--navy-500);
+    }
+    h1 {
+      font-size: clamp(30px, 5.2vw, 46px); line-height: 1.12;
+      letter-spacing: -0.02em; margin: 8px 0 10px;
+    }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 28px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 46px 0 12px;
+    }
+    h3 { font-size: 19px; margin: 30px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+
+    /* the download card: the one thing this page is for, so it is first */
+    .download {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 30px 32px; margin: 8px 0 34px;
+      display: grid; grid-template-columns: 1fr auto; gap: 18px 28px; align-items: center;
+    }
+    .download h2 { margin: 0 0 6px; color: #fff; font-size: 24px; }
+    .download p { color: var(--navy-100); margin: 0; font-size: 15.5px; }
+    .download .facts { margin-top: 12px; font-size: 13.5px; color: var(--navy-100); }
+    .download .facts span { display: inline-block; margin-right: 16px; white-space: nowrap; }
+    .download a.get {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #fff; color: var(--navy-700);
+      padding: 15px 26px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 16px; white-space: nowrap;
+    }
+    .download a.get:hover { background: var(--navy-050); }
+    .download a.get svg { width: 18px; height: 18px; }
+    .hash {
+      grid-column: 1 / -1; font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 12px; color: var(--navy-100); word-break: break-all;
+      border-top: 1px solid rgba(255,255,255,.18); padding-top: 12px; margin: 0;
+    }
+    .hash b { color: #fff; font-weight: 600; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+    table {
+      width: 100%; border-collapse: collapse; margin: 22px 0; font-size: 15.5px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+    td.yes { color: var(--ok); font-weight: 600; }
+    td.no  { color: var(--ink-dim); }
+    .wide { overflow-x: auto; }
+
+    ol.steps { counter-reset: s; list-style: none; padding: 0; }
+    ol.steps li {
+      counter-increment: s; position: relative; padding-left: 46px; margin-bottom: 16px;
+    }
+    ol.steps li::before {
+      content: counter(s); position: absolute; left: 0; top: 1px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--navy-700); color: #fff; font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .faq { margin-top: 12px; }
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .cta {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 28px 32px; margin: 50px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; }
+    .cta p:last-child { margin-bottom: 0; }
+
+    footer { border-top: 1px solid var(--line); margin-top: 56px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 640px) {
+      body { font-size: 16px; }
+      .download { grid-template-columns: 1fr; padding: 24px; }
+      .download a.get { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/">&larr; Back to Netune</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; Netune Free Beta Version
+  </nav>
+
+  <span class="eyebrow">Free &middot; Windows &middot; runs on your machine</span>
+  <h1>Netune Free Beta Version</h1>
+  <p class="standfirst">
+    Point Netune at a SQL Server database and it reads the real data, works out
+    what shape a warehouse for it should be, and writes the SQL. This is the free
+    beta: the reading, the scoring, the design and the staging layer, on your
+    own computer, with nothing sent anywhere.
+  </p>
+
+  <section class="download" id="download" aria-labelledby="dlTitle">
+    <div>
+      <h2 id="dlTitle">Download Netune 1.0.0 beta</h2>
+      <p>One zip. Unzip it anywhere and double-click <code style="background:rgba(255,255,255,.14);color:#fff">Start Netune.cmd</code>. There is nothing to install — Python travels inside the folder.</p>
+      <div class="facts">
+        <span>Windows 10 / 11, 64-bit</span>
+        <span>37 MB</span>
+        <span>Free edition</span>
+        <span>Version 1.0.0-beta</span>
+      </div>
+    </div>
+    <a class="get" href="https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip" download>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      Download the free beta
+    </a>
+    <p class="hash"><b>SHA-256</b> 00f44fcfc3992f2117413ab750726cba0ee9dfbde982ba79ed124cfad9f67a64 &nbsp;&middot;&nbsp; check it with <code style="background:rgba(255,255,255,.14);color:#fff">certutil -hashfile Netune-1.0.0-free.zip SHA256</code></p>
+  </section>
+
+  <h2>What Netune does</h2>
+  <p>
+    Most warehouse tools start from a model somebody has already drawn. Netune
+    starts from the database. It connects to SQL Server, profiles every table it
+    is allowed to read — row counts, keys, how values change over time, which
+    columns look like measures and which like attributes — and classifies each
+    table as a fact, a dimension, a bridge or none of those.
+  </p>
+  <p>
+    Then it scores <strong>eight modelling methodologies</strong> against what
+    it measured — Kimball, Inmon, Data Vault 2.0, Medallion, Galaxy, One Big
+    Table, Anchor Modeling and Activity Schema — and shows the evidence for
+    each rather than a verdict. You choose one, answer the two questions only a
+    person can answer (the grain of each fact, and how much history each
+    dimension keeps), and Netune draws the target design on a canvas you can
+    edit: rename, retype, add and delete columns, choose where each is read
+    from. Every edit is checked against what the load would do with it.
+  </p>
+  <p>
+    The output is <strong>T-SQL you can read before running</strong>: the
+    <code>CREATE TABLE</code> script for the whole design, with keys, indexes
+    and the descriptions you agreed to. The staging layer can be created and
+    filled from inside Netune, in a database you name — never the one it read
+    from.
+  </p>
+
+  <div class="note">
+    <p>
+      <strong>Nothing leaves your machine.</strong> Netune is a local program
+      that opens in your browser. It has no account, no telemetry and no
+      service behind it; the only thing it ever fetches is a language model,
+      and only when you ask it to. The optional model runs locally too, and it
+      never decides any part of the design — it explains, suggests readable
+      names and answers questions about what is on screen.
+    </p>
+  </div>
+
+  <h2>What is in the free beta, and what is not</h2>
+  <p>
+    The free edition is the whole of Netune's <em>thinking</em>: everything
+    that reads, profiles, scores, designs and stages. The full edition adds the
+    parts that take a designed warehouse and make it run and keep it running.
+    The free edition tells you, inside the program, exactly where that line is.
+  </p>
+  <div class="wide">
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>Free beta</th><th>Full edition</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Connect to SQL Server (Windows, SQL, and Microsoft Entra sign-in)</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+        <tr><td>Profile and classify every table; choose which to read</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+        <tr><td>Score eight methodologies against the real data, with the evidence shown</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+        <tr><td>Build and edit the target design on a canvas</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+        <tr><td>Generate the warehouse structure as T-SQL</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+        <tr><td>Create and fill the <strong>staging</strong> layer in a database you name</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+        <tr><td>Bring in Excel and JSON files as tables</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+        <tr><td>Local language model: readable names, descriptions, a chat about your schema</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+        <tr><td>Save and version projects</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+        <tr><td>Generate the <strong>load procedures</strong> that fill the warehouse</td><td class="no">Full edition</td><td class="yes">Yes</td></tr>
+        <tr><td>Create and load the <strong>warehouse</strong> layer (DWH Deploy)</td><td class="no">Full edition</td><td class="yes">Yes</td></tr>
+        <tr><td><strong>Landing Zone</strong>: copy source tables unchanged, in full or incrementally</td><td class="no">Full edition</td><td class="yes">Yes</td></tr>
+        <tr><td><strong>Schedules</strong>: run loads, copies and imports unattended, with alerts</td><td class="no">Full edition</td><td class="yes">Yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>What you need</h2>
+  <ul>
+    <li><strong>Windows 10 or 11, 64-bit.</strong> Netune runs on your PC and opens in whichever browser you use. Nothing is installed; unzipping is the whole setup.</li>
+    <li><strong>A SQL Server you can read.</strong> Any edition from 2016 on, Express included, or Azure SQL. Netune needs read access to the database it profiles, and write access only to whichever <em>other</em> database you choose to stage into.</li>
+    <li><strong>The Microsoft ODBC Driver for SQL Server</strong> (17 or 18). Most machines that talk to SQL Server already have it; if yours does not, Netune says so on the first screen and links to it.</li>
+    <li><strong>About 8 GB of memory</strong> to be comfortable. The language model is optional and adds 1–5 GB depending on which you pick; Netune measures your machine before offering one.</li>
+  </ul>
+
+  <h2>How to run it</h2>
+  <ol class="steps">
+    <li><strong>Download the zip</strong> above and unzip it anywhere — your Documents folder, a USB stick, wherever. It leaves nothing else on the machine.</li>
+    <li><strong>Double-click <code>Start Netune.cmd</code>.</strong> A small window opens, Netune picks a free port, and your browser opens on it. Leave that window open while you work; closing it stops Netune. Windows may show a SmartScreen notice the first time, because the beta is not yet code-signed — choose <em>More info</em>, then <em>Run anyway</em>. The checksum above is how you know the file is ours.</li>
+    <li><strong>Type your server name and sign in.</strong> Windows login, a SQL login or Microsoft Entra — then <em>List tables</em>, tick the ones you care about, and <em>Analyze</em>.</li>
+    <li><strong>Read the structural profile</strong>, choose a methodology, answer the grain and history questions, and press <em>Build design</em>. Right-click any card to edit it.</li>
+    <li><strong>Generate SQL</strong>, read it, and — if you want staging built — open <em>STG Deploy</em>, name a target database, preview, and confirm.</li>
+    <li>Optionally, double-click <code>Add desktop shortcut.cmd</code> once for a Netune icon on your desktop, and open the <em>Model</em> panel to fetch a language model if you want the chat and readable names.</li>
+  </ol>
+
+  <h2>What we would like to hear about</h2>
+  <p>
+    This is a beta, and the point of it is to see Netune meet databases we
+    have never seen. The things most worth a message:
+  </p>
+  <ul>
+    <li>A table Netune classified wrongly, or a methodology score that did not match your own judgement — and why.</li>
+    <li>A source type it could not handle, a sign-in mode that failed, or a generated script that SQL Server refused.</li>
+    <li>Anything on the first run that read as "broken" rather than "not set up yet".</li>
+    <li>What you would need to see before you would let it build the warehouse layer for real.</li>
+  </ul>
+  <p>
+    Write to <a href="mailto:dataash@proton.me">dataash@proton.me</a>, or use
+    the <a href="/#contact">contact form</a>. Where a project file helps, Netune's
+    saved projects contain no passwords, so they are safe to send.
+  </p>
+
+  <h2>The small print</h2>
+  <p>
+    The free edition is free to use, including at work. The licence travels in
+    the zip as <code>app\LICENSE.txt</code>, together with
+    <code>app\THIRD-PARTY.md</code>, which lists the software Netune is built
+    on and the terms of each language model it suggests. Language models are
+    not part of Netune: when you ask for one, it is downloaded from its
+    publisher, checked against the publisher's own hash, and licensed to you
+    by its author under terms Netune shows you first. Netune is provided as
+    is; review what it generates before you run it anywhere that matters, and
+    keep backups — the same advice as for any tool that writes SQL.
+  </p>
+
+  <section class="faq" aria-labelledby="faqTitle">
+    <h2 id="faqTitle">Questions people ask first</h2>
+    <div class="faq-item">
+      <h3>Is it really free, or a trial?</h3>
+      <p>Free. There is no time limit, no account and no key. The free edition simply leaves four features to the full one, and says so inside the program rather than expiring on you.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Why does it open in a browser if it runs locally?</h3>
+      <p>Because a browser is the best canvas there is, and it is already on your machine. Netune serves its page to your own computer only, refuses requests from any other website, and stops when you close its window.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can it damage my source database?</h3>
+      <p>It only reads the database it profiles. Every write goes to a database you name, Netune refuses to name the source as a target, and everything that writes shows you a preview and waits for a second confirmation.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Does it need a GPU for the language model?</h3>
+      <p>No. The beta runs the model on the processor. It is slower than a GPU, and it works on every machine. Everything except the chat and the readable names works with no model at all.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Will it work with PostgreSQL, Oracle or Snowflake?</h3>
+      <p>Not yet. The beta is SQL Server only, on Windows only. Which comes next depends partly on who asks.</p>
+    </div>
+    <div class="faq-item">
+      <h3>How do I get the full edition?</h3>
+      <p><a href="/#contact">Ask for early access</a> on the home page. The full edition is the same program with the load procedures, the warehouse deploy, the landing zone and schedules turned on.</p>
+    </div>
+  </section>
+
+  <div class="cta">
+    <h2>Want to see the rest of it?</h2>
+    <p>The full Netune builds and loads the warehouse, keeps a landing zone current, and runs all of it on a schedule with alerts. <a href="/#contact">Request early access</a>, or read <a href="/#how">how it works</a> on the home page.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot; <a href="/excel-to-sql-server.html">Excel to SQL Server</a> &middot; <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Netune",
+  "alternateName": "Netune Free Beta Version",
+  "applicationCategory": "BusinessApplication",
+  "applicationSubCategory": "Data warehouse design",
+  "operatingSystem": "Windows 10, Windows 11",
+  "softwareVersion": "1.0.0-beta",
+  "releaseNotes": "Free beta: profile a SQL Server database, score eight warehouse methodologies, design the target, generate the structure as T-SQL, and build the staging layer. Load procedures, warehouse deploy, landing zone and schedules are in the full edition.",
+  "url": "https://dataash.de/netune-free-beta.html",
+  "downloadUrl": "https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip",
+  "fileSize": "37MB",
+  "softwareRequirements": "Microsoft SQL Server 2016 or later (or Azure SQL) and the Microsoft ODBC Driver for SQL Server",
+  "memoryRequirements": "8GB",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+  "description": "Netune reads a SQL Server database, profiles the real data, scores eight warehouse-modelling methodologies against it, designs the target and writes runnable T-SQL. It runs on your own machine and sends nothing anywhere.",
+  "publisher": { "@type": "Organization", "name": "DataAsh", "url": "https://dataash.de/", "email": "dataash@proton.me" }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is Netune really free, or a trial?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Free. There is no time limit, no account and no key. The free edition leaves four features to the full one - the load procedures, the warehouse deploy, the landing zone and schedules - and says so inside the program rather than expiring." } },
+    { "@type": "Question", "name": "Why does Netune open in a browser if it runs locally?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A browser is the best canvas there is and is already on the machine. Netune serves its page to your own computer only, refuses requests from any other website, and stops when its window is closed." } },
+    { "@type": "Question", "name": "Can Netune damage my source database?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It only reads the database it profiles. Every write goes to a database you name, it refuses to name the source as a target, and everything that writes shows a preview and waits for a second confirmation." } },
+    { "@type": "Question", "name": "Does Netune need a GPU for the language model?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The beta runs the model on the processor, which is slower than a GPU and works on every machine. Everything except the chat and the readable names works with no model at all." } },
+    { "@type": "Question", "name": "Does Netune work with PostgreSQL, Oracle or Snowflake?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Not yet. The beta is SQL Server only, on Windows only." } },
+    { "@type": "Question", "name": "How do I get the full edition of Netune?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Ask for early access on the home page. The full edition is the same program with the load procedures, the warehouse deploy, the landing zone and schedules turned on." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Netune", "item": "https://dataash.de/" },
+    { "@type": "ListItem", "position": 2, "name": "Netune Free Beta Version", "item": "https://dataash.de/netune-free-beta.html" }
+  ]
+}
+</script>
+
+</body>
+</html>
