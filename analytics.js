@@ -3,6 +3,14 @@
  * come to disagree about what they count and what they ask.
  *
  * ---------------------------------------------------------------------------
+ * TWO COUNTERS
+ *
+ * Cloudflare Web Analytics counts every visit and asks nobody, because it
+ * stores nothing on the visitor's machine. Google Analytics measures the
+ * visitors who accept, in detail. Cloudflare's number will always be the
+ * larger, and the difference is not an error - it is the people who
+ * declined, plus the ones who left before the banner had loaded.
+ * ---------------------------------------------------------------------------
  * CONSENT
  *
  * Analytics on a German domain sets cookies on somebody's machine, and under
@@ -34,6 +42,23 @@
 
   var ID = "G-5P4PHQCGXX";
   var KEY = "dataash.consent";     /* "granted" or "declined", or absent */
+
+  /* ------------------------------------------------- 0. count every visit
+   * Cloudflare Web Analytics. It sets no cookie and keeps no identifier - it
+   * counts a visit, not a person - which is why it runs before the consent
+   * question is asked and whatever the answer is. Google Analytics below
+   * measures the people who accept, in detail; this measures everybody, in
+   * outline, and the two numbers are meant to disagree: the gap is the people
+   * who declined or left before the banner had loaded.
+   */
+  var CF = "a7506e1438bf48bfaf42240a8aa57160";
+  (function () {
+    var b = document.createElement("script");
+    b.type = "module";
+    b.src = "https://static.cloudflareinsights.com/beacon.min.js";
+    b.setAttribute("data-cf-beacon", JSON.stringify({ token: CF }));
+    document.head.appendChild(b);
+  })();
 
   window.dataLayer = window.dataLayer || [];
   function gtag() { window.dataLayer.push(arguments); }
@@ -176,7 +201,9 @@
         '<p class="dash-consent-say"><b>May we count this visit?</b> ' +
         "We use Google Analytics to see which pages are read and where people " +
         "give up. It sets a cookie in your browser. Decline and nothing is " +
-        "stored on your machine — the site works exactly the same either way." +
+        "stored on your machine — the site works exactly the same either way. " +
+        "An anonymous count of visits is kept regardless, with no cookie and " +
+        "nothing that identifies you." +
         "</p>" +
         '<div class="dash-consent-btns">' +
           '<button type="button" class="dash-no" id="dashNo">Decline</button>' +
