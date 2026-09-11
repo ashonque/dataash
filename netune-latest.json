@@ -1,0 +1,12 @@
+{
+  "product": "Netune",
+  "version": "1.0.0",
+  "tag": "v1.0.0-beta",
+  "edition": "free",
+  "file": "Netune-1.0.0-free.zip",
+  "url": "https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip",
+  "sha256": "067a6595b18baf18affecbe9fd83027a949de2471b24fc5820027e336c99152e",
+  "bytes": 38786407,
+  "built": "2026-09-11T19:50:18",
+  "page": "https://dataash.de/netune-free-beta.html"
+}
