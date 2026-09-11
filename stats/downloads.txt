@@ -1,0 +1,6 @@
+# Netune downloads, counted by GitHub on the release assets.
+# One line per day the total changed, oldest first; a day with no line had
+# no downloads. Written by stats/count-downloads.py from a nightly Action.
+#
+# date        total   today   per release
+2026-09-11       2       2   v1.0.0-beta 2

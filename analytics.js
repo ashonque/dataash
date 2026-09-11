@@ -127,6 +127,13 @@
         say("open_access_modal", { link_text: trim(ev.currentTarget.textContent, 40) });
       });
     }
+    /* the one-line installer's Copy buttons: which command people take */
+    var copies = document.querySelectorAll(".copy[data-copy]");
+    for (var c = 0; c < copies.length; c++) {
+      copies[c].addEventListener("click", function (ev) {
+        say("install_copy", { command: ev.currentTarget.getAttribute("data-copy") === "cmdCmd" ? "cmd" : "powershell" });
+      });
+    }
     /* which questions people open, in their own words: a number nobody can
        read back to a question is no use */
     var asked = document.querySelectorAll(".faq-q, .faq-item h3");

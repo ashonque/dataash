@@ -1,0 +1,42 @@
+# Once a night: ask GitHub how many times the Netune release has been
+# downloaded, and write the number into stats/downloads.txt.
+#
+# No secret is needed - GITHUB_TOKEN is issued to every run, scoped to this
+# repository, and expires when the run ends. The script writes only when the
+# total changed, so a quiet day is no commit and no website rebuild.
+name: Count downloads
+
+on:
+  schedule:
+    - cron: "17 3 * * *"        # 03:17 UTC, every day
+  workflow_dispatch:            # and whenever it is run by hand
+
+permissions:
+  contents: write
+
+concurrency:
+  group: downloads
+  cancel-in-progress: false
+
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Count
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 stats/count-downloads.py
+
+      - name: Commit the line, if there is one
+        run: |
+          if git diff --quiet -- stats/downloads.txt; then
+            echo "nothing changed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stats/downloads.txt
+          git commit -m "Downloads: $(tail -n 1 stats/downloads.txt | awk '{print $2, "total,", $3, "today"}')"
+          git push
