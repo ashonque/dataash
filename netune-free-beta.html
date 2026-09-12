@@ -257,7 +257,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
       Download the free beta
     </a>
-    <p class="hash"><b>SHA-256</b> <span id="dlHash">067a6595b18baf18affecbe9fd83027a949de2471b24fc5820027e336c99152e</span> &nbsp;&middot;&nbsp; check it with <code style="background:rgba(255,255,255,.14);color:#fff">certutil -hashfile Netune-1.0.0-free.zip SHA256</code></p>
+    <p class="hash" hidden><b>SHA-256</b> <span id="dlHash">067a6595b18baf18affecbe9fd83027a949de2471b24fc5820027e336c99152e</span> &nbsp;&middot;&nbsp; check it with <code style="background:rgba(255,255,255,.14);color:#fff">certutil -hashfile Netune-1.0.0-free.zip SHA256</code></p>
   </section>
 
   <h3 id="install" class="terminal-h">If you prefer a terminal</h3>
@@ -366,7 +366,7 @@
   <h2>How to run it</h2>
   <ol class="steps">
     <li><strong>Download the zip</strong> above and unzip it anywhere — your Documents folder, a USB stick, wherever. It leaves nothing else on the machine.</li>
-    <li><strong>Double-click <code>Start Netune.cmd</code>.</strong> A small window opens, Netune picks a free port, and your browser opens on it. Leave that window open while you work; closing it stops Netune. Windows may show a SmartScreen notice the first time, because the beta is not yet code-signed — choose <em>More info</em>, then <em>Run anyway</em>. The checksum above is how you know the file is ours.</li>
+    <li><strong>Double-click <code>Start Netune.cmd</code>.</strong> A small window opens, Netune picks a free port, and your browser opens on it. Leave that window open while you work; closing it stops Netune. Windows may show a SmartScreen notice the first time, because the beta is not yet code-signed — choose <em>More info</em>, then <em>Run anyway</em>. The file's SHA-256 is published on the <a href="https://github.com/ashonque/dataash/releases/tag/v1.0.0-beta">release page</a> if you want to check it.</li>
     <li><strong>Type your server name and sign in.</strong> Windows login, a SQL login or Microsoft Entra — then <em>List tables</em>, tick the ones you care about, and <em>Analyze</em>.</li>
     <li><strong>Read the structural profile</strong>, choose a methodology, answer the grain and history questions, and press <em>Build design</em>. Right-click any card to edit it.</li>
     <li><strong>Generate SQL</strong>, read it, and — if you want staging built — open <em>STG Deploy</em>, name a target database, preview, and confirm.</li>
@@ -514,6 +514,9 @@
   box.addEventListener("input", recount); recount();
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function showRecent() {
+    /* hidden for now: the list and the link to the file stay in the markup
+       so they can come back, but nothing fills or shows them */
+    return;
     if (!API) return;
     fetch(API + "/feedback?n=5").then(function (r) { return r.json(); }).then(function (d) {
       if (!d || !d.items || !d.items.length) return;
