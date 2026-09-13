@@ -16,10 +16,20 @@ hand is how a submission gets rejected, so nobody copies one by hand.
 
 Regenerate after every release. Never edit them.
 
+**Nothing else may go in that folder.** `winget install --manifest <folder>`
+parses *every* file it finds there, not only the `.yaml` ones — so this
+README sitting beside them failed the install on its own third line, a
+sentence of prose beginning with a backtick, which YAML cannot read.
+`winget validate` does not catch it, because that reads the manifests alone;
+the two checks disagree, and the stricter one is the one nobody runs until
+they try to install. Hence one folder per version, holding three files, with
+this README a level above them — which is also the shape winget-pkgs itself
+uses.
+
 ## Checking them before submitting
 
 ```powershell
-winget validate --manifest C:\Projects\dataash\winget
+winget validate --manifest C:\Projects\dataash\winget\1.0.0
 ```
 
 That is the same validator Microsoft's bot runs. To go further and install
@@ -28,15 +38,22 @@ once:
 
 ```powershell
 winget settings --enable LocalManifestFiles     # in an elevated PowerShell
-winget install --manifest C:\Projects\dataash\winget
+winget install --manifest C:\Projects\dataash\winget\1.0.0
 ```
+
+Done once here, and it worked: winget fetched the Setup.exe from the release,
+printed *Successfully verified installer hash*, installed it, and raised no
+SmartScreen notice at any point — which is the whole reason for offering this
+route. `winget list Netune` then shows it as an
+`ARP\User\X64\{…}_is1` entry rather than by package id, which is correct
+until the package is in winget's own source.
 
 ## Submitting a version
 
 winget's index is a public repository, so publishing is a pull request.
 
 1. Fork <https://github.com/microsoft/winget-pkgs>.
-2. Copy the three `.yaml` files here into your fork at
+2. Copy the three `.yaml` files from `winget/<version>/` into your fork at
    `manifests/d/DataAsh/Netune/<version>/` — the path is case-sensitive and
    must match `PackageIdentifier`.
 3. Commit on a branch named for the version, push, and open a pull request
@@ -53,7 +70,7 @@ a fork by hand:
 
 ```powershell
 winget install Microsoft.WingetCreate
-wingetcreate submit --token <a GitHub token with public_repo> C:\Projects\dataash\winget
+wingetcreate submit --token <a GitHub token with public_repo> C:\Projects\dataash\winget\1.0.0
 ```
 
 ## Do not put the command on the website until it is merged
