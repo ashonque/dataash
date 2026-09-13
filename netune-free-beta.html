@@ -263,12 +263,11 @@
       Download the free beta
     </a>
     <p class="hash" hidden><b>SHA-256</b> <span id="dlHash">bd5c81ea6954525dfd37484455a2b81996cd6fdea3f0eceaeef586a69ec05dbe</span></p>
-    <p class="portable">Prefer no installer? The same program as a <a id="dlZip" href="https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip">portable zip</a> (<span id="dlZipSize">37 MB</span>) — unzip anywhere and double-click <code style="background:rgba(255,255,255,.14);color:#fff">Netune.exe</code>.</p>
   </section>
 
   <h3 id="install" class="terminal-h">If you prefer a terminal</h3>
   <p>
-    The zip above is the ordinary way in. For people who would rather type, there
+    The button above is the ordinary way in. For people who would rather type, there
     is one line for <strong>PowerShell</strong> (press the Windows key, type
     <em>powershell</em>, Enter; in a Command Prompt, type <code>powershell</code>
     first). Select it and copy it yourself &mdash; there is deliberately no Copy
@@ -281,17 +280,18 @@
     PowerShell command on your clipboard and asks you to paste it. That is why
     nothing here writes to your clipboard, and why the script is plain text you
     can <a href="/install.ps1">read first</a>. If you would rather not run a
-    command from a website at all, download the zip: it needs none.
+    command from a website at all, use the Download button above: it needs none.
   </p>
   <p>
-    The script does six things, in this order: asks this site which version is
-    current; downloads the zip; <strong>checks it against the published SHA-256 and
-    stops if it does not match</strong>; unpacks it into your own user folder
-    (<code>%LOCALAPPDATA%\Programs\Netune</code> — no administrator rights, nothing
-    under Program Files); puts a Netune shortcut on the Desktop and in the Start menu
-    and lists Netune under <em>Settings &rsaquo; Apps</em> so it can be uninstalled
-    from there; and starts it. Run the same line again later and it updates in place.
-    Your saved projects live elsewhere and are never touched.
+    The script does five things, in this order: asks this site which version is
+    current; downloads the very installer the button above offers;
+    <strong>checks it against the published SHA-256 and stops if it does not
+    match</strong>; runs it with its questions already answered; and starts Netune.
+    So typing the line and clicking through the wizard end in the same place —
+    Netune in your own user folder (<code>%LOCALAPPDATA%\Programs\Netune</code>, no
+    administrator rights and nothing under Program Files), the shortcuts, and the
+    entry under <em>Settings &rsaquo; Apps</em>. Run the same line again later and it
+    updates in place; your saved projects live elsewhere and are never touched.
   </p>
 
   <h2>What Netune does</h2>
@@ -421,7 +421,7 @@
   <h2>The small print</h2>
   <p>
     The free edition is free to use, including at work. The licence travels in
-    the zip as <code>app\LICENSE.txt</code>, together with
+    the install as <code>app\LICENSE.txt</code>, together with
     <code>app\THIRD-PARTY.md</code>, which lists the software Netune is built
     on and the terms of each language model it suggests. Language models are
     not part of Netune: when you ask for one, it is downloaded from its
@@ -570,8 +570,6 @@
     set("dlTitle", "Download Netune " + d.version + (beta ? " beta" : ""));
     if (d.bytes) set("dlSize", Math.round(d.bytes / 1048576) + " MB");
     var a = document.querySelector(".download a.get"); if (a) a.href = d.url;
-    var z = document.getElementById("dlZip");
-    if (z && d.zip_url) { z.href = d.zip_url; if (d.zip_bytes) set("dlZipSize", Math.round(d.zip_bytes / 1048576) + " MB"); }
   })["catch"](function () { /* the markup already says the last known version */ });
 })();
 </script>
