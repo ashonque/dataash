@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>Inmon's Corporate Information Factory: the 3NF core and why the marts come after</title>
+  <meta name="description" content="Inmon's warehouse: a normalised, integrated core with dimensional marts on top. What it is for, when it beats Kimball, and why the marts are not optional." />
+  <link rel="canonical" href="https://dataash.de/inmon-corporate-information-factory.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="keywords" content="Inmon, Corporate Information Factory, CIF, enterprise data warehouse, 3NF data warehouse, normalised core, Inmon vs Kimball, data mart, single version of the truth" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Inmon and the Corporate Information Factory: one integrated core, many marts" />
+  <meta property="og:description" content="Inmon's warehouse: a normalised, integrated core with dimensional marts on top. What it is for, when it beats Kimball, and why the marts are not optional." />
+  <meta property="og:url" content="https://dataash.de/inmon-corporate-information-factory.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Inmon — the CIF" />
+  <meta name="twitter:description" content="A normalised integrated core with dimensional marts on top - and why the marts are not a later phase." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --no:       #9A3B2F;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(29px, 5vw, 42px); line-height: 1.14;
+      letter-spacing: -0.02em; margin: 14px 0 8px;
+    }
+    .also { font-size: 14px; color: var(--ink-dim); margin: 0 0 16px; }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 27px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 48px 0 12px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 18.5px; margin: 28px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+    pre {
+      background: var(--navy-900); color: #E8EEF9; border-radius: var(--radius);
+      padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    .fits {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0;
+    }
+    .fits > div {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 4px 20px 14px;
+    }
+    .fits .yes { border-top: 3px solid var(--ok); }
+    .fits .no  { border-top: 3px solid var(--no); }
+    .fits h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em; margin: 16px 0 10px; }
+    .fits .yes h3 { color: var(--ok); }
+    .fits .no h3  { color: var(--no); }
+    .fits ul { padding-left: 20px; margin: 0; font-size: 15.5px; }
+    @media (max-width: 620px) { .fits { grid-template-columns: 1fr; } }
+
+    .wide { overflow-x: auto; margin: 22px 0; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 15px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; min-width: 480px;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .siblings { margin: 44px 0 0; }
+    .siblings ul {
+      list-style: none; padding: 0; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .siblings li { margin: 0; }
+    .siblings a {
+      display: block; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 14px; text-decoration: none;
+      font-size: 15px; font-weight: 600;
+    }
+    .siblings a:hover { border-color: var(--navy-500); }
+    .siblings a span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-dim); }
+    @media (max-width: 620px) { .siblings ul { grid-template-columns: 1fr; } }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 48px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 52px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .cta { padding: 24px; }
+      /* the header's two items cannot both fit on a phone, and the breadcrumb
+         immediately below goes to the same place */
+      header.top a.back { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/data-warehouse-methodologies.html">&larr; All eight methodologies</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; <a href="/data-warehouse-methodologies.html">Data warehouse methodologies</a> &rsaquo; Inmon
+  </nav>
+  <h1>Inmon and the Corporate Information Factory: one integrated core, many marts</h1>
+  <p class="also">Also called: CIF, the enterprise data warehouse, the 3NF core, top-down data warehousing</p>
+  <p class="standfirst">The approach that treats integration as the hard problem and reporting as the easy one &mdash; and is right about that whenever more than one system describes the same customer.</p>
+  <h2 id="what">What it is</h2>
+  <p>Bill Inmon&rsquo;s warehouse has two layers with two different jobs. The <strong>core</strong> is normalised, integrated, and modelled on the business rather than on any one system: one customer, one definition, whatever each source calls them. The <strong>marts</strong> are dimensional, built on top of the core, and shaped for whoever is asking.</p>
+  <p>Nobody queries the core directly. It is the single version of the truth and it is not built to be read &mdash; it is built to be <em>right</em>, and to stay right while systems come and go. The marts are the readable surface, and they are deliberately disposable: rebuild one whenever the questions change.</p>
+  <p>This is the &ldquo;top-down&rdquo; half of the old Inmon-versus-Kimball argument. Model the enterprise first, then serve the departments. Kimball&rsquo;s bottom-up answer &mdash; serve one process well, then conform the dimensions &mdash; is faster to first value, and the two camps have long since stopped pretending either is universal.</p>
+  <h2 id="shape">How the tables are actually shaped</h2>
+  <h3>The core: third normal form, and time</h3>
+  <p>The core looks like a well-designed operational schema with one difference: it keeps history. Entities are normalised, relationships are real foreign keys, and each entity version carries the period it was true for.</p>
+  <pre><code>Ent_Customer
+  CustomerKey     INT       -- surrogate, STABLE across every version
+  EffectiveFrom   DATETIME2 -- key is (CustomerKey, EffectiveFrom)
+  EffectiveTo     DATETIME2
+  IsCurrent       BIT
+  CustomerNumber  NVARCHAR  -- business key
+  SourceSystem    NVARCHAR  -- business key: the same customer, twice over
+  Name, Address, ...</code></pre>
+  <ul>
+    <li>The surrogate key <strong>identifies the customer</strong>; <code>EffectiveFrom</code> identifies which version of them. A changed customer reuses its key and gains a row. Only a genuinely new one takes a new key.</li>
+    <li>A version is matched on the business key <em>and</em> the source system, because the entire point of the core is that the same customer arrives from two places and has to be reconciled rather than duplicated.</li>
+    <li>A key map records which source key became which core key &mdash; derived from the core after it loads, since nothing in the source could say that two IDs are the same person.</li>
+  </ul>
+  <h3>The marts: current-only, and rebuilt</h3>
+  <p>Mart dimensions read the core with <code>IsCurrent = 1</code> and are replaced whole on each run. That sounds wasteful and is the correct trade: the history lives in the core, so a mart has nothing to preserve, and a mart that can be rebuilt from scratch is a mart you can change your mind about.</p>
+  <p>It does mean mart surrogate keys move between runs. Acceptable precisely because the facts are rebuilt in the same run &mdash; but it is the reason nothing outside the mart may store one of its keys.</p>
+  <h3>Where staging fits</h3>
+  <p>Staging lands the source data, the core integrates it, the marts present it. Three layers, and the middle one is the only one that is really Inmon &mdash; the outer two are what every methodology does under different names.</p>
+  <h2 id="fit">When it fits, and when it does not</h2>
+  <p>The question that decides this one is not technical. It is whether your organisation is willing to argue about what a customer is, and then write the answer down.</p>
+  <div class="fits">
+    <div class="yes"><h3>It fits when</h3><ul>
+      <li>several systems describe the same things differently</li>
+      <li>the organisation wants one agreed definition of a customer or a product</li>
+      <li>many departments will each want their own reporting</li>
+      <li>there is time and appetite to model the business, not just the data</li>
+    </ul></div>
+    <div class="no"><h3>It fits badly when</h3><ul>
+      <li>one source system and one reporting need</li>
+      <li>results are wanted in weeks</li>
+      <li>nobody is available to decide what the business terms mean</li>
+      <li>the tables are unrelated extracts with nothing to integrate</li>
+    </ul></div>
+  </div>
+  <p class="also">Those two lists are Netune&rsquo;s own judgement of this methodology, copied from the rule file it scores a real database with.</p>
+  <h2 id="cost">What it costs</h2>
+  <div class="wide">
+    <table>
+      <thead><tr><th>&nbsp;</th><th>Cost</th><th>What that means here</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Build</strong></td><td>High</td><td>Two layers, and the modelling of the core is a business exercise before it is a technical one.</td></tr>
+        <tr><td><strong>Maintain</strong></td><td>Moderate</td><td>A new source means integrating it into the core, which is real work by design.</td></tr>
+        <tr><td><strong>Query</strong></td><td>Easy at the marts</td><td>And deliberately hard at the core, which nobody is meant to query.</td></tr>
+        <tr><td><strong>History</strong></td><td>In the core, by design</td><td>Every entity version is kept, so the marts never have to ask the SCD question.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h2 id="mistakes">The mistakes that are expensive</h2>
+  <h3>Treating the marts as a later phase</h3>
+  <p>The core alone reports on nothing. A project that spends its budget perfecting the integration layer and leaves the marts for next year delivers a warehouse that is finished and unusable at the same time &mdash; which is how this methodology earned its reputation for slowness.</p>
+  <p>Budget for both, and get one thin mart working end to end before the core is anywhere near complete.</p>
+  <h3>Building a core when there is nothing to integrate</h3>
+  <p>With a single source system the integration layer is doing very little, and a <a href="/kimball-dimensional-modeling.html">star schema</a> reaches the same reports with half the work. The core earns its cost when two systems disagree about the same entity &mdash; and not before.</p>
+  <h3>Letting the core surrogate key move</h3>
+  <p>The one invariant here is that a customer&rsquo;s key is the same in every version of them. A load that renumbers from scratch turns the history into several unrelated customers, silently, and every fact pointed at the old numbers is now pointed at somebody else. Assign from the current maximum and reuse the existing key wherever the business key matches.</p>
+  <h2 id="versus">How it compares</h2>
+  <h3>Inmon or Kimball?</h3>
+  <p>The honest answer is: how many source systems, and how much time. <a href="/kimball-dimensional-modeling.html">Kimball</a> gives reports sooner and handles one or two well-behaved sources beautifully. Inmon handles the case where the sources contradict each other and somebody has to decide who is right &mdash; and that decision has to live somewhere other than in each report.</p>
+  <p>In practice most large warehouses end up with both: an integrated core and dimensional marts. That is Inmon&rsquo;s design, and it is also what a Kimball shop builds after its fifth star.</p>
+  <h3>Inmon or Data Vault?</h3>
+  <p>Both put an integration layer between the sources and the reports, and both keep history there. The difference is what happens when a source changes shape: <a href="/data-vault-2-0.html">Data Vault</a> absorbs it by adding tables, while an Inmon core absorbs it by somebody remodelling the entity. Vault is more mechanical and less opinionated; the core is more readable and asks more of its modellers.</p>
+  <div class="note">
+    <p>Netune scores Inmon against what it measures in your database &mdash; how many source systems appear to feed it, whether the same entity shows up under different keys, how connected the tables are &mdash; and if it is the model you pick, generates the core with its stable surrogate keys and effective dates, the key map, and the current-only marts on top.</p>
+  </div>
+  <h2 id="faq">Questions people ask</h2>
+  <section class="faq">
+    <div class="faq-item">
+      <h3>What is the difference between Inmon and Kimball?</h3>
+      <p>Inmon builds a normalised, integrated core first and serves departments from marts on top of it; Kimball builds a dimensional model per business process and conforms the dimensions between them. Inmon is slower to first report and better where several systems disagree about the same entity.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can I query the Inmon core directly?</h3>
+      <p>You can, and you are not meant to. It is normalised and versioned, so every question costs joins and a filter on the effective dates. That is what the marts are for &mdash; and it is why building the core without them leaves you with nothing anybody can use.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Is the Corporate Information Factory the same as an enterprise data warehouse?</h3>
+      <p>Near enough in everyday use. The CIF is Inmon's fuller architecture &mdash; core, marts, operational data store, and the metadata around them &mdash; and &ldquo;enterprise data warehouse&rdquo; usually means the integrated core at the middle of it.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Does an Inmon core need slowly changing dimensions?</h3>
+      <p>No, and that is one of its advantages. The core keeps every version of every entity by construction, so there is no per-dimension history decision to make. The marts are current-only and rebuilt, so they have nothing to keep.</p>
+    </div>
+  </section>
+
+  <section class="siblings">
+    <h2>The other seven</h2>
+    <ul>
+      <li><a href="/kimball-dimensional-modeling.html">Kimball<span>Facts surrounded by dimensions, built for reporting</span></a></li>
+      <li><a href="/data-vault-2-0.html">Data Vault 2.0<span>Hubs, links and satellites; nothing is ever updated</span></a></li>
+      <li><a href="/medallion-architecture.html">Medallion<span>Bronze, silver, gold — a pipeline, not a model</span></a></li>
+      <li><a href="/galaxy-schema.html">Galaxy<span>Several stars sharing conformed dimensions</span></a></li>
+      <li><a href="/one-big-table.html">One Big Table<span>Everything joined in already; no joins to write</span></a></li>
+      <li><a href="/anchor-modeling.html">Anchor Modeling<span>One table per attribute; change never disturbs anything</span></a></li>
+      <li><a href="/activity-schema.html">Activity Schema<span>One row per thing that happened, in sequence</span></a></li>
+    </ul>
+    <p style="margin-top:16px"><a href="/data-warehouse-methodologies.html">&larr; All eight compared, and how to choose between them</a></p>
+  </section>
+  <div class="cta">
+    <h2>See whether your data has anything to integrate</h2>
+    <p>Netune measures how many systems feed your database, whether the same entity arrives twice under different keys, and how much of it is really connected &mdash; the evidence that decides whether a core is worth its cost.</p>
+    <a href="/netune-free-beta.html">Download the free beta</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot;
+    <a href="/data-warehouse-methodologies.html">Choose a model</a> &middot;
+    <a href="/netune-free-beta.html">Free beta</a> &middot;
+    <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Inmon and the Corporate Information Factory: one integrated core, many marts",
+  "description": "Inmon's warehouse: a normalised, integrated core with dimensional marts on top. What it is for, when it beats Kimball, and why the marts are not optional.",
+  "about": {
+    "@type": "Thing",
+    "name": "Corporate Information Factory"
+  },
+  "keywords": "Inmon, Corporate Information Factory, CIF, enterprise data warehouse, 3NF data warehouse, normalised core, Inmon vs Kimball, data mart, single version of the truth",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/inmon-corporate-information-factory.html"
+  },
+  "image": "https://dataash.de/og.png",
+  "author": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "inLanguage": "en-GB",
+  "isPartOf": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/data-warehouse-methodologies.html"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is the difference between Inmon and Kimball?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Inmon builds a normalised, integrated core first and serves departments from marts on top of it; Kimball builds a dimensional model per business process and conforms the dimensions between them. Inmon is slower to first report and better where several systems disagree about the same entity." } },
+    { "@type": "Question", "name": "Can I query the Inmon core directly?",
+      "acceptedAnswer": { "@type": "Answer", "text": "You can, and you are not meant to. It is normalised and versioned, so every question costs joins and a filter on the effective dates. That is what the marts are for - and it is why building the core without them leaves you with nothing anybody can use." } },
+    { "@type": "Question", "name": "Is the Corporate Information Factory the same as an enterprise data warehouse?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Near enough in everyday use. The CIF is Inmon's fuller architecture - core, marts, operational data store, and the metadata around them - and &ldquo;enterprise data warehouse&rdquo; usually means the integrated core at the middle of it." } },
+    { "@type": "Question", "name": "Does an Inmon core need slowly changing dimensions?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No, and that is one of its advantages. The core keeps every version of every entity by construction, so there is no per-dimension history decision to make. The marts are current-only and rebuilt, so they have nothing to keep." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Netune",
+      "item": "https://dataash.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Data warehouse methodologies",
+      "item": "https://dataash.de/data-warehouse-methodologies.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Inmon",
+      "item": "https://dataash.de/inmon-corporate-information-factory.html"
+    }
+  ]
+}
+</script>
+
+</body>
+</html>

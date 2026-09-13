@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>Kimball dimensional modeling: the star schema, the grain, and what it costs</title>
+  <meta name="description" content="What a Kimball star schema really is - facts, dimensions, the grain and SCD types - plus when it fits, when it does not, and the mistakes you cannot undo." />
+  <link rel="canonical" href="https://dataash.de/kimball-dimensional-modeling.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="keywords" content="Kimball dimensional modelling, star schema, fact table, dimension table, slowly changing dimension, SCD type 2, grain, conformed dimension, dimensional modeling SQL Server" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Kimball dimensional modelling: the star schema, explained by what it costs" />
+  <meta property="og:description" content="What a Kimball star schema really is - facts, dimensions, the grain and SCD types - plus when it fits, when it does not, and the mistakes you cannot undo." />
+  <meta property="og:url" content="https://dataash.de/kimball-dimensional-modeling.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Kimball dimensional modelling" />
+  <meta name="twitter:description" content="Facts, dimensions, the grain and SCD types - and the mistakes you cannot cheaply undo." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --no:       #9A3B2F;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(29px, 5vw, 42px); line-height: 1.14;
+      letter-spacing: -0.02em; margin: 14px 0 8px;
+    }
+    .also { font-size: 14px; color: var(--ink-dim); margin: 0 0 16px; }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 27px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 48px 0 12px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 18.5px; margin: 28px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+    pre {
+      background: var(--navy-900); color: #E8EEF9; border-radius: var(--radius);
+      padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    .fits {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0;
+    }
+    .fits > div {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 4px 20px 14px;
+    }
+    .fits .yes { border-top: 3px solid var(--ok); }
+    .fits .no  { border-top: 3px solid var(--no); }
+    .fits h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em; margin: 16px 0 10px; }
+    .fits .yes h3 { color: var(--ok); }
+    .fits .no h3  { color: var(--no); }
+    .fits ul { padding-left: 20px; margin: 0; font-size: 15.5px; }
+    @media (max-width: 620px) { .fits { grid-template-columns: 1fr; } }
+
+    .wide { overflow-x: auto; margin: 22px 0; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 15px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; min-width: 480px;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .siblings { margin: 44px 0 0; }
+    .siblings ul {
+      list-style: none; padding: 0; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .siblings li { margin: 0; }
+    .siblings a {
+      display: block; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 14px; text-decoration: none;
+      font-size: 15px; font-weight: 600;
+    }
+    .siblings a:hover { border-color: var(--navy-500); }
+    .siblings a span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-dim); }
+    @media (max-width: 620px) { .siblings ul { grid-template-columns: 1fr; } }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 48px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 52px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .cta { padding: 24px; }
+      /* the header's two items cannot both fit on a phone, and the breadcrumb
+         immediately below goes to the same place */
+      header.top a.back { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/data-warehouse-methodologies.html">&larr; All eight methodologies</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; <a href="/data-warehouse-methodologies.html">Data warehouse methodologies</a> &rsaquo; Kimball
+  </nav>
+  <h1>Kimball dimensional modelling: the star schema, explained by what it costs</h1>
+  <p class="also">Also called: star schema, dimensional modelling, fact and dimension tables, the Kimball method</p>
+  <p class="standfirst">The most widely used way to model a warehouse, and the one most often got wrong in the first week &mdash; because two of its decisions are made early and cannot be cheaply undone.</p>
+  <h2 id="what">What it is</h2>
+  <p>A Kimball model is built out of two kinds of table. A <strong>fact table</strong> holds the things you measure: an order line, a payment, a meter reading, a support ticket. A <strong>dimension table</strong> holds the things you slice by: customer, product, date, store, employee. Draw one fact with its dimensions around it and you get the shape everybody calls a star schema.</p>
+  <p>What makes it the default is not elegance. It is that every business intelligence tool in existence &mdash; Power BI, Tableau, Looker, Excel&rsquo;s own pivot tables &mdash; expects this shape and is slower, or simply worse, on anything else. Choosing Kimball means the tooling is on your side.</p>
+  <p>Ralph Kimball&rsquo;s own framing is worth keeping: the warehouse is modelled around <em>business processes</em>, not around departments and not around source systems. One star per process. Sales is a process. Returns is another. The marketing department is not a process, and a star built for a department is a star that has to be rebuilt when the org chart moves.</p>
+  <h2 id="shape">How the tables are actually shaped</h2>
+  <h3>The grain: the decision everything else rests on</h3>
+  <p>The grain of a fact table is the answer to <em>what does one row mean?</em> &mdash; and it has to be a sentence, not a shrug. &ldquo;One row is one line of one order&rdquo; is a grain. &ldquo;Sales data&rdquo; is not.</p>
+  <p>It is decided first because everything downstream assumes it. Which dimensions can attach, which measures can be added up, whether a count means orders or items &mdash; all of it follows from the grain. Declare it in writing before a single column is created, and put it in a comment at the top of the table.</p>
+  <h3>The fact table</h3>
+  <p>Narrow and long. Foreign keys to its dimensions, the numbers being measured, and as little else as possible:</p>
+  <pre><code>FactSales
+  SalesKey        BIGINT IDENTITY   -- surrogate, not the source's key
+  DateKey         INT      FK -&gt; DimDate
+  CustomerKey     INT      FK -&gt; DimCustomer
+  ProductKey      INT      FK -&gt; DimProduct
+  OrderNumber     NVARCHAR  -- a degenerate dimension: no table of its own
+  Quantity        INT       -- additive
+  LineTotal       DECIMAL   -- additive
+  UnitPrice       DECIMAL   -- NOT additive: summing these means nothing</code></pre>
+  <ul>
+    <li><strong>Additive</strong> measures can be summed across every dimension. Quantity, revenue, cost.</li>
+    <li><strong>Semi-additive</strong> measures sum across everything except time. An account balance: adding January&rsquo;s to February&rsquo;s is nonsense, but adding two accounts&rsquo; balances is fine.</li>
+    <li><strong>Non-additive</strong> measures cannot be summed at all. A unit price, a percentage, a ratio. Average them, or store the numerator and denominator separately and divide at the end.</li>
+  </ul>
+  <h3>The dimension table, and how much history it keeps</h3>
+  <p>Wide and short, and deliberately denormalised: a product dimension carries its subcategory and category as columns rather than as joins to two more tables. Normalising them back out is called snowflaking, and it makes every report pay for the tidiness.</p>
+  <p>The second unavoidable decision is what happens when an attribute changes &mdash; a customer moves house. That is the <strong>slowly changing dimension</strong> question, and in practice it has two answers worth having:</p>
+  <ul>
+    <li><strong>Type 1</strong> overwrites. The old value is gone. Right when only the current value ever matters, and when keeping the old one would be noise.</li>
+    <li><strong>Type 2</strong> adds a new row and closes the old one, usually with <code>ValidFrom</code>, <code>ValidTo</code> and <code>IsCurrent</code> columns. History survives, so a report about last year keeps saying what it said last year. This is the one people mean when they say &ldquo;SCD&rdquo;.</li>
+    <li>Types 3 and 6 exist &mdash; a previous-value column, and a hybrid of 1 and 2 &mdash; and are far rarer than the literature suggests. Reach for them only when you can say out loud which question they answer.</li>
+  </ul>
+  <h3>Surrogate keys, and the row that catches the unknown</h3>
+  <p>Every dimension gets a meaningless integer key of its own rather than reusing the source system&rsquo;s. Two reasons that matter: type 2 history needs several rows for one customer, so the source&rsquo;s key is no longer unique; and when a second source system arrives with its own customer IDs, the warehouse already has a key that belongs to neither.</p>
+  <p>Give every dimension an &ldquo;unknown&rdquo; row at key <code>-1</code>. A fact whose customer cannot be resolved then points at that instead of being dropped, and the row is still counted in the total &mdash; which is how you find out the lookup is broken, rather than quietly reporting a smaller number.</p>
+  <h2 id="fit">When it fits, and when it does not</h2>
+  <p>Kimball is a good default and a bad universal. It is the right answer surprisingly often and the wrong one in ways that only show up months in.</p>
+  <div class="fits">
+    <div class="yes"><h3>It fits when</h3><ul>
+      <li>the business processes are understood and the grain can be agreed</li>
+      <li>reporting and dashboards are the main purpose</li>
+      <li>one or two source systems, changing slowly</li>
+      <li>the team wants something analysts can query without help</li>
+    </ul></div>
+    <div class="no"><h3>It fits badly when</h3><ul>
+      <li>sources change shape often - every change reaches the star</li>
+      <li>many systems must be integrated before anyone agrees on meaning</li>
+      <li>full history of every attribute is a hard requirement</li>
+      <li>no one can yet say what one row of the main table means</li>
+    </ul></div>
+  </div>
+  <p class="also">Those two lists are Netune&rsquo;s own judgement of this methodology, copied from the rule file it scores a real database with.</p>
+  <h2 id="cost">What it costs</h2>
+  <div class="wide">
+    <table>
+      <thead><tr><th>&nbsp;</th><th>Cost</th><th>What that means here</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Build</strong></td><td>Moderate</td><td>One star is a week or two of real work. The modelling questions take longer than the SQL.</td></tr>
+        <tr><td><strong>Maintain</strong></td><td>Low</td><td>A stable source means a stable star. New attributes are new columns.</td></tr>
+        <tr><td><strong>Query</strong></td><td>Very easy</td><td>One join per dimension, and every BI tool already understands the shape.</td></tr>
+        <tr><td><strong>History</strong></td><td>Per dimension, decided up front</td><td>Type 2 where the past must stay right. Retrofitting it later means reloading.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h2 id="mistakes">The mistakes that are expensive</h2>
+  <h3>Getting the grain wrong, then building on it</h3>
+  <p>A fact table built at order level when the questions are about products cannot answer them, and no amount of clever SQL recovers the detail that was never stored. Going the other way &mdash; a grain finer than anything asked for &mdash; costs storage and is otherwise harmless, so when in doubt, go finer.</p>
+  <p>The tell is a fact table nobody can describe in one sentence. If two people give two different answers to &ldquo;what is one row?&rdquo;, stop building.</p>
+  <h3>Letting the star snowflake</h3>
+  <p>Source systems are normalised, so a straight copy gives you Product &rarr; Subcategory &rarr; Category as three tables, and reports start joining dimension to dimension. The whole point of the star is that they never have to. Flatten the hierarchy into the child dimension &mdash; <code>ProductCategoryName</code> as a column on <code>DimProduct</code> &mdash; and accept the repetition.</p>
+  <p>The exception is a parent that a fact or a bridge points at directly. That one is used at its own grain and keeps its table, even while its attributes are also folded into the children.</p>
+  <h3>Keeping type 2 history of somebody else’s housekeeping</h3>
+  <p>This one is quiet and expensive. If a type 2 dimension watches every column for changes, and the source carries a <code>ModifiedDate</code> or a <code>rowversion</code>, then every batch that touches the row opens a new version of it. After a year the dimension holds a detailed history of the source system&rsquo;s maintenance schedule and almost nothing about the business.</p>
+  <p>So the change test has to be restricted to the attributes that actually describe the business. Netune marks those columns <code>tracked</code> and writes the others into the load anyway &mdash; they are stored, just not watched &mdash; and names the ones it ignored in a comment, so the decision is visible rather than mysterious.</p>
+  <h2 id="versus">How it compares</h2>
+  <h3>Kimball or Galaxy?</h3>
+  <p>There is no real choice here; <a href="/galaxy-schema.html">Galaxy</a> is what Kimball becomes when you model a second process. One fact table is a star, several sharing the same dimensions is a constellation. The work it adds is organisational rather than technical: every process has to agree on what a customer is.</p>
+  <h3>Kimball or Data Vault?</h3>
+  <p>Count your source systems, and ask whether you must be able to prove what arrived. One system and reporting questions: Kimball, and you will be finished far sooner. Several systems that disagree, schemas that keep changing, or an audit requirement: <a href="/data-vault-2-0.html">Data Vault 2.0</a> &mdash; and then a star on top of it anyway, because nobody reports off a raw vault.</p>
+  <h3>Kimball or One Big Table?</h3>
+  <p><a href="/one-big-table.html">One Big Table</a> is a star with the joins already done, which makes it faster to query and impossible to correct in one place. For a single process on a columnar engine it is a reasonable trade. For several processes sharing customers and products it is a trap: the same customer&rsquo;s details end up in three wide tables that disagree.</p>
+  <div class="note">
+    <p>Netune profiles a SQL Server database, classifies each table as a fact, a dimension or a bridge from what is really in it, and &mdash; if a star is what the data supports &mdash; generates the whole thing: the dimensions with the SCD type each one argues for, the facts at a stated grain, the surrogate keys, the unknown rows, and runnable T-SQL for all of it. It shows the reasoning for every call so you can disagree with it.</p>
+  </div>
+  <h2 id="faq">Questions people ask</h2>
+  <section class="faq">
+    <div class="faq-item">
+      <h3>What is the grain of a fact table?</h3>
+      <p>What one row means, stated as a sentence: &ldquo;one row is one line of one order&rdquo;. It is decided before anything else because every dimension, every measure and every count depends on it. A fact table nobody can describe in one sentence does not yet have a grain.</p>
+    </div>
+    <div class="faq-item">
+      <h3>What is the difference between SCD type 1 and type 2?</h3>
+      <p>Type 1 overwrites the old value, so history is lost and the dimension stays one row per thing. Type 2 closes the old row and inserts a new one with validity dates, so a report about last March still shows the address the customer had in March. Use type 2 where the past must stay right; type 1 where only today&rsquo;s value ever matters.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Why use surrogate keys instead of the source system's IDs?</h3>
+      <p>Because type 2 history means one customer has several rows, so the source key stops being unique &mdash; and because a second source system arrives with its own IDs for the same customers. A meaningless integer key belongs to the warehouse and survives both.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Is a star schema still relevant with a modern lakehouse?</h3>
+      <p>Yes, and the two are not alternatives. <a href="/medallion-architecture.html">Medallion</a> says where a table sits in the pipeline; Kimball says what a row means. Most lakehouse teams end up modelling the gold layer dimensionally, which is doing both.</p>
+    </div>
+    <div class="faq-item">
+      <h3>How many dimensions is too many?</h3>
+      <p>There is no hard limit, but past a dozen on one fact it is worth checking whether some are really attributes of others &mdash; a &ldquo;dimension&rdquo; with three columns that only ever appears beside another one usually belongs inside it.</p>
+    </div>
+  </section>
+
+  <section class="siblings">
+    <h2>The other seven</h2>
+    <ul>
+      <li><a href="/inmon-corporate-information-factory.html">Inmon<span>An integrated 3NF core, with marts built on top</span></a></li>
+      <li><a href="/data-vault-2-0.html">Data Vault 2.0<span>Hubs, links and satellites; nothing is ever updated</span></a></li>
+      <li><a href="/medallion-architecture.html">Medallion<span>Bronze, silver, gold — a pipeline, not a model</span></a></li>
+      <li><a href="/galaxy-schema.html">Galaxy<span>Several stars sharing conformed dimensions</span></a></li>
+      <li><a href="/one-big-table.html">One Big Table<span>Everything joined in already; no joins to write</span></a></li>
+      <li><a href="/anchor-modeling.html">Anchor Modeling<span>One table per attribute; change never disturbs anything</span></a></li>
+      <li><a href="/activity-schema.html">Activity Schema<span>One row per thing that happened, in sequence</span></a></li>
+    </ul>
+    <p style="margin-top:16px"><a href="/data-warehouse-methodologies.html">&larr; All eight compared, and how to choose between them</a></p>
+  </section>
+  <div class="cta">
+    <h2>See whether your database wants a star</h2>
+    <p>Netune reads a SQL Server database, works out which tables behave like facts and which like dimensions, and generates the star with the history decisions argued for rather than assumed. Free, runs on your machine, and nothing it reads leaves it.</p>
+    <a href="/netune-free-beta.html">Download the free beta</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot;
+    <a href="/data-warehouse-methodologies.html">Choose a model</a> &middot;
+    <a href="/netune-free-beta.html">Free beta</a> &middot;
+    <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Kimball dimensional modelling: the star schema, explained by what it costs",
+  "description": "What a Kimball star schema really is - facts, dimensions, the grain and SCD types - plus when it fits, when it does not, and the mistakes you cannot undo.",
+  "about": {
+    "@type": "Thing",
+    "name": "Dimensional modeling"
+  },
+  "keywords": "Kimball dimensional modelling, star schema, fact table, dimension table, slowly changing dimension, SCD type 2, grain, conformed dimension, dimensional modeling SQL Server",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/kimball-dimensional-modeling.html"
+  },
+  "image": "https://dataash.de/og.png",
+  "author": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "inLanguage": "en-GB",
+  "isPartOf": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/data-warehouse-methodologies.html"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is the grain of a fact table?",
+      "acceptedAnswer": { "@type": "Answer", "text": "What one row means, stated as a sentence: &ldquo;one row is one line of one order&rdquo;. It is decided before anything else because every dimension, every measure and every count depends on it. A fact table nobody can describe in one sentence does not yet have a grain." } },
+    { "@type": "Question", "name": "What is the difference between SCD type 1 and type 2?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Type 1 overwrites the old value, so history is lost and the dimension stays one row per thing. Type 2 closes the old row and inserts a new one with validity dates, so a report about last March still shows the address the customer had in March. Use type 2 where the past must stay right; type 1 where only today's value ever matters." } },
+    { "@type": "Question", "name": "Why use surrogate keys instead of the source system's IDs?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because type 2 history means one customer has several rows, so the source key stops being unique - and because a second source system arrives with its own IDs for the same customers. A meaningless integer key belongs to the warehouse and survives both." } },
+    { "@type": "Question", "name": "Is a star schema still relevant with a modern lakehouse?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, and the two are not alternatives. Medallion says where a table sits in the pipeline; Kimball says what a row means. Most lakehouse teams end up modelling the gold layer dimensionally, which is doing both." } },
+    { "@type": "Question", "name": "How many dimensions is too many?",
+      "acceptedAnswer": { "@type": "Answer", "text": "There is no hard limit, but past a dozen on one fact it is worth checking whether some are really attributes of others - a &ldquo;dimension&rdquo; with three columns that only ever appears beside another one usually belongs inside it." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Netune",
+      "item": "https://dataash.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Data warehouse methodologies",
+      "item": "https://dataash.de/data-warehouse-methodologies.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Kimball",
+      "item": "https://dataash.de/kimball-dimensional-modeling.html"
+    }
+  ]
+}
+</script>
+
+</body>
+</html>

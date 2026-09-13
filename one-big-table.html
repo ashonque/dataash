@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>One Big Table (OBT): when a wide denormalised table beats a star schema</title>
+  <meta name="description" content="When one wide table beats a star schema, what it costs in storage, correction and history, and the rule that stops OBT becoming one table holding everything." />
+  <link rel="canonical" href="https://dataash.de/one-big-table.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="keywords" content="one big table, OBT, wide table, denormalised table, OBT vs star schema, flat table data warehouse, columnar, denormalization, single table analytics" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="One Big Table: the wide denormalised model, and the bill it sends later" />
+  <meta property="og:description" content="When one wide table beats a star schema, what it costs in storage, correction and history, and the rule that stops OBT becoming one table holding everything." />
+  <meta property="og:url" content="https://dataash.de/one-big-table.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="One Big Table (OBT)" />
+  <meta name="twitter:description" content="One wide table, no joins - fast to build, trivial to query, and expensive to correct." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --no:       #9A3B2F;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(29px, 5vw, 42px); line-height: 1.14;
+      letter-spacing: -0.02em; margin: 14px 0 8px;
+    }
+    .also { font-size: 14px; color: var(--ink-dim); margin: 0 0 16px; }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 27px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 48px 0 12px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 18.5px; margin: 28px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+    pre {
+      background: var(--navy-900); color: #E8EEF9; border-radius: var(--radius);
+      padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    .fits {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0;
+    }
+    .fits > div {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 4px 20px 14px;
+    }
+    .fits .yes { border-top: 3px solid var(--ok); }
+    .fits .no  { border-top: 3px solid var(--no); }
+    .fits h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em; margin: 16px 0 10px; }
+    .fits .yes h3 { color: var(--ok); }
+    .fits .no h3  { color: var(--no); }
+    .fits ul { padding-left: 20px; margin: 0; font-size: 15.5px; }
+    @media (max-width: 620px) { .fits { grid-template-columns: 1fr; } }
+
+    .wide { overflow-x: auto; margin: 22px 0; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 15px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; min-width: 480px;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .siblings { margin: 44px 0 0; }
+    .siblings ul {
+      list-style: none; padding: 0; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .siblings li { margin: 0; }
+    .siblings a {
+      display: block; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 14px; text-decoration: none;
+      font-size: 15px; font-weight: 600;
+    }
+    .siblings a:hover { border-color: var(--navy-500); }
+    .siblings a span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-dim); }
+    @media (max-width: 620px) { .siblings ul { grid-template-columns: 1fr; } }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 48px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 52px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .cta { padding: 24px; }
+      /* the header's two items cannot both fit on a phone, and the breadcrumb
+         immediately below goes to the same place */
+      header.top a.back { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/data-warehouse-methodologies.html">&larr; All eight methodologies</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; <a href="/data-warehouse-methodologies.html">Data warehouse methodologies</a> &rsaquo; One Big Table
+  </nav>
+  <h1>One Big Table: the wide denormalised model, and the bill it sends later</h1>
+  <p class="also">Also called: OBT, the wide table, the flat table, full denormalisation</p>
+  <p class="standfirst">The fastest model to build and the easiest to query, chosen honestly by teams who know exactly what they are trading away &mdash; and chosen by accident by teams who do not.</p>
+  <h2 id="what">What it is</h2>
+  <p>One Big Table means exactly what it says: one wide table per subject, with every join already done. Customer name, product category, store region and the order line itself all sit on the same row, so the person asking the question never writes a join and never has to understand a key.</p>
+  <p>It has a real following, and for good reasons. Columnar engines &mdash; BigQuery, Snowflake, Redshift, a clustered columnstore in SQL Server &mdash; only read the columns a query touches, so a table three hundred columns wide costs nothing extra for a query that reads four of them. Meanwhile the join that a star schema does at query time was done once, at load time.</p>
+  <p>The critical word is <strong>per subject</strong>. One wide table for orders is a methodology. One wide table for the entire business is the thing people are picturing when they tell you OBT does not scale, and they are right about that one.</p>
+  <h2 id="shape">How the tables are actually shaped</h2>
+  <h3>What a row looks like</h3>
+  <pre><code>WideSales
+  SalesKey             BIGINT
+  OrderDate            DATE
+  OrderNumber          NVARCHAR
+  Quantity, LineTotal, UnitPrice
+  -- everything below is repeated on every row of that customer's orders
+  CustomerNumber, CustomerName, CustomerCity, CustomerSegment
+  ProductCode, ProductName, SubcategoryName, CategoryName
+  StoreCode, StoreName, RegionName</code></pre>
+  <p>The load walks the source&rsquo;s foreign keys outward from the transaction table, pulling each referenced table&rsquo;s columns in and naming them after where they came from. It is a star schema with the joins resolved in advance and the dimension tables thrown away.</p>
+  <h3>It is rebuilt, not updated</h3>
+  <p>There is no incremental load worth the name and no history. The table is cleared and rebuilt each run &mdash; truncate and reload &mdash; which is the trade the methodology openly makes. A row is a snapshot of what everything looked like when the load ran.</p>
+  <p>That also makes it safe to rebuild wholesale: nothing points at a wide table, so there are no foreign keys to break and no surrogate keys anybody else is holding.</p>
+  <h3>The one thing to record properly</h3>
+  <p>Because every pulled-in column is named after the table it came from, it is tempting to work out later where each one belongs by reading its name. A name says which table a column came from; it never says what to join on. Record the path &mdash; which table, through which key, in which order &mdash; when the wide table is designed, or the next person rebuilding it is guessing.</p>
+  <h2 id="fit">When it fits, and when it does not</h2>
+  <p>OBT is a genuinely good answer to a narrow question and a genuinely bad answer to a broad one. The width of the question is the whole test.</p>
+  <div class="fits">
+    <div class="yes"><h3>It fits when</h3><ul>
+      <li>the tables are separate extracts that do not really relate</li>
+      <li>few tables, or a single reporting need</li>
+      <li>a small team that has to deliver something usable quickly</li>
+      <li>the storage engine is columnar, where width costs little</li>
+    </ul></div>
+    <div class="no"><h3>It fits badly when</h3><ul>
+      <li>a real star already exists in the source and would be thrown away</li>
+      <li>the same customer or product detail must be corrected in one place</li>
+      <li>history matters - a wide table has none</li>
+      <li>many different reporting needs will pull the table in different directions</li>
+    </ul></div>
+  </div>
+  <p class="also">Those two lists are Netune&rsquo;s own judgement of this methodology, copied from the rule file it scores a real database with.</p>
+  <h2 id="cost">What it costs</h2>
+  <div class="wide">
+    <table>
+      <thead><tr><th>&nbsp;</th><th>Cost</th><th>What that means here</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Build</strong></td><td>Low</td><td>The lowest of the eight. One table, one load, no keys to resolve.</td></tr>
+        <tr><td><strong>Maintain</strong></td><td>High</td><td>Every correction is a rewrite of many rows, and every new question widens the table.</td></tr>
+        <tr><td><strong>Query</strong></td><td>Trivial</td><td>No joins, no keys, no model to learn. This is the reason people choose it.</td></tr>
+        <tr><td><strong>History</strong></td><td>None, unless you rebuild</td><td>The table is a snapshot. Yesterday's version is gone unless you kept a copy.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h2 id="mistakes">The mistakes that are expensive</h2>
+  <h3>One table for everything, rather than one per process</h3>
+  <p>The usual way this goes wrong. Sales, support tickets and inventory get merged into one enormous table because they all mention customers, and now every row has two thirds of its columns empty and nobody can say what one row means. One wide table per business process; if two processes have different grains, they are different tables.</p>
+  <h3>Correcting a customer’s name</h3>
+  <p>In a star schema that is one row of one dimension. In a wide table it is every row that customer ever appeared on &mdash; and if the table is rebuilt from the source anyway, it is a source-system fix plus a full reload. Cheap if the rebuild is nightly and routine; painful if the table took six hours to build.</p>
+  <h3>Throwing away a star that was already there</h3>
+  <p>If the source already has clean facts and dimensions, flattening them into a wide table discards a model somebody already paid for, and buys query simplicity that a BI tool would have hidden anyway. OBT earns its place where the source is a pile of unrelated extracts, not where it is well modelled.</p>
+  <h2 id="versus">How it compares</h2>
+  <h3>One Big Table or a star schema?</h3>
+  <p>The trade is correction and history against joins. A <a href="/kimball-dimensional-modeling.html">star</a> lets you fix a customer once and keep history per dimension, at the price of a join per dimension &mdash; which every BI tool writes for you anyway. OBT removes the joins and removes both of those abilities. For one process with a nightly rebuild, OBT is defensible. For several processes sharing customers, the star wins on almost every axis.</p>
+  <h3>One Big Table or Activity Schema?</h3>
+  <p>Both are single-table models, and they answer opposite questions. OBT is wide and holds one row per transaction with everything about it. <a href="/activity-schema.html">Activity Schema</a> is narrow and holds one row per thing that happened, in sequence. If the questions are &ldquo;how much, by whom&rdquo;, OBT. If they are &ldquo;what happened before what&rdquo;, Activity Schema.</p>
+  <h3>Is OBT the same as a gold table in Medallion?</h3>
+  <p>Often, in practice. Plenty of <a href="/medallion-architecture.html">gold layers</a> are wide denormalised tables, which means those teams have chosen OBT as their model without naming it &mdash; and inherited its trade-offs without discussing them.</p>
+  <div class="note">
+    <p>Netune scores One Big Table on what it measures &mdash; how many separate processes there are, whether real relationships exist, whether history looks necessary &mdash; and warns rather than flatters when a wide table would throw a usable star away. If you choose it, it generates the wide table with the join path recorded properly.</p>
+  </div>
+  <h2 id="faq">Questions people ask</h2>
+  <section class="faq">
+    <div class="faq-item">
+      <h3>Is One Big Table better than a star schema?</h3>
+      <p>For one business process on a columnar engine, with a nightly rebuild and no history requirement, it is simpler and just as fast. For several processes sharing customers and products, or anywhere a detail must be corrected in one place, a star schema is better on almost every axis.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Does OBT waste storage?</h3>
+      <p>It repeats every descriptive value on every row, so yes in raw terms &mdash; but columnar compression handles repeated values extremely well, and a repeated string costs far less than it looks. On a row-store database the cost is real.</p>
+    </div>
+    <div class="faq-item">
+      <h3>How do I keep history in a wide table?</h3>
+      <p>You do not, within the model. The usual answers are to keep dated snapshots of the whole table, or to accept that history is not this model's job and keep it upstream &mdash; which is a reason to look at a star schema or a Data Vault instead.</p>
+    </div>
+    <div class="faq-item">
+      <h3>How wide is too wide?</h3>
+      <p>Width itself is rarely the problem on a columnar engine. The signal to watch is emptiness: when most rows have most columns NULL, you have merged processes with different grains into one table, and it should be two.</p>
+    </div>
+  </section>
+
+  <section class="siblings">
+    <h2>The other seven</h2>
+    <ul>
+      <li><a href="/kimball-dimensional-modeling.html">Kimball<span>Facts surrounded by dimensions, built for reporting</span></a></li>
+      <li><a href="/inmon-corporate-information-factory.html">Inmon<span>An integrated 3NF core, with marts built on top</span></a></li>
+      <li><a href="/data-vault-2-0.html">Data Vault 2.0<span>Hubs, links and satellites; nothing is ever updated</span></a></li>
+      <li><a href="/medallion-architecture.html">Medallion<span>Bronze, silver, gold — a pipeline, not a model</span></a></li>
+      <li><a href="/galaxy-schema.html">Galaxy<span>Several stars sharing conformed dimensions</span></a></li>
+      <li><a href="/anchor-modeling.html">Anchor Modeling<span>One table per attribute; change never disturbs anything</span></a></li>
+      <li><a href="/activity-schema.html">Activity Schema<span>One row per thing that happened, in sequence</span></a></li>
+    </ul>
+    <p style="margin-top:16px"><a href="/data-warehouse-methodologies.html">&larr; All eight compared, and how to choose between them</a></p>
+  </section>
+  <div class="cta">
+    <h2>See whether a wide table would cost you a model</h2>
+    <p>Netune profiles a SQL Server database and says what shape is really in it &mdash; including when the source already holds a usable star that flattening would throw away.</p>
+    <a href="/netune-free-beta.html">Download the free beta</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot;
+    <a href="/data-warehouse-methodologies.html">Choose a model</a> &middot;
+    <a href="/netune-free-beta.html">Free beta</a> &middot;
+    <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "One Big Table: the wide denormalised model, and the bill it sends later",
+  "description": "When one wide table beats a star schema, what it costs in storage, correction and history, and the rule that stops OBT becoming one table holding everything.",
+  "about": {
+    "@type": "Thing",
+    "name": "Denormalized wide table"
+  },
+  "keywords": "one big table, OBT, wide table, denormalised table, OBT vs star schema, flat table data warehouse, columnar, denormalization, single table analytics",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/one-big-table.html"
+  },
+  "image": "https://dataash.de/og.png",
+  "author": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "inLanguage": "en-GB",
+  "isPartOf": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/data-warehouse-methodologies.html"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is One Big Table better than a star schema?",
+      "acceptedAnswer": { "@type": "Answer", "text": "For one business process on a columnar engine, with a nightly rebuild and no history requirement, it is simpler and just as fast. For several processes sharing customers and products, or anywhere a detail must be corrected in one place, a star schema is better on almost every axis." } },
+    { "@type": "Question", "name": "Does OBT waste storage?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It repeats every descriptive value on every row, so yes in raw terms - but columnar compression handles repeated values extremely well, and a repeated string costs far less than it looks. On a row-store database the cost is real." } },
+    { "@type": "Question", "name": "How do I keep history in a wide table?",
+      "acceptedAnswer": { "@type": "Answer", "text": "You do not, within the model. The usual answers are to keep dated snapshots of the whole table, or to accept that history is not this model's job and keep it upstream - which is a reason to look at a star schema or a Data Vault instead." } },
+    { "@type": "Question", "name": "How wide is too wide?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Width itself is rarely the problem on a columnar engine. The signal to watch is emptiness: when most rows have most columns NULL, you have merged processes with different grains into one table, and it should be two." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Netune",
+      "item": "https://dataash.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Data warehouse methodologies",
+      "item": "https://dataash.de/data-warehouse-methodologies.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "One Big Table",
+      "item": "https://dataash.de/one-big-table.html"
+    }
+  ]
+}
+</script>
+
+</body>
+</html>

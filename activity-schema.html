@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>Activity Schema: one table of events, and the questions it makes easy</title>
+  <meta name="description" content="The single-table event model: one row per thing that happened to one entity at one moment. What makes sequence questions cheap, and where it does not fit." />
+  <link rel="canonical" href="https://dataash.de/activity-schema.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="keywords" content="activity schema, activity stream, event modelling, customer journey data model, sequence analysis, temporal data model, activity schema vs star schema, Narrator" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Activity Schema: modelling what happened, in order, in one table" />
+  <meta property="og:description" content="The single-table event model: one row per thing that happened to one entity at one moment. What makes sequence questions cheap, and where it does not fit." />
+  <meta property="og:url" content="https://dataash.de/activity-schema.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Activity Schema" />
+  <meta name="twitter:description" content="One row per thing that happened - the model that makes 'what came before what' cheap." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --no:       #9A3B2F;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(29px, 5vw, 42px); line-height: 1.14;
+      letter-spacing: -0.02em; margin: 14px 0 8px;
+    }
+    .also { font-size: 14px; color: var(--ink-dim); margin: 0 0 16px; }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 27px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 48px 0 12px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 18.5px; margin: 28px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+    pre {
+      background: var(--navy-900); color: #E8EEF9; border-radius: var(--radius);
+      padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    .fits {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0;
+    }
+    .fits > div {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 4px 20px 14px;
+    }
+    .fits .yes { border-top: 3px solid var(--ok); }
+    .fits .no  { border-top: 3px solid var(--no); }
+    .fits h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em; margin: 16px 0 10px; }
+    .fits .yes h3 { color: var(--ok); }
+    .fits .no h3  { color: var(--no); }
+    .fits ul { padding-left: 20px; margin: 0; font-size: 15.5px; }
+    @media (max-width: 620px) { .fits { grid-template-columns: 1fr; } }
+
+    .wide { overflow-x: auto; margin: 22px 0; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 15px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; min-width: 480px;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .siblings { margin: 44px 0 0; }
+    .siblings ul {
+      list-style: none; padding: 0; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .siblings li { margin: 0; }
+    .siblings a {
+      display: block; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 14px; text-decoration: none;
+      font-size: 15px; font-weight: 600;
+    }
+    .siblings a:hover { border-color: var(--navy-500); }
+    .siblings a span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-dim); }
+    @media (max-width: 620px) { .siblings ul { grid-template-columns: 1fr; } }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 48px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 52px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .cta { padding: 24px; }
+      /* the header's two items cannot both fit on a phone, and the breadcrumb
+         immediately below goes to the same place */
+      header.top a.back { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/data-warehouse-methodologies.html">&larr; All eight methodologies</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; <a href="/data-warehouse-methodologies.html">Data warehouse methodologies</a> &rsaquo; Activity Schema
+  </nav>
+  <h1>Activity Schema: modelling what happened, in order, in one table</h1>
+  <p class="also">Also called: the activity stream, event modelling, the customer timeline, the single-table event model</p>
+  <p class="standfirst">The newest model on this list, and the only one built around the question &ldquo;what happened next?&rdquo; rather than &ldquo;how much, by whom?&rdquo;</p>
+  <h2 id="what">What it is</h2>
+  <p>An Activity Schema is one table. Every row is one thing that happened to one entity at one moment: a customer signed up, placed an order, opened a ticket, cancelled. The entity is usually a customer; the moment is always required; everything else is detail hanging off those two.</p>
+  <p>What that buys is sequence. &ldquo;What did people do between signing up and their first order?&rdquo;, &ldquo;how long until the second purchase?&rdquo;, &ldquo;what happened in the week before a cancellation?&rdquo; &mdash; these are ordinary reads of a single ordered table here, and awkward multi-table gymnastics in a star schema.</p>
+  <p>It is a recent formalisation of something analytics teams kept building by hand, and it is deliberately narrow. It does not try to be a general warehouse model. It tries to make one family of questions cheap, and it succeeds.</p>
+  <h2 id="shape">How the tables are actually shaped</h2>
+  <h3>The stream</h3>
+  <pre><code>ActivityStream
+  ActivityID           BIGINT IDENTITY
+  EntityID             NVARCHAR   -- the customer, never NULL
+  Activity             NVARCHAR   -- 'placed_order', 'opened_ticket'
+  ActivityOccurredAt   DATETIME2  -- required; no time, no row
+  ActivitySequence     INT        -- nth thing this entity did
+  ActivityRepeatedAt   DATETIME2  -- next time THIS activity happened
+  Feature1, Feature2, Feature3    -- meaning depends on the activity
+  RevenueImpact        DECIMAL
+  LinkID               NVARCHAR   -- back to the source row</code></pre>
+  <p>The feature columns are the compromise that makes one table possible: their meaning depends on which activity the row is. <code>Feature1</code> might be a payment method on an order row and a ticket category on a support row.</p>
+  <h3>The two columns that are filled afterwards</h3>
+  <p><code>ActivitySequence</code> and <code>ActivityRepeatedAt</code> cannot be computed while the rows are being inserted &mdash; both are window functions over the <em>finished</em> stream. So the load has a second pass: insert everything, then number each entity&rsquo;s activities in order and look ahead to the next occurrence of the same activity for the same entity.</p>
+  <p>That second column is what makes &ldquo;how long between&rdquo; questions cheap. Without it, every such question is a self-join over a large table.</p>
+  <h3>What the data has to have</h3>
+  <p>Two requirements, and both are absolute. There must be <strong>one entity everything relates to</strong> &mdash; usually a customer &mdash; and every activity must carry <strong>a timestamp</strong>. An activity with no time cannot be placed in a sequence, so it cannot be in the stream at all; leave it out and say so, rather than defaulting it to the load time and corrupting every ordering question.</p>
+  <p>Some activities reach the entity indirectly &mdash; an order line knows its order, and the order knows the customer. Those hop through the parent, and can inherit the parent&rsquo;s timestamp if they have none of their own. Anything that can reach neither an entity nor a time is not an activity.</p>
+  <h3>The dictionary</h3>
+  <p>Because the feature columns mean different things per activity, the model is unreadable without a dictionary saying which is which. Keep it in the warehouse as a real table, generated from the design &mdash; what an activity means is a fact about the model, not about the source data &mdash; and it stays accurate instead of rotting in a wiki.</p>
+  <h2 id="fit">When it fits, and when it does not</h2>
+  <p>Activity Schema is the easiest of the eight to rule in or out, because its requirements are concrete rather than a matter of judgement.</p>
+  <div class="fits">
+    <div class="yes"><h3>It fits when</h3><ul>
+      <li>the interesting questions are about what happened before or after something</li>
+      <li>one entity - usually a customer - runs through everything</li>
+      <li>the data is genuinely event-shaped, with timestamps everywhere</li>
+      <li>the team is small and wants one table instead of a star</li>
+    </ul></div>
+    <div class="no"><h3>It fits badly when</h3><ul>
+      <li>the data describes states rather than events</li>
+      <li>there is no single entity that everything relates to</li>
+      <li>few tables carry a timestamp</li>
+      <li>the reporting is classic aggregation by category, not sequence</li>
+    </ul></div>
+  </div>
+  <p class="also">Those two lists are Netune&rsquo;s own judgement of this methodology, copied from the rule file it scores a real database with.</p>
+  <h2 id="cost">What it costs</h2>
+  <div class="wide">
+    <table>
+      <thead><tr><th>&nbsp;</th><th>Cost</th><th>What that means here</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Build</strong></td><td>Low to moderate</td><td>One table, but one union arm per activity and a second pass after loading.</td></tr>
+        <tr><td><strong>Maintain</strong></td><td>Low</td><td>A new activity is a new arm of the union and a new dictionary row.</td></tr>
+        <tr><td><strong>Query</strong></td><td>Easy for sequence</td><td>And awkward for classic aggregation, which is the trade being made.</td></tr>
+        <tr><td><strong>History</strong></td><td>Inherent - nothing is ever updated</td><td>The stream is append-only: what happened, happened.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h2 id="mistakes">The mistakes that are expensive</h2>
+  <h3>Inventing a timestamp for an activity that has none</h3>
+  <p>Defaulting a missing time to the load time puts the row in the stream at a position that is not true, and every sequence and gap question involving that entity is now quietly wrong. Leave the activity out and record why. An untimed event is not an event.</p>
+  <h3>Letting the feature columns become undocumented</h3>
+  <p><code>Feature1</code> means five different things across five activities. Without a maintained dictionary the table becomes unreadable within months, and the people who knew have moved on. This is the model&rsquo;s main maintenance obligation and it is not optional.</p>
+  <h3>Using it for state questions</h3>
+  <p>&ldquo;How many customers are in Bavaria&rdquo; is a question about state, and a stream of events answers it badly &mdash; you have to reconstruct the current state by walking the history. If most of the reporting looks like that, the questions are dimensional and the model should be too.</p>
+  <h2 id="versus">How it compares</h2>
+  <h3>Activity Schema or a star schema?</h3>
+  <p>Ask whether the questions are about state or about events. &ldquo;How much did we sell, by region, last quarter&rdquo; is state and aggregation, and a <a href="/kimball-dimensional-modeling.html">star</a> answers it more naturally. &ldquo;What did they do before they cancelled&rdquo; is sequence, and a star makes you work hard for it. Plenty of organisations run both, because both kinds of question are real.</p>
+  <h3>Activity Schema or One Big Table?</h3>
+  <p>Both are one-table models. <a href="/one-big-table.html">OBT</a> is wide: one row per transaction with everything about it attached. Activity Schema is narrow and long: one row per thing that happened, ordered. Width answers &ldquo;how much&rdquo;; length answers &ldquo;in what order&rdquo;.</p>
+  <h3>Activity Schema or Data Vault?</h3>
+  <p>Both are append-only and keep everything. A <a href="/data-vault-2-0.html">vault</a> is an integration and audit layer for many systems, structurally complex and not meant to be queried. An Activity Schema is a reporting model for one entity&rsquo;s timeline, and is meant to be queried directly. They are not really competing for the same job.</p>
+  <div class="note">
+    <p>Netune checks the two things this model actually requires &mdash; whether one entity runs through the database, and how many tables carry a usable timestamp &mdash; before scoring it, and says plainly when the data is state-shaped rather than event-shaped. If you build it, it generates the stream, the second pass that fills the sequence columns, and the dictionary.</p>
+  </div>
+  <h2 id="faq">Questions people ask</h2>
+  <section class="faq">
+    <div class="faq-item">
+      <h3>What is an activity schema?</h3>
+      <p>A single-table model where every row is one thing that happened to one entity at one moment &mdash; a customer signed up, placed an order, cancelled. It makes questions about sequence and timing cheap, because the whole timeline is one ordered table.</p>
+    </div>
+    <div class="faq-item">
+      <h3>How is an activity schema different from a fact table?</h3>
+      <p>A fact table holds one kind of event at one grain, with typed columns for that event. An activity stream holds every kind of event for an entity in one table, with shared feature columns whose meaning depends on the activity &mdash; which is what lets you read across activities in order.</p>
+    </div>
+    <div class="faq-item">
+      <h3>What if some of my events have no timestamp?</h3>
+      <p>They cannot be in the stream. An activity with no time cannot be sequenced, and inventing one &mdash; defaulting to the load time, say &mdash; makes every ordering question involving that entity wrong. Leave it out and record why. If the activity has a parent with a time, it can inherit that.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can I use an activity schema without a customer?</h3>
+      <p>You need some single entity that everything relates to, but it does not have to be a customer &mdash; a device, a vehicle, a shipment, an account all work. What does not work is having no such entity: the stream has nothing to be a timeline of.</p>
+    </div>
+  </section>
+
+  <section class="siblings">
+    <h2>The other seven</h2>
+    <ul>
+      <li><a href="/kimball-dimensional-modeling.html">Kimball<span>Facts surrounded by dimensions, built for reporting</span></a></li>
+      <li><a href="/inmon-corporate-information-factory.html">Inmon<span>An integrated 3NF core, with marts built on top</span></a></li>
+      <li><a href="/data-vault-2-0.html">Data Vault 2.0<span>Hubs, links and satellites; nothing is ever updated</span></a></li>
+      <li><a href="/medallion-architecture.html">Medallion<span>Bronze, silver, gold — a pipeline, not a model</span></a></li>
+      <li><a href="/galaxy-schema.html">Galaxy<span>Several stars sharing conformed dimensions</span></a></li>
+      <li><a href="/one-big-table.html">One Big Table<span>Everything joined in already; no joins to write</span></a></li>
+      <li><a href="/anchor-modeling.html">Anchor Modeling<span>One table per attribute; change never disturbs anything</span></a></li>
+    </ul>
+    <p style="margin-top:16px"><a href="/data-warehouse-methodologies.html">&larr; All eight compared, and how to choose between them</a></p>
+  </section>
+  <div class="cta">
+    <h2>See whether your data is event-shaped</h2>
+    <p>Netune measures how many of your tables carry timestamps, whether a single entity runs through them, and whether the data describes events or states &mdash; then scores this model against seven others on that evidence.</p>
+    <a href="/netune-free-beta.html">Download the free beta</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot;
+    <a href="/data-warehouse-methodologies.html">Choose a model</a> &middot;
+    <a href="/netune-free-beta.html">Free beta</a> &middot;
+    <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Activity Schema: modelling what happened, in order, in one table",
+  "description": "The single-table event model: one row per thing that happened to one entity at one moment. What makes sequence questions cheap, and where it does not fit.",
+  "about": {
+    "@type": "Thing",
+    "name": "Activity schema"
+  },
+  "keywords": "activity schema, activity stream, event modelling, customer journey data model, sequence analysis, temporal data model, activity schema vs star schema, Narrator",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/activity-schema.html"
+  },
+  "image": "https://dataash.de/og.png",
+  "author": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "inLanguage": "en-GB",
+  "isPartOf": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/data-warehouse-methodologies.html"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is an activity schema?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A single-table model where every row is one thing that happened to one entity at one moment - a customer signed up, placed an order, cancelled. It makes questions about sequence and timing cheap, because the whole timeline is one ordered table." } },
+    { "@type": "Question", "name": "How is an activity schema different from a fact table?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A fact table holds one kind of event at one grain, with typed columns for that event. An activity stream holds every kind of event for an entity in one table, with shared feature columns whose meaning depends on the activity - which is what lets you read across activities in order." } },
+    { "@type": "Question", "name": "What if some of my events have no timestamp?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They cannot be in the stream. An activity with no time cannot be sequenced, and inventing one - defaulting to the load time, say - makes every ordering question involving that entity wrong. Leave it out and record why. If the activity has a parent with a time, it can inherit that." } },
+    { "@type": "Question", "name": "Can I use an activity schema without a customer?",
+      "acceptedAnswer": { "@type": "Answer", "text": "You need some single entity that everything relates to, but it does not have to be a customer - a device, a vehicle, a shipment, an account all work. What does not work is having no such entity: the stream has nothing to be a timeline of." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Netune",
+      "item": "https://dataash.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Data warehouse methodologies",
+      "item": "https://dataash.de/data-warehouse-methodologies.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Activity Schema",
+      "item": "https://dataash.de/activity-schema.html"
+    }
+  ]
+}
+</script>
+
+</body>
+</html>

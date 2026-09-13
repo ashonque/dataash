@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>Data Vault 2.0 explained: hubs, links, satellites and the hash key</title>
+  <meta name="description" content="What a hub, a link and a satellite hold, why the raw vault is insert-only, how hash keys make loads order-free, and why nobody should query a raw vault." />
+  <link rel="canonical" href="https://dataash.de/data-vault-2-0.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="keywords" content="Data Vault 2.0, hub link satellite, raw vault, business vault, hash key, HashDiff, insert-only data warehouse, auditability, Dan Linstedt, Data Vault vs Kimball" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Data Vault 2.0: hubs, links and satellites, and what they really cost" />
+  <meta property="og:description" content="What a hub, a link and a satellite hold, why the raw vault is insert-only, how hash keys make loads order-free, and why nobody should query a raw vault." />
+  <meta property="og:url" content="https://dataash.de/data-vault-2-0.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Data Vault 2.0" />
+  <meta name="twitter:description" content="Hubs, links, satellites, hash keys and the ghost row - and why the marts are part of the project." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --no:       #9A3B2F;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(29px, 5vw, 42px); line-height: 1.14;
+      letter-spacing: -0.02em; margin: 14px 0 8px;
+    }
+    .also { font-size: 14px; color: var(--ink-dim); margin: 0 0 16px; }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 27px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 48px 0 12px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 18.5px; margin: 28px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+    pre {
+      background: var(--navy-900); color: #E8EEF9; border-radius: var(--radius);
+      padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    .fits {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0;
+    }
+    .fits > div {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 4px 20px 14px;
+    }
+    .fits .yes { border-top: 3px solid var(--ok); }
+    .fits .no  { border-top: 3px solid var(--no); }
+    .fits h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em; margin: 16px 0 10px; }
+    .fits .yes h3 { color: var(--ok); }
+    .fits .no h3  { color: var(--no); }
+    .fits ul { padding-left: 20px; margin: 0; font-size: 15.5px; }
+    @media (max-width: 620px) { .fits { grid-template-columns: 1fr; } }
+
+    .wide { overflow-x: auto; margin: 22px 0; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 15px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; min-width: 480px;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .siblings { margin: 44px 0 0; }
+    .siblings ul {
+      list-style: none; padding: 0; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .siblings li { margin: 0; }
+    .siblings a {
+      display: block; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 14px; text-decoration: none;
+      font-size: 15px; font-weight: 600;
+    }
+    .siblings a:hover { border-color: var(--navy-500); }
+    .siblings a span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-dim); }
+    @media (max-width: 620px) { .siblings ul { grid-template-columns: 1fr; } }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 48px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 52px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .cta { padding: 24px; }
+      /* the header's two items cannot both fit on a phone, and the breadcrumb
+         immediately below goes to the same place */
+      header.top a.back { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/data-warehouse-methodologies.html">&larr; All eight methodologies</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; <a href="/data-warehouse-methodologies.html">Data warehouse methodologies</a> &rsaquo; Data Vault 2.0
+  </nav>
+  <h1>Data Vault 2.0: hubs, links and satellites, and what they really cost</h1>
+  <p class="also">Also called: DV2.0, hubs links and satellites, the raw vault, Linstedt’s model</p>
+  <p class="standfirst">Built for the case where the warehouse has to be able to say exactly what it was told, and when &mdash; and where the sources will not stop changing shape.</p>
+  <h2 id="what">What it is</h2>
+  <p>Data Vault splits every entity into three kinds of table. A <strong>hub</strong> holds a business key and nothing else &mdash; the customer number, the product code. A <strong>link</strong> holds a relationship between hubs. A <strong>satellite</strong> holds everything descriptive, hanging off a hub or a link, with a load date.</p>
+  <p>The rule that makes it work: <strong>nothing is ever updated or deleted</strong>. A satellite gets a new row when the incoming data differs from the newest row already there, and the old row stays exactly as it was. The warehouse can therefore always answer &ldquo;what did we know about this customer on the 3rd of March, and when did we learn it?&rdquo;</p>
+  <p>The pay-off is what happens when a source changes. Adding a system, or a new set of attributes, means adding tables rather than rewriting existing ones &mdash; nothing already loaded has to be migrated. That single property is what people buy Data Vault for, and it is genuinely rare.</p>
+  <h2 id="shape">How the tables are actually shaped</h2>
+  <h3>The three table types</h3>
+  <pre><code>Hub_Customer
+  Customer_HK     BINARY(32)  -- hash of the business key
+  CustomerNumber  NVARCHAR    -- the business key itself
+  LoadDate, RecordSource
+
+Link_Order_Customer
+  Order_Customer_HK  BINARY(32)   -- hash of both parent keys
+  Order_HK, Customer_HK           -- the hubs it joins
+  LoadDate, RecordSource
+
+Sat_Customer
+  Customer_HK     BINARY(32)   -- key is (Customer_HK, LoadDate)
+  LoadDate        DATETIME2
+  HashDiff        BINARY(32)   -- hash of every descriptive column
+  Name, Address, Segment, ...</code></pre>
+  <p><code>HashDiff</code> is how a satellite decides whether anything changed: hash all the descriptive columns, compare with the newest stored row, insert only if they differ. It is cheaper than comparing forty columns and it cannot be fooled by column order.</p>
+  <h3>Why hash keys, and the invariant nobody may break</h3>
+  <p>The hash key is the business key put through a hash function. That means a satellite can <em>recompute</em> its parent&rsquo;s key from its own incoming row rather than looking the hub up &mdash; so the satellite can load before the hub does and still land on the right key. Loads become order-free and parallel, which on a large vault is the difference between a nightly window and no nightly window.</p>
+  <p>The price is an invariant you cannot be casual about: <strong>every expression that computes a key must be character-for-character identical</strong>. One load that trims the key and another that does not produce different hashes, the join finds nothing, and there is no error &mdash; just an empty warehouse. Normalise once (trim, upper-case, a known placeholder for NULL) and write that expression in exactly one place.</p>
+  <h3>The ghost row</h3>
+  <p>Every hub gets a row for &ldquo;unknown&rdquo;, whose key is what a NULL business key hashes to. Without it, a link involving a missing reference has to be dropped, and the transaction disappears from the warehouse entirely. With it, the row survives and points somewhere honest. It is Kimball&rsquo;s <code>-1</code> member under another name.</p>
+  <h3>The business vault and the marts</h3>
+  <p>The raw vault holds what arrived. Anything calculated, conformed or interpreted goes in a <strong>business vault</strong> beside it, and the readable layer is a set of dimensional marts on top of that. This is not an optional extra phase &mdash; it is how anybody gets an answer out.</p>
+  <h2 id="fit">When it fits, and when it does not</h2>
+  <p>Data Vault is the most demanding model here and the most often chosen for the wrong reason. It is not a better Kimball; it solves a different problem.</p>
+  <div class="fits">
+    <div class="yes"><h3>It fits when</h3><ul>
+      <li>several source systems must be brought together</li>
+      <li>full history is required, including of things nobody reports on yet</li>
+      <li>sources change shape often and the warehouse must absorb it</li>
+      <li>auditability matters more than convenience</li>
+    </ul></div>
+    <div class="no"><h3>It fits badly when</h3><ul>
+      <li>a small model with one source and no history requirement</li>
+      <li>the team is small - the table count and load logic are heavy</li>
+      <li>analysts will query it directly, which they should not</li>
+      <li>results are needed in weeks rather than months</li>
+    </ul></div>
+  </div>
+  <p class="also">Those two lists are Netune&rsquo;s own judgement of this methodology, copied from the rule file it scores a real database with.</p>
+  <h2 id="cost">What it costs</h2>
+  <div class="wide">
+    <table>
+      <thead><tr><th>&nbsp;</th><th>Cost</th><th>What that means here</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Build</strong></td><td>High</td><td>Three tables where other models have one, plus a mart layer that is not optional.</td></tr>
+        <tr><td><strong>Maintain</strong></td><td>Moderate</td><td>New sources add tables rather than changing them, which is the whole point.</td></tr>
+        <tr><td><strong>Query</strong></td><td>Hard without marts</td><td>A question that is one join in a star is five or six in a raw vault.</td></tr>
+        <tr><td><strong>History</strong></td><td>Complete, automatically</td><td>Insert-only is the mechanism, so there is no per-table history decision at all.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h2 id="mistakes">The mistakes that are expensive</h2>
+  <h3>Letting analysts near the raw vault</h3>
+  <p>It is not built to be read, and a team that has to query it directly will conclude the warehouse is broken &mdash; reasonably. Every question means joining hubs to links to satellites and filtering each satellite to its newest row. Plan the marts as part of the project, not as a phase two that gets cut.</p>
+  <h3>Two expressions for one hash</h3>
+  <p>Covered above because it is the failure mode that costs the most time: it produces no error, no warning and no rows. If you write vault loads by hand, put the key expression in one place &mdash; a function, a view, a generator &mdash; and never type it a second time.</p>
+  <h3>Hashing a concatenation that silently truncates</h3>
+  <p>A link key hashes several business keys joined together. In SQL Server, concatenating sized string types caps the result at 4000 characters, so a link over several hubs with long keys truncates before it hashes &mdash; only for the long ones, which is the worst possible distribution of a bug. Widen the first part to <code>NVARCHAR(MAX)</code> and the problem goes away.</p>
+  <h2 id="versus">How it compares</h2>
+  <h3>Data Vault or Kimball?</h3>
+  <p>If you are choosing between them you are probably choosing both: Data Vault for the integration and history, a <a href="/kimball-dimensional-modeling.html">star schema</a> on top for the reporting. Choosing Data Vault <em>instead</em> of a star only makes sense if nobody needs to report yet, which is rarely true.</p>
+  <h3>Data Vault or Inmon?</h3>
+  <p>Both are integration layers with history. <a href="/inmon-corporate-information-factory.html">Inmon&rsquo;s core</a> asks people to model the business and rewards them with something readable; the vault asks for far less modelling judgement and rewards you with something that absorbs change mechanically. Pick the vault when the sources change faster than the committee meets.</p>
+  <h3>Data Vault or Anchor Modeling?</h3>
+  <p><a href="/anchor-modeling.html">Anchor</a> takes the same idea further &mdash; one table per attribute rather than a satellite of several &mdash; and pays for it in joins. Anchor is the stricter, more academic cousin; the vault is the one with more industry tooling around it.</p>
+  <div class="note">
+    <p>Netune scores Data Vault on what it can measure &mdash; how many systems feed the database, how often the schema seems to change, whether there are real relationships for links to hold &mdash; and, if you choose it, generates the hubs, links and satellites with one definition of every hash key, the ghost rows computed by that same expression, and the load order the foreign keys require.</p>
+  </div>
+  <h2 id="faq">Questions people ask</h2>
+  <section class="faq">
+    <div class="faq-item">
+      <h3>What is the difference between a hub, a link and a satellite?</h3>
+      <p>A hub holds a business key and nothing else. A link holds a relationship between hubs. A satellite holds the descriptive columns, hanging off a hub or a link, with a load date &mdash; and gets a new row whenever the description changes.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Why is the raw vault insert-only?</h3>
+      <p>Because that is how it keeps history and how it stays auditable. Nothing is updated or deleted, so the warehouse can always say what it was told and when. It is also why Data Vault has no slowly-changing-dimension question to answer.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Do I still need a star schema if I use Data Vault?</h3>
+      <p>In practice, yes. The raw vault is not built to be queried &mdash; every question costs several joins and a newest-row filter per satellite &mdash; so the readable layer is dimensional marts built on top. Budget for them from the start.</p>
+    </div>
+    <div class="faq-item">
+      <h3>What is a HashDiff?</h3>
+      <p>A hash of all the descriptive columns in a satellite row. The load compares it with the newest stored row for that key and inserts only when they differ, which is cheaper than comparing every column and is not confused by column order.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Is Data Vault overkill for a small warehouse?</h3>
+      <p>Usually, yes. With one source, no audit requirement and a stable schema, it gives you three tables where you needed one and a mart layer you would not otherwise have built. Its costs are paid back by many sources, frequent schema change, or a regulator.</p>
+    </div>
+  </section>
+
+  <section class="siblings">
+    <h2>The other seven</h2>
+    <ul>
+      <li><a href="/kimball-dimensional-modeling.html">Kimball<span>Facts surrounded by dimensions, built for reporting</span></a></li>
+      <li><a href="/inmon-corporate-information-factory.html">Inmon<span>An integrated 3NF core, with marts built on top</span></a></li>
+      <li><a href="/medallion-architecture.html">Medallion<span>Bronze, silver, gold — a pipeline, not a model</span></a></li>
+      <li><a href="/galaxy-schema.html">Galaxy<span>Several stars sharing conformed dimensions</span></a></li>
+      <li><a href="/one-big-table.html">One Big Table<span>Everything joined in already; no joins to write</span></a></li>
+      <li><a href="/anchor-modeling.html">Anchor Modeling<span>One table per attribute; change never disturbs anything</span></a></li>
+      <li><a href="/activity-schema.html">Activity Schema<span>One row per thing that happened, in sequence</span></a></li>
+    </ul>
+    <p style="margin-top:16px"><a href="/data-warehouse-methodologies.html">&larr; All eight compared, and how to choose between them</a></p>
+  </section>
+  <div class="cta">
+    <h2>See whether your data has anything for links to hold</h2>
+    <p>Netune measures the relationships, the key structure and the apparent number of source systems in a real SQL Server database, and scores Data Vault against seven alternatives on that evidence &mdash; with the reasons shown.</p>
+    <a href="/netune-free-beta.html">Download the free beta</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot;
+    <a href="/data-warehouse-methodologies.html">Choose a model</a> &middot;
+    <a href="/netune-free-beta.html">Free beta</a> &middot;
+    <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Data Vault 2.0: hubs, links and satellites, and what they really cost",
+  "description": "What a hub, a link and a satellite hold, why the raw vault is insert-only, how hash keys make loads order-free, and why nobody should query a raw vault.",
+  "about": {
+    "@type": "Thing",
+    "name": "Data Vault modeling"
+  },
+  "keywords": "Data Vault 2.0, hub link satellite, raw vault, business vault, hash key, HashDiff, insert-only data warehouse, auditability, Dan Linstedt, Data Vault vs Kimball",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/data-vault-2-0.html"
+  },
+  "image": "https://dataash.de/og.png",
+  "author": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "inLanguage": "en-GB",
+  "isPartOf": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/data-warehouse-methodologies.html"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is the difference between a hub, a link and a satellite?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A hub holds a business key and nothing else. A link holds a relationship between hubs. A satellite holds the descriptive columns, hanging off a hub or a link, with a load date - and gets a new row whenever the description changes." } },
+    { "@type": "Question", "name": "Why is the raw vault insert-only?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because that is how it keeps history and how it stays auditable. Nothing is updated or deleted, so the warehouse can always say what it was told and when. It is also why Data Vault has no slowly-changing-dimension question to answer." } },
+    { "@type": "Question", "name": "Do I still need a star schema if I use Data Vault?",
+      "acceptedAnswer": { "@type": "Answer", "text": "In practice, yes. The raw vault is not built to be queried - every question costs several joins and a newest-row filter per satellite - so the readable layer is dimensional marts built on top. Budget for them from the start." } },
+    { "@type": "Question", "name": "What is a HashDiff?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A hash of all the descriptive columns in a satellite row. The load compares it with the newest stored row for that key and inserts only when they differ, which is cheaper than comparing every column and is not confused by column order." } },
+    { "@type": "Question", "name": "Is Data Vault overkill for a small warehouse?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Usually, yes. With one source, no audit requirement and a stable schema, it gives you three tables where you needed one and a mart layer you would not otherwise have built. Its costs are paid back by many sources, frequent schema change, or a regulator." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Netune",
+      "item": "https://dataash.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Data warehouse methodologies",
+      "item": "https://dataash.de/data-warehouse-methodologies.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Data Vault 2.0",
+      "item": "https://dataash.de/data-vault-2-0.html"
+    }
+  ]
+}
+</script>
+
+</body>
+</html>

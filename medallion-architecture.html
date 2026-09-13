@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>Medallion architecture: what bronze, silver and gold are actually for</title>
+  <meta name="description" content="What belongs in bronze, silver and gold, why bronze must never be cleaned, and the thing Medallion does not give you: it organises work, it does not model." />
+  <link rel="canonical" href="https://dataash.de/medallion-architecture.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="keywords" content="Medallion architecture, bronze silver gold, lakehouse, Databricks, Microsoft Fabric, multi-hop architecture, data lakehouse layers, Medallion vs Kimball, delta lake" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Medallion architecture: bronze, silver and gold, and what it does not do" />
+  <meta property="og:description" content="What belongs in bronze, silver and gold, why bronze must never be cleaned, and the thing Medallion does not give you: it organises work, it does not model." />
+  <meta property="og:url" content="https://dataash.de/medallion-architecture.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Medallion architecture" />
+  <meta name="twitter:description" content="Bronze, silver, gold - what each layer is for, and the one thing Medallion does not give you." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --no:       #9A3B2F;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(29px, 5vw, 42px); line-height: 1.14;
+      letter-spacing: -0.02em; margin: 14px 0 8px;
+    }
+    .also { font-size: 14px; color: var(--ink-dim); margin: 0 0 16px; }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 27px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 48px 0 12px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 18.5px; margin: 28px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+    pre {
+      background: var(--navy-900); color: #E8EEF9; border-radius: var(--radius);
+      padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    .fits {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0;
+    }
+    .fits > div {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 4px 20px 14px;
+    }
+    .fits .yes { border-top: 3px solid var(--ok); }
+    .fits .no  { border-top: 3px solid var(--no); }
+    .fits h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em; margin: 16px 0 10px; }
+    .fits .yes h3 { color: var(--ok); }
+    .fits .no h3  { color: var(--no); }
+    .fits ul { padding-left: 20px; margin: 0; font-size: 15.5px; }
+    @media (max-width: 620px) { .fits { grid-template-columns: 1fr; } }
+
+    .wide { overflow-x: auto; margin: 22px 0; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 15px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; min-width: 480px;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .siblings { margin: 44px 0 0; }
+    .siblings ul {
+      list-style: none; padding: 0; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .siblings li { margin: 0; }
+    .siblings a {
+      display: block; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 14px; text-decoration: none;
+      font-size: 15px; font-weight: 600;
+    }
+    .siblings a:hover { border-color: var(--navy-500); }
+    .siblings a span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-dim); }
+    @media (max-width: 620px) { .siblings ul { grid-template-columns: 1fr; } }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 48px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 52px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .cta { padding: 24px; }
+      /* the header's two items cannot both fit on a phone, and the breadcrumb
+         immediately below goes to the same place */
+      header.top a.back { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/data-warehouse-methodologies.html">&larr; All eight methodologies</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; <a href="/data-warehouse-methodologies.html">Data warehouse methodologies</a> &rsaquo; Medallion
+  </nav>
+  <h1>Medallion architecture: bronze, silver and gold, and what it does not do</h1>
+  <p class="also">Also called: the multi-hop architecture, bronze/silver/gold layers, the lakehouse pattern</p>
+  <p class="standfirst">The default shape of a modern lakehouse pipeline, and the one that most often gets adopted in the belief that it answers a question it does not even ask.</p>
+  <h2 id="what">What it is</h2>
+  <p>Medallion splits a pipeline into three layers. <strong>Bronze</strong> holds everything exactly as it arrived, unmodified. <strong>Silver</strong> holds it cleaned, typed and deduplicated. <strong>Gold</strong> holds business-ready tables that people actually query.</p>
+  <p>It came out of the Databricks world and is now the house style of most lakehouse projects, Microsoft Fabric included. Its real virtue is that it makes the state of every table obvious from where it sits: nobody has to ask whether a given table has been cleaned yet.</p>
+  <p>And here is the part worth being direct about, because skipping it causes most of the disappointment: <strong>Medallion organises the work; it does not model the business.</strong> It tells you where a table sits in a pipeline. It does not tell you what a row means, what the grain is, or how history is kept. Those questions still have to be answered &mdash; in gold, usually by <a href="/kimball-dimensional-modeling.html">modelling it dimensionally</a>.</p>
+  <h2 id="shape">How the tables are actually shaped</h2>
+  <h3>Bronze: prove what arrived</h3>
+  <p>Bronze is a landing zone with a memory. Typically the source columns as they came, plus a few of its own:</p>
+  <pre><code>Bronze_Customer
+  ...every source column, as it arrived...
+  _ingested_at    DATETIME2
+  _source_system  NVARCHAR
+  _batch_id       NVARCHAR
+  _raw_hash       BINARY(32)   -- hash of the row EXACTLY as received</code></pre>
+  <ul>
+    <li><strong>Do not clean it, and do not normalise the hash input.</strong> No trimming, no upper-casing. The entire point of bronze is that it can prove what was received, and a hash computed over tidied-up input cannot.</li>
+    <li>Duplicate business keys belong here, and so do rows with no key at all. Deduplicating is silver&rsquo;s job.</li>
+    <li>It is usually a heap with no keys and no indexes, loaded in bulk. There is no candidate key to declare, and an index would only slow the load.</li>
+  </ul>
+  <h3>Silver: one row per thing, with history</h3>
+  <p>Silver reads bronze and nothing else. It types the columns properly, deduplicates on the business key &mdash; newest ingest wins, which is a real tie-break rather than an arbitrary one &mdash; and keeps history with validity dates.</p>
+  <p>That makes silver&rsquo;s primary key the <strong>business key plus the moment the version started</strong>, not the business key alone. The same shape as an Inmon core, but on the source&rsquo;s own key, because not inventing a surrogate is part of the point of this layer.</p>
+  <p>Rows with no business key stay in bronze. Nothing can key them, so nothing downstream could join them anyway &mdash; and quietly passing them along makes the counts wrong in a way nobody traces.</p>
+  <h3>Gold: the layer that still needs a model</h3>
+  <p>Gold reads silver, never bronze. It is aggregated, filtered to the current and valid rows, and shaped for a question. It is also where the modelling you skipped arrives: in practice most gold layers are star schemas, which means most Medallion projects are doing Kimball as well, not instead.</p>
+  <p>A gold table is usually better off with a clustered index than a primary key: it is rebuilt whole and grouped by period and by whatever it slices on, and a grouping column may legitimately be NULL &mdash; which a primary key would refuse.</p>
+  <h2 id="fit">When it fits, and when it does not</h2>
+  <p>Medallion is easy to adopt and hard to regret, which is exactly why it is worth being clear about what it leaves undone.</p>
+  <div class="fits">
+    <div class="yes"><h3>It fits when</h3><ul>
+      <li>the sources are messy and cleaning has to be visible and auditable</li>
+      <li>the platform is a lakehouse - Databricks, Fabric, Snowflake</li>
+      <li>different teams want to work at different levels of rawness</li>
+      <li>you want to start delivering before the modelling questions are settled</li>
+    </ul></div>
+    <div class="no"><h3>It fits badly when</h3><ul>
+      <li>the sources are already clean and well modelled</li>
+      <li>a small model where three layers is two too many</li>
+      <li>the business wants conformed dimensions, which this does not give you</li>
+      <li>storage cost matters - the same data is held three times</li>
+    </ul></div>
+  </div>
+  <p class="also">Those two lists are Netune&rsquo;s own judgement of this methodology, copied from the rule file it scores a real database with.</p>
+  <h2 id="cost">What it costs</h2>
+  <div class="wide">
+    <table>
+      <thead><tr><th>&nbsp;</th><th>Cost</th><th>What that means here</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Build</strong></td><td>Low to moderate</td><td>Each hop is simple on its own. The work is in silver's cleaning rules.</td></tr>
+        <tr><td><strong>Maintain</strong></td><td>Moderate</td><td>Three layers to keep in step, and a schema change ripples through all three.</td></tr>
+        <tr><td><strong>Query</strong></td><td>Easy at gold</td><td>Assuming gold was modelled. If it was not, it is as hard as whatever is in there.</td></tr>
+        <tr><td><strong>History</strong></td><td>Whatever bronze keeps</td><td>Bronze is the archive; silver's validity dates are what anybody actually queries.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h2 id="mistakes">The mistakes that are expensive</h2>
+  <h3>Cleaning bronze “just a little”</h3>
+  <p>Trimming whitespace on the way in feels harmless and destroys the only thing bronze was for. The moment bronze differs from what was sent, it can no longer settle an argument with the source system &mdash; which is the situation you built it for.</p>
+  <h3>Expecting gold to model itself</h3>
+  <p>Teams adopt Medallion, build bronze and silver competently, and then discover that &ldquo;gold&rdquo; is not a design &mdash; it is an empty schema with a colour. The grain, the conformed dimensions and the history questions are all still waiting. Decide the gold model at the start; Medallion will not decide it for you.</p>
+  <h3>Reading bronze from gold</h3>
+  <p>It happens when something is missing from silver and a deadline is close, and it quietly removes every guarantee the middle layer was making. If gold needs something bronze has, the fix belongs in silver.</p>
+  <h2 id="versus">How it compares</h2>
+  <h3>Medallion or Kimball?</h3>
+  <p>Not really a choice &mdash; they answer different questions. Medallion says where a table sits in the pipeline; <a href="/kimball-dimensional-modeling.html">Kimball</a> says what a row means. The common and correct arrangement is Medallion for the pipeline with a star schema in gold.</p>
+  <h3>Medallion or Data Vault?</h3>
+  <p>Bronze and a <a href="/data-vault-2-0.html">raw vault</a> overlap: both keep what arrived so it can be proven later. The vault also integrates across systems and keeps attribute-level history in a queryable structure, which bronze does not. On a lakehouse with several systems, people often run both &mdash; bronze for the raw files, a vault in silver.</p>
+  <h3>Is Medallion the same as staging?</h3>
+  <p>Bronze is a staging layer with one extra promise: it keeps what it received, unmodified, rather than being truncated and refilled each run. Everything else staging does &mdash; keeping the transformation off the production system, giving a failed load somewhere to restart &mdash; bronze does too.</p>
+  <div class="note">
+    <p>Netune scores Medallion alongside the seven others and, if you pick it, generates all three layers for SQL Server &mdash; bronze with its untouched raw hash, silver deduplicated by newest ingest with validity dates, and gold filtered to the current and valid rows. Which is also a quick way to see how much modelling gold still needs.</p>
+  </div>
+  <h2 id="faq">Questions people ask</h2>
+  <section class="faq">
+    <div class="faq-item">
+      <h3>What goes in bronze, silver and gold?</h3>
+      <p>Bronze holds the data exactly as it arrived, unmodified, with ingestion metadata. Silver holds it typed, deduplicated on the business key and versioned with validity dates. Gold holds business-ready tables, usually aggregated and usually modelled dimensionally.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Is Medallion architecture a data modelling methodology?</h3>
+      <p>No, and this is the most useful thing to know about it. It organises a pipeline into layers; it does not say what a row means, what the grain is, or how history is kept. Those questions are answered in gold, typically with a star schema.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can I skip silver?</h3>
+      <p>On genuinely clean, well-modelled sources, some teams do &mdash; and then the first messy source arrives and the cleaning lands in gold, where it is invisible and repeated. Silver is cheap while the pipeline is small; retrofitting it is not.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Does Medallion work outside a lakehouse?</h3>
+      <p>Yes. The three layers are just schemas or databases, and the pattern works perfectly well on SQL Server. The one thing that changes is the storage bill: holding the same data three times is cheap on object storage and a real cost on a traditional database.</p>
+    </div>
+  </section>
+
+  <section class="siblings">
+    <h2>The other seven</h2>
+    <ul>
+      <li><a href="/kimball-dimensional-modeling.html">Kimball<span>Facts surrounded by dimensions, built for reporting</span></a></li>
+      <li><a href="/inmon-corporate-information-factory.html">Inmon<span>An integrated 3NF core, with marts built on top</span></a></li>
+      <li><a href="/data-vault-2-0.html">Data Vault 2.0<span>Hubs, links and satellites; nothing is ever updated</span></a></li>
+      <li><a href="/galaxy-schema.html">Galaxy<span>Several stars sharing conformed dimensions</span></a></li>
+      <li><a href="/one-big-table.html">One Big Table<span>Everything joined in already; no joins to write</span></a></li>
+      <li><a href="/anchor-modeling.html">Anchor Modeling<span>One table per attribute; change never disturbs anything</span></a></li>
+      <li><a href="/activity-schema.html">Activity Schema<span>One row per thing that happened, in sequence</span></a></li>
+    </ul>
+    <p style="margin-top:16px"><a href="/data-warehouse-methodologies.html">&larr; All eight compared, and how to choose between them</a></p>
+  </section>
+  <div class="cta">
+    <h2>See what your gold layer would have to be</h2>
+    <p>Netune reads a SQL Server database, scores Medallion against seven other models on the evidence, and generates bronze, silver and gold as runnable T-SQL &mdash; including the modelling decisions gold cannot avoid.</p>
+    <a href="/netune-free-beta.html">Download the free beta</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot;
+    <a href="/data-warehouse-methodologies.html">Choose a model</a> &middot;
+    <a href="/netune-free-beta.html">Free beta</a> &middot;
+    <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Medallion architecture: bronze, silver and gold, and what it does not do",
+  "description": "What belongs in bronze, silver and gold, why bronze must never be cleaned, and the thing Medallion does not give you: it organises work, it does not model.",
+  "about": {
+    "@type": "Thing",
+    "name": "Medallion architecture"
+  },
+  "keywords": "Medallion architecture, bronze silver gold, lakehouse, Databricks, Microsoft Fabric, multi-hop architecture, data lakehouse layers, Medallion vs Kimball, delta lake",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/medallion-architecture.html"
+  },
+  "image": "https://dataash.de/og.png",
+  "author": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "inLanguage": "en-GB",
+  "isPartOf": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/data-warehouse-methodologies.html"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What goes in bronze, silver and gold?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Bronze holds the data exactly as it arrived, unmodified, with ingestion metadata. Silver holds it typed, deduplicated on the business key and versioned with validity dates. Gold holds business-ready tables, usually aggregated and usually modelled dimensionally." } },
+    { "@type": "Question", "name": "Is Medallion architecture a data modelling methodology?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No, and this is the most useful thing to know about it. It organises a pipeline into layers; it does not say what a row means, what the grain is, or how history is kept. Those questions are answered in gold, typically with a star schema." } },
+    { "@type": "Question", "name": "Can I skip silver?",
+      "acceptedAnswer": { "@type": "Answer", "text": "On genuinely clean, well-modelled sources, some teams do - and then the first messy source arrives and the cleaning lands in gold, where it is invisible and repeated. Silver is cheap while the pipeline is small; retrofitting it is not." } },
+    { "@type": "Question", "name": "Does Medallion work outside a lakehouse?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The three layers are just schemas or databases, and the pattern works perfectly well on SQL Server. The one thing that changes is the storage bill: holding the same data three times is cheap on object storage and a real cost on a traditional database." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Netune",
+      "item": "https://dataash.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Data warehouse methodologies",
+      "item": "https://dataash.de/data-warehouse-methodologies.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Medallion",
+      "item": "https://dataash.de/medallion-architecture.html"
+    }
+  ]
+}
+</script>
+
+</body>
+</html>

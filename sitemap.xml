@@ -7,6 +7,21 @@
   </url>
 
   <url>
+    <loc>https://dataash.de/activity-schema.html</loc>
+    <lastmod>2026-09-13</lastmod>
+  </url>
+
+  <url>
+    <loc>https://dataash.de/anchor-modeling.html</loc>
+    <lastmod>2026-09-13</lastmod>
+  </url>
+
+  <url>
+    <loc>https://dataash.de/data-vault-2-0.html</loc>
+    <lastmod>2026-09-13</lastmod>
+  </url>
+
+  <url>
     <loc>https://dataash.de/data-warehouse-methodologies.html</loc>
     <lastmod>2026-09-13</lastmod>
   </url>
@@ -17,7 +32,32 @@
   </url>
 
   <url>
+    <loc>https://dataash.de/galaxy-schema.html</loc>
+    <lastmod>2026-09-13</lastmod>
+  </url>
+
+  <url>
+    <loc>https://dataash.de/inmon-corporate-information-factory.html</loc>
+    <lastmod>2026-09-13</lastmod>
+  </url>
+
+  <url>
+    <loc>https://dataash.de/kimball-dimensional-modeling.html</loc>
+    <lastmod>2026-09-13</lastmod>
+  </url>
+
+  <url>
+    <loc>https://dataash.de/medallion-architecture.html</loc>
+    <lastmod>2026-09-13</lastmod>
+  </url>
+
+  <url>
     <loc>https://dataash.de/netune-free-beta.html</loc>
+    <lastmod>2026-09-13</lastmod>
+  </url>
+
+  <url>
+    <loc>https://dataash.de/one-big-table.html</loc>
     <lastmod>2026-09-13</lastmod>
   </url>
 

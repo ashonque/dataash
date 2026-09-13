@@ -126,6 +126,9 @@
     .m dt.not  { color: var(--no); }
     .m dt.cost { color: var(--ink-dim); }
     .m dd { margin: 0; }
+    .m .more { margin: 20px 0 0; font-size: 15.5px; font-weight: 600; }
+    .m .more a { text-decoration: none; }
+    .m .more a:hover { text-decoration: underline; }
 
     .wide { overflow-x: auto; margin: 22px 0; }
     table {
@@ -165,7 +168,14 @@
     footer { border-top: 1px solid var(--line); margin-top: 56px; padding: 26px 0 46px; }
     footer .wrap { font-size: 14px; color: var(--ink-dim); }
     footer a { color: var(--navy-700); }
-    @media (max-width: 560px) { body { font-size: 16px; } .cta { padding: 24px; } .m { padding: 4px 18px 18px; } }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .cta { padding: 24px; }
+      /* the header's two items cannot both fit on a phone, and the breadcrumb
+         immediately below goes to the same place */
+      header.top a.back { display: none; }
+      .m { padding: 4px 18px 18px; }
+    }
   </style>
 </head>
 <body>
@@ -196,7 +206,7 @@
       <li><a href="#short">The short answer</a></li>
       <li><a href="#kimball">Kimball — dimensional modelling</a></li>
       <li><a href="#inmon">Inmon — the Corporate Information Factory</a></li>
-      <li><a href="#datavault">Data Vault 2.0</a></li>
+      <li><a href="/data-vault-2-0.html">Data Vault 2.0</a></li>
       <li><a href="#medallion">Medallion — bronze, silver, gold</a></li>
       <li><a href="#galaxy">Galaxy — the fact constellation</a></li>
       <li><a href="#obt">One Big Table</a></li>
@@ -223,10 +233,10 @@
         <tr><th>If this is your situation</th><th>Start here</th></tr>
       </thead>
       <tbody>
-        <tr><td>One source system, and people want to report on it</td><td><a href="#kimball">Kimball</a></td></tr>
+        <tr><td>One source system, and people want to report on it</td><td><a href="/kimball-dimensional-modeling.html">Kimball</a></td></tr>
         <tr><td>Several processes sharing the same customers and products</td><td><a href="#galaxy">Galaxy</a></td></tr>
         <tr><td>Several source systems that disagree about the same customer</td><td><a href="#inmon">Inmon</a> or <a href="#datavault">Data Vault</a></td></tr>
-        <tr><td>You must be able to prove what you received and when</td><td><a href="#datavault">Data Vault 2.0</a></td></tr>
+        <tr><td>You must be able to prove what you received and when</td><td><a href="/data-vault-2-0.html">Data Vault 2.0</a></td></tr>
         <tr><td>The source schema changes constantly</td><td><a href="#datavault">Data Vault</a> or <a href="#anchor">Anchor</a></td></tr>
         <tr><td>You are on a lakehouse and want the pipeline organised</td><td><a href="#medallion">Medallion</a></td></tr>
         <tr><td>One process, few joins, analysts who dislike SQL</td><td><a href="#obt">One Big Table</a></td></tr>
@@ -268,6 +278,7 @@
       question. Getting the grain wrong is the expensive mistake in this
       methodology, because everything downstream assumes it.</dd>
     </dl>
+      <p class="more"><a href="/kimball-dimensional-modeling.html">Kimball in full: the grain, the star, and the SCD decision &rarr;</a></p>
   </section>
 
   <section class="m">
@@ -293,6 +304,7 @@
       optional — nothing reports off the core directly. Budget for both or the
       warehouse is finished and unusable at the same time.</dd>
     </dl>
+      <p class="more"><a href="/inmon-corporate-information-factory.html">Inmon in full: the 3NF core and the marts on top &rarr;</a></p>
   </section>
 
   <section class="m">
@@ -321,6 +333,7 @@
       dimension question here, because keeping history is the mechanism rather
       than an option.</dd>
     </dl>
+      <p class="more"><a href="/data-vault-2-0.html">Data Vault 2.0 in full: hubs, links, satellites and hash keys &rarr;</a></p>
   </section>
 
   <section class="m">
@@ -347,6 +360,7 @@
       <dd>The same data stored three times. On a lakehouse that is cheap; on a
       traditional database it is a real bill.</dd>
     </dl>
+      <p class="more"><a href="/medallion-architecture.html">Medallion in full: what belongs in bronze, silver and gold &rarr;</a></p>
   </section>
 
   <section class="m">
@@ -372,6 +386,7 @@
       <dd>The conversations. The modelling is straightforward; getting two
       departments to agree what "active customer" means is not.</dd>
     </dl>
+      <p class="more"><a href="/galaxy-schema.html">Galaxy in full: conformed dimensions and the bus matrix &rarr;</a></p>
   </section>
 
   <section class="m">
@@ -395,6 +410,7 @@
       <dd>Storage, and a full rebuild each run — there is no incremental load
       to speak of. That is the trade the methodology openly makes.</dd>
     </dl>
+      <p class="more"><a href="/one-big-table.html">One Big Table in full: when a wide table beats a star &rarr;</a></p>
   </section>
 
   <section class="m">
@@ -420,6 +436,7 @@
       optional. Everything the model makes cheap to change, it makes expensive
       to read.</dd>
     </dl>
+      <p class="more"><a href="/anchor-modeling.html">Anchor Modeling in full: anchors, attributes, ties and knots &rarr;</a></p>
   </section>
 
   <section class="m">
@@ -447,6 +464,7 @@
       sequence and "when did this next happen" columns that make the model
       worth having.</dd>
     </dl>
+      <p class="more"><a href="/activity-schema.html">Activity Schema in full: the stream, and what it needs &rarr;</a></p>
   </section>
 
   <!-- ============================================================ -->
