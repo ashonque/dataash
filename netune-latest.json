@@ -5,12 +5,12 @@
   "edition": "free",
   "file": "Netune-1.0.0-free.zip",
   "url": "https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip",
-  "sha256": "233bd7f6a574e611c576ed1f5978290ab7a550b4afe4777750314507719b9fff",
-  "bytes": 38839403,
+  "sha256": "a7ffc2f5ebc5fe5a2cb34235fcdebf9ea4edd2a0259476205baf14feb72f1b4d",
+  "bytes": 38839404,
   "setup_file": "Netune-1.0.0-free-Setup.exe",
   "setup_url": "https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free-Setup.exe",
-  "setup_sha256": "ec0b77d7210fe9194f23f6330434a612905f2c0963c7b72814e3f5d93d3499ac",
-  "setup_bytes": 25952272,
-  "built": "2026-09-13T19:17:22",
+  "setup_sha256": "14992330672621c8341dcfba37cb1aa5a1c523a29c2d49eadfd454b89094bd75",
+  "setup_bytes": 25952102,
+  "built": "2026-09-13T20:11:05",
   "page": "https://dataash.de/netune-free-beta.html"
 }

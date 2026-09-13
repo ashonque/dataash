@@ -106,7 +106,9 @@ Unblock-File -Path $setup -ErrorAction SilentlyContinue     # verified; the mark
 Step "Installing"
 $opts = @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/NOCANCEL")
 if ($env:NETUNE_INSTALL_DIR) { $opts += "/DIR=`"$($env:NETUNE_INSTALL_DIR)`"" }
-if ($env:NETUNE_NO_SHORTCUT -eq "1") { $opts += @("/NOICONS", "/MERGETASKS=!desktopicon") }
+# the desktop shortcut is unconditional in the installer; /NODESKTOPICON is
+# its own way out, for a machine whose desktop should be left alone
+if ($env:NETUNE_NO_SHORTCUT -eq "1") { $opts += @("/NOICONS", "/NODESKTOPICON") }
 $run = Start-Process -FilePath $setup -ArgumentList $opts -Wait -PassThru
 if ($run.ExitCode -ne 0) { Fail "The installer stopped with code $($run.ExitCode)." }
 Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
