@@ -8,12 +8,12 @@
   <script src="/analytics.js" defer></script>
 
 
-  <title>Netune — Automate Your Data Lake into a Modeled Data Warehouse</title>
-  <meta name="description" content="Netune turns a raw data lake into a modeled data warehouse: staging, warehouse and marts, generated in the methodology that fits your data." />
+  <title>Netune — Data Warehouse Designer for SQL Server | Automated Star Schema &amp; Data Vault</title>
+  <meta name="description" content="Netune profiles a SQL Server database and designs the warehouse for you — staging, star schema and marts as runnable T-SQL, in the methodology your data actually fits. Free beta." />
   <link rel="canonical" href="https://dataash.de/" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Netune — Automate Your Data Lake into a Modeled Data Warehouse" />
+  <meta property="og:title" content="Netune — Data Warehouse Designer for SQL Server" />
   <meta property="og:description" content="From raw data to Staging, Warehouse and Marts — modeled with the OLAP methodology that fits your business." />
   <meta property="og:url" content="https://dataash.de/" />
   <meta property="og:site_name" content="Netune" />
@@ -23,10 +23,11 @@
   <meta property="og:image:alt" content="Netune - from a raw data lake to a modeled data warehouse" />
   <meta property="og:locale" content="en_GB" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Netune - Automate Your Data Lake into a Modeled Data Warehouse" />
+  <meta name="twitter:title" content="Netune - Data Warehouse Designer for SQL Server" />
   <meta name="twitter:description" content="Staging, warehouse and marts, generated in the methodology that fits your data." />
   <meta name="twitter:image" content="https://dataash.de/og.png" />
   <meta name="twitter:image:alt" content="Netune - from a raw data lake to a modeled data warehouse" />
+  <meta name="keywords" content="data warehouse designer, SQL Server data warehouse, star schema generator, Kimball dimensional modelling, Data Vault 2.0, Medallion architecture, Inmon, One Big Table, Anchor Modeling, Activity Schema, automate data warehouse design" />
   <meta name="theme-color" content="#1E3A6B" />
 
   <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
@@ -1155,8 +1156,22 @@
         <div class="method-list" role="tablist" aria-label="Warehousing methodologies" id="methodList"></div>
         <div class="method-panel" id="methodPanel" role="tabpanel" tabindex="0"></div>
       </div>
+
+      <p class="method-more">
+        Not sure which one your data is asking for?
+        <a href="/data-warehouse-methodologies.html">Read how to choose a data warehouse model</a>
+        &mdash; all eight compared, with what each costs and when each one does not fit.
+      </p>
     </div>
   </section>
+
+  <style>
+    .method-more {
+      max-width: 720px; margin: 28px auto 0; text-align: center;
+      color: var(--ink-2); font-size: 16px; line-height: 1.6;
+    }
+    .method-more a { color: var(--navy-700); font-weight: 600; }
+  </style>
 
   <!-- ================= LAYERS ================= -->
   <section class="band" id="layers">
@@ -1283,6 +1298,7 @@
     <ul class="footer-links">
       <li><a href="#how">How it works</a></li>
       <li><a href="#methodologies">Methodologies</a></li>
+      <li><a href="/data-warehouse-methodologies.html">How to choose a model</a></li>
       <li><a href="#faq">FAQ</a></li>
       <li><a href="/netune-free-beta.html">Netune Free Beta Version</a></li>
       <li><a href="/excel-to-sql-server.html">Excel to SQL Server</a></li>

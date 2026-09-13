@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>How to choose a data warehouse model: Kimball, Inmon, Data Vault 2.0, Medallion and four more</title>
+  <meta name="description" content="Eight ways to model a data warehouse, compared honestly: what each is for, when it fits, when it does not, and what it costs. Kimball dimensional modelling, Inmon's Corporate Information Factory, Data Vault 2.0, Medallion, Galaxy, One Big Table, Anchor Modeling and Activity Schema." />
+  <link rel="canonical" href="https://dataash.de/data-warehouse-methodologies.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Eight ways to model a data warehouse, and how to choose between them" />
+  <meta property="og:description" content="Kimball, Inmon, Data Vault 2.0, Medallion, Galaxy, One Big Table, Anchor Modeling, Activity Schema — what each costs, when it fits, and when it does not." />
+  <meta property="og:url" content="https://dataash.de/data-warehouse-methodologies.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Eight ways to model a data warehouse, and how to choose" />
+  <meta name="twitter:description" content="What each methodology costs, when it fits, and when it does not — written from what the data tells you, not from a preference." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* The site's own tokens, carried here rather than shared from a
+       stylesheet, as the other article pages do: this page cannot then break
+       the home page, and there is no build step to keep in step. */
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --no:       #9A3B2F;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(30px, 5.2vw, 44px); line-height: 1.14;
+      letter-spacing: -0.02em; margin: 14px 0 10px;
+    }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 28px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 50px 0 12px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 19px; margin: 30px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+
+    /* the contents list, so a long page can be used as a reference */
+    .toc {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 18px 22px; margin: 0 0 30px;
+    }
+    .toc p { font-size: 13px; text-transform: uppercase; letter-spacing: .1em;
+             font-weight: 700; color: var(--navy-500); margin: 0 0 10px; }
+    .toc ol { margin: 0; padding-left: 20px; font-size: 15.5px; }
+    .toc li { margin-bottom: 4px; }
+
+    /* one card per methodology */
+    .m {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 4px 24px 20px; margin: 0 0 26px;
+    }
+    .m h2 { margin-top: 24px; }
+    .m .also { font-size: 14px; color: var(--ink-dim); margin: -6px 0 16px; }
+    .m dl { margin: 0; }
+    .m dt {
+      font-size: 12.5px; text-transform: uppercase; letter-spacing: .09em;
+      font-weight: 700; margin: 16px 0 4px;
+    }
+    .m dt.fits { color: var(--ok); }
+    .m dt.not  { color: var(--no); }
+    .m dt.cost { color: var(--ink-dim); }
+    .m dd { margin: 0; }
+
+    .wide { overflow-x: auto; margin: 22px 0; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 15px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; min-width: 560px;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+
+    .faq { margin-top: 12px; }
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 50px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 56px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) { body { font-size: 16px; } .cta { padding: 24px; } .m { padding: 4px 18px 18px; } }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/">&larr; Back to Netune</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; Data warehouse methodologies
+  </nav>
+
+  <h1>Eight ways to model a data warehouse, and how to choose between them</h1>
+  <p class="standfirst">
+    Kimball, Inmon, Data Vault 2.0, Medallion, Galaxy, One Big Table, Anchor
+    Modeling and Activity Schema. Most writing on these explains what each one
+    is. This is about which one your data is asking for — including what each
+    costs and where each one hurts.
+  </p>
+
+  <div class="toc">
+    <p>On this page</p>
+    <ol>
+      <li><a href="#short">The short answer</a></li>
+      <li><a href="#kimball">Kimball — dimensional modelling</a></li>
+      <li><a href="#inmon">Inmon — the Corporate Information Factory</a></li>
+      <li><a href="#datavault">Data Vault 2.0</a></li>
+      <li><a href="#medallion">Medallion — bronze, silver, gold</a></li>
+      <li><a href="#galaxy">Galaxy — the fact constellation</a></li>
+      <li><a href="#obt">One Big Table</a></li>
+      <li><a href="#anchor">Anchor Modeling</a></li>
+      <li><a href="#activity">Activity Schema</a></li>
+      <li><a href="#questions">The six questions that actually decide it</a></li>
+      <li><a href="#staging">Where staging fits, whichever you pick</a></li>
+      <li><a href="#faq">Questions people ask</a></li>
+    </ol>
+  </div>
+
+  <h2 id="short">The short answer</h2>
+  <p>
+    There is no best one, and anybody who tells you otherwise is telling you
+    about their last project rather than about your data. Each of the eight is
+    a trade: something is made easy and something else is made expensive. What
+    decides it is the shape of what you have — how many systems feed you, how
+    much history matters, and who writes the queries at the end.
+  </p>
+
+  <div class="wide">
+    <table>
+      <thead>
+        <tr><th>If this is your situation</th><th>Start here</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>One source system, and people want to report on it</td><td><a href="#kimball">Kimball</a></td></tr>
+        <tr><td>Several processes sharing the same customers and products</td><td><a href="#galaxy">Galaxy</a></td></tr>
+        <tr><td>Several source systems that disagree about the same customer</td><td><a href="#inmon">Inmon</a> or <a href="#datavault">Data Vault</a></td></tr>
+        <tr><td>You must be able to prove what you received and when</td><td><a href="#datavault">Data Vault 2.0</a></td></tr>
+        <tr><td>The source schema changes constantly</td><td><a href="#datavault">Data Vault</a> or <a href="#anchor">Anchor</a></td></tr>
+        <tr><td>You are on a lakehouse and want the pipeline organised</td><td><a href="#medallion">Medallion</a></td></tr>
+        <tr><td>One process, few joins, analysts who dislike SQL</td><td><a href="#obt">One Big Table</a></td></tr>
+        <tr><td>The questions are about what happened, and when, and in what order</td><td><a href="#activity">Activity Schema</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    Read that as a starting point rather than a verdict. The eight sections
+    below say what each one costs, which is the part that decides whether you
+    can live with it.
+  </p>
+
+  <!-- ============================================================ -->
+  <section class="m">
+    <h2 id="kimball">Kimball — dimensional modelling</h2>
+    <p class="also">Also called: star schema, dimensional model, fact and dimension tables</p>
+    <p>
+      Facts surrounded by dimensions. A fact table holds the things you
+      measure — an order line, a payment, a reading — and the dimensions hold
+      the things you slice by: customer, product, date, store. Built for
+      people asking business questions in a reporting tool.
+    </p>
+    <dl>
+      <dt class="fits">When it fits</dt>
+      <dd>Reporting and BI, where the questions are "how much, by whom, when".
+      It is the model every BI tool expects, so the tooling is on your side.</dd>
+      <dt class="not">When it does not</dt>
+      <dd>When nothing in your data classifies as a fact or a dimension — a
+      schema of reference lists has no star in it. And when several source
+      systems describe the same customer differently, the disagreement has to
+      be resolved before the dimension can exist, which is a job Kimball does
+      not do for you.</dd>
+      <dt class="cost">What it costs</dt>
+      <dd>Two decisions you cannot avoid and cannot cheaply undo: <strong>the
+      grain</strong> of each fact — exactly what one row means — and <strong>how
+      much history each dimension keeps</strong>, the slowly changing dimension
+      question. Getting the grain wrong is the expensive mistake in this
+      methodology, because everything downstream assumes it.</dd>
+    </dl>
+  </section>
+
+  <section class="m">
+    <h2 id="inmon">Inmon — the Corporate Information Factory</h2>
+    <p class="also">Also called: CIF, the enterprise data warehouse, 3NF core</p>
+    <p>
+      A normalised, integrated core modelled on the business rather than on any
+      one system, with dimensional marts built on top of it. The core is the
+      single version of the truth; nobody queries it directly, and the marts
+      are disposable views of it.
+    </p>
+    <dl>
+      <dt class="fits">When it fits</dt>
+      <dd>Several source systems that each hold part of the same customer, and
+      an organisation that will still be here in ten years. The integration is
+      the point: one customer, one definition, whatever the source called them.</dd>
+      <dt class="not">When it does not</dt>
+      <dd>With a single source system the integration layer is doing very
+      little, and Kimball reaches the same reports with half the work. It is
+      also poorly suited to a team that needs something useful this quarter.</dd>
+      <dt class="cost">What it costs</dt>
+      <dd>Two layers to build, load and maintain, and the marts are not
+      optional — nothing reports off the core directly. Budget for both or the
+      warehouse is finished and unusable at the same time.</dd>
+    </dl>
+  </section>
+
+  <section class="m">
+    <h2 id="datavault">Data Vault 2.0</h2>
+    <p class="also">Also called: hubs, links and satellites; DV2.0; the raw vault</p>
+    <p>
+      Business keys go in <strong>hubs</strong>, relationships between them in
+      <strong>links</strong>, and everything else in <strong>satellites</strong>
+      that are only ever inserted into, never updated. Nothing is thrown away,
+      so the warehouse can always say what it was told and when.
+    </p>
+    <dl>
+      <dt class="fits">When it fits</dt>
+      <dd>Many sources, schemas that change often, and anywhere auditability is
+      a requirement rather than a nice-to-have — regulated industries
+      especially. Adding a source adds tables rather than rewriting existing
+      ones, which is the property people buy it for.</dd>
+      <dt class="not">When it does not</dt>
+      <dd>When there are no relationships in your data there is nothing for
+      links to hold, and what is left is an elaborate copy. It is also the
+      wrong answer for a small warehouse that one person reports off.</dd>
+      <dt class="cost">What it costs</dt>
+      <dd>Table count, and a second layer. Analysts must never query the raw
+      vault directly — it is not built for reading — so the marts on top are
+      part of the project, not a later phase. There is no slowly-changing-
+      dimension question here, because keeping history is the mechanism rather
+      than an option.</dd>
+    </dl>
+  </section>
+
+  <section class="m">
+    <h2 id="medallion">Medallion — bronze, silver, gold</h2>
+    <p class="also">Also called: the multi-hop architecture, bronze/silver/gold layers</p>
+    <p>
+      Land everything raw in <strong>bronze</strong> exactly as it arrived,
+      clean and deduplicate it into <strong>silver</strong>, and publish
+      business-ready tables in <strong>gold</strong>. Popularised by the
+      lakehouse world and now the default shape of a great many pipelines.
+    </p>
+    <dl>
+      <dt class="fits">When it fits</dt>
+      <dd>Ingest-first work where you want to keep the original bytes, and
+      teams who need the pipeline's stages to be obvious. Bronze is genuinely
+      valuable: it can prove what was received.</dd>
+      <dt class="not">When it does not</dt>
+      <dd>Here is the honest part: <strong>Medallion organises the work, it
+      does not model the business.</strong> It tells you where a table sits in
+      the pipeline, not what a row means. Most teams end up putting a star
+      schema in gold anyway — which is to say they end up doing Kimball as
+      well, not instead.</dd>
+      <dt class="cost">What it costs</dt>
+      <dd>The same data stored three times. On a lakehouse that is cheap; on a
+      traditional database it is a real bill.</dd>
+    </dl>
+  </section>
+
+  <section class="m">
+    <h2 id="galaxy">Galaxy — the fact constellation</h2>
+    <p class="also">Also called: fact constellation, conformed dimensions, the bus matrix</p>
+    <p>
+      Several fact tables sharing the same dimensions. One customer table
+      serving sales, support and returns, so that a question can cross between
+      processes and still mean something.
+    </p>
+    <dl>
+      <dt class="fits">When it fits</dt>
+      <dd>More than one business process, with genuinely shared master data.
+      It is Kimball grown up, and the natural destination of a warehouse that
+      started with one star.</dd>
+      <dt class="not">When it does not</dt>
+      <dd>With one fact table there is no constellation, only a star. And a
+      dimension is only conformed if <em>every</em> process agrees on what it
+      means — which is an organisational agreement, not a technical one. Where
+      that agreement does not exist, a shared dimension quietly becomes a
+      source of wrong answers.</dd>
+      <dt class="cost">What it costs</dt>
+      <dd>The conversations. The modelling is straightforward; getting two
+      departments to agree what "active customer" means is not.</dd>
+    </dl>
+  </section>
+
+  <section class="m">
+    <h2 id="obt">One Big Table</h2>
+    <p class="also">Also called: OBT, the wide table, denormalised table</p>
+    <p>
+      One wide table per subject, with everything joined in already, so the
+      person asking the question never writes a join.
+    </p>
+    <dl>
+      <dt class="fits">When it fits</dt>
+      <dd>A single business process, a columnar engine that does not mind wide
+      rows, and analysts who would rather filter columns than reason about
+      keys. It is often the fastest thing to query and the easiest to explain.</dd>
+      <dt class="not">When it does not</dt>
+      <dd>Every customer detail is repeated on every row, so one correction to
+      a customer's name means rewriting many rows rather than one. There is no
+      history, and the usual way it goes wrong is one table for
+      <em>everything</em> rather than one per process.</dd>
+      <dt class="cost">What it costs</dt>
+      <dd>Storage, and a full rebuild each run — there is no incremental load
+      to speak of. That is the trade the methodology openly makes.</dd>
+    </dl>
+  </section>
+
+  <section class="m">
+    <h2 id="anchor">Anchor Modeling</h2>
+    <p class="also">Also called: 6NF modelling, anchors, attributes, ties and knots</p>
+    <p>
+      The smallest pieces that can be stored separately. An <strong>anchor</strong>
+      is an identity and nothing else; every property is its own table; every
+      relationship is its own table. Adding a property never touches an
+      existing table, which is the entire point.
+    </p>
+    <dl>
+      <dt class="fits">When it fits</dt>
+      <dd>Schemas that change constantly and where full temporal history is
+      required — every value, with the moment it became true. Changes are
+      additive by construction, so nothing is ever migrated.</dd>
+      <dt class="not">When it does not</dt>
+      <dd>Expect roughly <strong>one table per column</strong>. Nobody queries
+      this by hand, and if you have not planned the reporting views at the same
+      time as the model, you have built something nobody can use.</dd>
+      <dt class="cost">What it costs</dt>
+      <dd>Joins — a great many of them — and a reporting layer that is not
+      optional. Everything the model makes cheap to change, it makes expensive
+      to read.</dd>
+    </dl>
+  </section>
+
+  <section class="m">
+    <h2 id="activity">Activity Schema</h2>
+    <p class="also">Also called: the activity stream, event modelling, the customer 360 timeline</p>
+    <p>
+      One table. Every row is one thing that happened to one entity at one
+      moment — a customer signed up, placed an order, opened a ticket — in a
+      single stream you can read forwards and backwards.
+    </p>
+    <dl>
+      <dt class="fits">When it fits</dt>
+      <dd>Questions about sequence and timing: what happened between signing up
+      and the first order, how long until the second purchase, what preceded a
+      cancellation. Behavioural and customer-journey analysis, where a star
+      schema makes you work hard for answers.</dd>
+      <dt class="not">When it does not</dt>
+      <dd>It needs an entity and it needs timestamps — an activity with no time
+      cannot be sequenced, so it cannot be in the stream. And the feature
+      columns mean different things for different activities, so the
+      dictionary that says what each one means has to be maintained or the
+      table becomes unreadable.</dd>
+      <dt class="cost">What it costs</dt>
+      <dd>That dictionary, and a rebuild pass after loading to fill the
+      sequence and "when did this next happen" columns that make the model
+      worth having.</dd>
+    </dl>
+  </section>
+
+  <!-- ============================================================ -->
+  <h2 id="questions">The six questions that actually decide it</h2>
+  <p>
+    Methodology arguments usually go badly because people compare the models
+    instead of describing the situation. These six answers narrow eight
+    choices to one or two almost every time.
+  </p>
+  <ol>
+    <li><strong>How many source systems feed this?</strong> One points at
+    Kimball or One Big Table. Several that disagree about the same entity
+    points at Inmon or Data Vault, because something has to reconcile them.</li>
+    <li><strong>Does history matter, and whose?</strong> If you need to know
+    what a customer's address was last March, that is slowly changing
+    dimensions in Kimball, and it is free in Data Vault and Anchor. If you only
+    ever need "now", say so — it removes half the work.</li>
+    <li><strong>Who writes the final query?</strong> Analysts in a BI tool
+    need a star or a wide table. If only engineers read it, the shape can be
+    anything.</li>
+    <li><strong>How often does the source schema change?</strong> Rarely — any
+    model works. Constantly — Data Vault and Anchor absorb change by adding
+    tables; a star schema absorbs it by being rebuilt.</li>
+    <li><strong>Do you have to prove what arrived?</strong> If audit is a
+    requirement rather than a wish, Data Vault, and bronze in Medallion, both
+    exist precisely for that.</li>
+    <li><strong>Are the questions about state or about events?</strong> "How
+    many customers in Bavaria" is state, and dimensional. "What did they do
+    before they cancelled" is events, and that is Activity Schema.</li>
+  </ol>
+
+  <div class="note">
+    <p>
+      <strong>These answers are in your data already.</strong> How many systems
+      feed a table, whether a column changes over time, whether anything looks
+      like a fact, whether the timestamps needed to sequence events even exist
+      — all of it can be measured rather than guessed at. That is what
+      <a href="/netune-free-beta.html">Netune</a> does: it profiles a SQL
+      Server database, scores all eight of these methodologies against what it
+      actually measured, and shows the evidence for each rather than handing
+      down a verdict. You still choose. It just means you choose knowing what
+      is in there.
+    </p>
+  </div>
+
+  <h2 id="staging">Where staging fits, whichever you pick</h2>
+  <p>
+    Every one of the eight needs somewhere to put the source data before it is
+    reshaped, and that layer is not a methodology choice — it is plumbing that
+    all eight share. A staging table is a copy of a source table, typed and
+    landed, and nothing else: no keys resolved, no history applied, no business
+    rules.
+  </p>
+  <p>
+    It earns its place for three reasons. It means the warehouse load reads
+    from your database rather than from the production system, so a slow
+    transformation does not hold a live application hostage. It gives a failed
+    load somewhere to restart from. And it is the only place where the data
+    still looks exactly like the source, which is where you go when a number
+    turns out wrong.
+  </p>
+  <p>
+    Medallion's bronze is the same idea with a different name and one extra
+    promise: it keeps what arrived, unmodified, so it can prove it later.
+  </p>
+
+  <!-- ============================================================ -->
+  <section class="faq" aria-labelledby="faq">
+    <h2 id="faq">Questions people ask</h2>
+    <div class="faq-item">
+      <h3>Which data warehouse methodology is best?</h3>
+      <p>None of them, in general — each makes something easy and something else expensive. The useful question is which one fits the data you have, how many systems feed it, whether history matters, and who writes the queries at the end.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Kimball or Data Vault — how do I choose?</h3>
+      <p>Count your source systems and ask whether you must be able to prove what arrived. One system and reporting questions: Kimball, and you will be finished far sooner. Several systems that disagree, schemas that keep changing, or an audit requirement: Data Vault — but budget for the marts on top, because nobody queries a raw vault directly.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can I combine two methodologies?</h3>
+      <p>Yes, and most real warehouses do. Data Vault with dimensional marts on top is the common pairing, and Medallion with a star schema in gold is so common it is almost the default. What does not work is two models competing at the same layer, where the same question can be answered two ways and the answers differ.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Is Medallion an alternative to Kimball?</h3>
+      <p>Not really — they answer different questions. Medallion says where a table sits in the pipeline; Kimball says what a row means. Most teams who adopt Medallion end up modelling gold dimensionally, which is doing both rather than choosing.</p>
+    </div>
+    <div class="faq-item">
+      <h3>What is a slowly changing dimension, and which type do I need?</h3>
+      <p>It is what happens when an attribute changes — a customer moves. Type 1 overwrites and the old value is gone. Type 2 keeps the old row and adds a new one, so history survives and reports about last year stay correct. Type 2 where the past must stay right; type 1 where only the current value ever matters and the extra rows would be noise.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Do I need a staging layer?</h3>
+      <p>In practice, yes, whichever methodology you choose. It keeps the transformation off the production system, gives a failed load somewhere to restart, and is the one place the data still looks like the source when a number needs checking.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can any of this be decided automatically?</h3>
+      <p>The evidence can be gathered automatically; the decision should not be. Profiling can tell you how many tables look like facts, which columns change over time, whether relationships exist and whether events carry timestamps. What it cannot tell you is what the business intends to ask in three years — which is why Netune scores the eight and shows its reasoning, rather than picking for you.</p>
+    </div>
+  </section>
+
+  <div class="cta">
+    <h2>See what your own database suggests</h2>
+    <p>Netune reads a SQL Server database, profiles the real data, and scores all eight of these against what it measured — with the reasons shown. Free, runs on your own machine, and nothing it reads leaves it.</p>
+    <a href="/netune-free-beta.html">Download the free beta</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot;
+    <a href="/netune-free-beta.html">Free beta</a> &middot;
+    <a href="/excel-to-sql-server.html">Excel to SQL Server</a> &middot;
+    <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Eight ways to model a data warehouse, and how to choose between them",
+  "description": "Kimball, Inmon, Data Vault 2.0, Medallion, Galaxy, One Big Table, Anchor Modeling and Activity Schema compared: what each is for, when it fits, when it does not, and what it costs.",
+  "about": [
+    { "@type": "Thing", "name": "Dimensional modeling" },
+    { "@type": "Thing", "name": "Data warehouse" },
+    { "@type": "Thing", "name": "Data modeling" }
+  ],
+  "keywords": "Kimball dimensional modelling, Inmon Corporate Information Factory, Data Vault 2.0, Medallion architecture, Galaxy schema, fact constellation, One Big Table, OBT, Anchor Modeling, Activity Schema, staging layer, data warehouse design, slowly changing dimensions",
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://dataash.de/data-warehouse-methodologies.html" },
+  "image": "https://dataash.de/og.png",
+  "author": { "@type": "Organization", "name": "DataAsh", "url": "https://dataash.de/" },
+  "publisher": { "@type": "Organization", "name": "DataAsh", "url": "https://dataash.de/" },
+  "inLanguage": "en-GB"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Which data warehouse methodology is best?",
+      "acceptedAnswer": { "@type": "Answer", "text": "None of them in general - each makes something easy and something else expensive. The useful question is which one fits the data you have: how many systems feed it, whether history matters, and who writes the queries at the end." } },
+    { "@type": "Question", "name": "Kimball or Data Vault - how do I choose?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Count your source systems and ask whether you must be able to prove what arrived. One system and reporting questions: Kimball, and you will be finished far sooner. Several systems that disagree, schemas that keep changing, or an audit requirement: Data Vault - but budget for the marts on top, because nobody queries a raw vault directly." } },
+    { "@type": "Question", "name": "Can I combine two data warehouse methodologies?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, and most real warehouses do. Data Vault with dimensional marts on top is the common pairing, and Medallion with a star schema in gold is almost the default. What does not work is two models competing at the same layer, where the same question can be answered two ways and the answers differ." } },
+    { "@type": "Question", "name": "Is Medallion architecture an alternative to Kimball?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Not really - they answer different questions. Medallion says where a table sits in the pipeline; Kimball says what a row means. Most teams who adopt Medallion end up modelling gold dimensionally, which is doing both rather than choosing." } },
+    { "@type": "Question", "name": "What is a slowly changing dimension, and which type do I need?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It is what happens when an attribute changes - a customer moves. Type 1 overwrites and the old value is gone. Type 2 keeps the old row and adds a new one, so history survives and reports about last year stay correct. Type 2 where the past must stay right; type 1 where only the current value ever matters." } },
+    { "@type": "Question", "name": "Do I need a staging layer in a data warehouse?",
+      "acceptedAnswer": { "@type": "Answer", "text": "In practice yes, whichever methodology you choose. It keeps the transformation off the production system, gives a failed load somewhere to restart from, and is the one place the data still looks like the source when a number needs checking." } },
+    { "@type": "Question", "name": "Can a data warehouse model be chosen automatically?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The evidence can be gathered automatically; the decision should not be. Profiling can tell you how many tables look like facts, which columns change over time, whether relationships exist and whether events carry timestamps. It cannot tell you what the business intends to ask in three years." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Netune", "item": "https://dataash.de/" },
+    { "@type": "ListItem", "position": 2, "name": "Data warehouse methodologies", "item": "https://dataash.de/data-warehouse-methodologies.html" }
+  ]
+}
+</script>
+
+</body>
+</html>
