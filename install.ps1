@@ -9,7 +9,8 @@
   What it does, in order, and nothing else:
     1. Reads https://dataash.de/netune-latest.json to learn the current
        version, where its zip is, and the zip's SHA-256.
-    2. Downloads the zip (about 37 MB) from the GitHub release.
+    2. Downloads the portable zip (about 37 MB) from the GitHub release -
+       the same program the Setup.exe installs, without the wizard.
     3. Checks the SHA-256. A file that does not match is deleted, and the
        installer stops - it never unpacks something it cannot vouch for.
     4. Unpacks into  %LOCALAPPDATA%\Programs\Netune  (your own user folder;
@@ -64,9 +65,15 @@ try {
 foreach ($k in "version", "url", "sha256", "file") {
     if (-not $latest.$k) { Fail "The version file at dataash.de is missing '$k'; please try again later." }
 }
-if ($latest.sha256 -notmatch '^[0-9a-fA-F]{64}$') { Fail "The version file carries no usable checksum; refusing to continue." }
-if ($latest.url -notmatch '^https://(github\.com/ashonque/dataash/|dataash\.de/)') { Fail "The version file points somewhere unexpected ($($latest.url)); refusing to download from there." }
-Say ("Netune " + $latest.version + "  -  " + $latest.file)
+# the version file names the Setup.exe first; this script wants the zip beside it
+$zipUrl = if ($latest.zip_url) { $latest.zip_url } else { $latest.url }
+$zipSha = if ($latest.zip_sha256) { $latest.zip_sha256 } else { $latest.sha256 }
+$zipFile = if ($latest.zip_file) { $latest.zip_file } else { $latest.file }
+$zipBytes = if ($latest.zip_bytes) { $latest.zip_bytes } else { $latest.bytes }
+if ($zipFile -notmatch '\.zip$') { Fail "The version file names no zip to install from; use the Setup.exe on https://dataash.de/netune-free-beta.html instead." }
+if ($zipSha -notmatch '^[0-9a-fA-F]{64}$') { Fail "The version file carries no usable checksum; refusing to continue." }
+if ($zipUrl -notmatch '^https://(github\.com/ashonque/dataash/|dataash\.de/)') { Fail "The version file points somewhere unexpected ($zipUrl); refusing to download from there." }
+Say ("Netune " + $latest.version + "  -  " + $zipFile)
 
 $installed = Join-Path $Dest "app\edition.txt"
 $verFile = Join-Path $Dest "installed-version.txt"
@@ -77,12 +84,12 @@ if (Test-Path $verFile) {
 }
 
 # ---------------------------------------------------------------- 2. download
-Step "Downloading (about $([math]::Round($latest.bytes / 1MB)) MB)"
+Step "Downloading (about $([math]::Round($zipBytes / 1MB)) MB)"
 New-Item -ItemType Directory -Path $Work -Force | Out-Null
-$zip = Join-Path $Work $latest.file
+$zip = Join-Path $Work $zipFile
 try {
     $old = $ProgressPreference; $ProgressPreference = "SilentlyContinue"   # the progress bar makes 5.1 downloads ten times slower
-    Invoke-WebRequest -Uri $latest.url -OutFile $zip -UseBasicParsing -TimeoutSec 600
+    Invoke-WebRequest -Uri $zipUrl -OutFile $zip -UseBasicParsing -TimeoutSec 600
     $ProgressPreference = $old
 } catch {
     Fail "The download failed ($($_.Exception.Message))."
@@ -92,9 +99,9 @@ Say ("received " + [math]::Round((Get-Item $zip).Length / 1MB, 1) + " MB")
 # ---------------------------------------------------------------- 3. check it
 Step "Checking the file against its published SHA-256"
 $got = (Get-FileHash -Algorithm SHA256 -Path $zip).Hash.ToLower()
-if ($got -ne $latest.sha256.ToLower()) {
+if ($got -ne $zipSha.ToLower()) {
     Remove-Item $zip -Force -ErrorAction SilentlyContinue
-    Fail ("The download does not match its checksum (got " + $got.Substring(0, 12) + "..., expected " + $latest.sha256.Substring(0, 12) + "...). It was deleted. Please try again; if it happens twice, write to dataash@proton.me.")
+    Fail ("The download does not match its checksum (got " + $got.Substring(0, 12) + "..., expected " + $zipSha.Substring(0, 12) + "...). It was deleted. Please try again; if it happens twice, write to dataash@proton.me.")
 }
 Say "matches"
 Unblock-File -Path $zip -ErrorAction SilentlyContinue      # the file is verified; the mark-of-the-web is no longer needed
@@ -104,7 +111,7 @@ Step "Unpacking"
 $stage = Join-Path $Work "unpacked"
 Expand-Archive -Path $zip -DestinationPath $stage -Force
 $inner = Get-ChildItem $stage -Directory | Select-Object -First 1
-if (-not $inner -or -not (Test-Path (Join-Path $inner.FullName "Start Netune.cmd"))) { Fail "The zip did not hold a Netune folder." }
+if (-not $inner -or -not (Test-Path (Join-Path $inner.FullName "Netune.exe"))) { Fail "The zip did not hold a Netune folder." }
 
 # a Netune already running from the destination would hold its files open
 $running = Get-CimInstance Win32_Process -Filter "Name = 'python.exe'" -ErrorAction SilentlyContinue |
@@ -128,7 +135,7 @@ Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 Say ("installed in " + $Dest)
 
 # ---------------------------------------------------------------- 5. shortcuts, and a way out
-$launcher = Join-Path $Dest "Start Netune.cmd"
+$launcher = Join-Path $Dest "Netune.exe"
 $icon = Join-Path $Dest "app\netune.ico"
 $uninstall = Join-Path $Dest "Uninstall Netune.ps1"
 
@@ -177,7 +184,7 @@ try {
     Set-ItemProperty $key "DisplayVersion" ([string]$latest.version)
     Set-ItemProperty $key "Publisher" "DataAsh"
     Set-ItemProperty $key "URLInfoAbout" "https://dataash.de/"
-    Set-ItemProperty $key "DisplayIcon" $icon
+    Set-ItemProperty $key "DisplayIcon" $launcher
     Set-ItemProperty $key "InstallLocation" $Dest
     Set-ItemProperty $key "UninstallString" ("powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"" + $uninstall + "`"")
     Set-ItemProperty $key "NoModify" 1 -Type DWord

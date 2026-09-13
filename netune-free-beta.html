@@ -126,6 +126,11 @@
       border-top: 1px solid rgba(255,255,255,.18); padding-top: 12px; margin: 0;
     }
     .hash b { color: #fff; font-weight: 600; }
+    .portable {
+      grid-column: 1 / -1; font-size: 13.5px; color: var(--navy-100);
+      border-top: 1px solid rgba(255,255,255,.18); padding-top: 12px; margin: 0;
+    }
+    .portable a { color: #fff; }
 
     .terminal-h { margin-top: 40px; font-size: 20px; }
     .cmd { margin: 0 0 14px; background: var(--navy-900); border-radius: 10px; overflow: hidden; }
@@ -245,19 +250,20 @@
   <section class="download" id="download" aria-labelledby="dlTitle">
     <div>
       <h2 id="dlTitle">Download Netune 1.0.0 beta</h2>
-      <p>One zip. Unzip it anywhere and double-click <code style="background:rgba(255,255,255,.14);color:#fff">Start Netune.cmd</code>. There is nothing to install — Python travels inside the folder.</p>
+      <p>One installer. Run it, click through, and Netune starts. No administrator rights: it installs into your own user folder, with a Desktop and Start-menu shortcut, and shows up under <em>Settings &rsaquo; Apps</em> if you ever want it gone.</p>
       <div class="facts">
         <span>Windows 10 / 11, 64-bit</span>
-        <span id="dlSize">37 MB</span>
+        <span id="dlSize">25 MB</span>
         <span>Free edition</span>
         <span id="dlVersion">Version 1.0.0-beta</span>
       </div>
     </div>
-    <a class="get" href="https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip" download>
+    <a class="get" href="https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free-Setup.exe" download>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
       Download the free beta
     </a>
-    <p class="hash" hidden><b>SHA-256</b> <span id="dlHash">067a6595b18baf18affecbe9fd83027a949de2471b24fc5820027e336c99152e</span> &nbsp;&middot;&nbsp; check it with <code style="background:rgba(255,255,255,.14);color:#fff">certutil -hashfile Netune-1.0.0-free.zip SHA256</code></p>
+    <p class="hash" hidden><b>SHA-256</b> <span id="dlHash">bd5c81ea6954525dfd37484455a2b81996cd6fdea3f0eceaeef586a69ec05dbe</span></p>
+    <p class="portable">Prefer no installer? The same program as a <a id="dlZip" href="https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip">portable zip</a> (<span id="dlZipSize">37 MB</span>) — unzip anywhere and double-click <code style="background:rgba(255,255,255,.14);color:#fff">Netune.exe</code>.</p>
   </section>
 
   <h3 id="install" class="terminal-h">If you prefer a terminal</h3>
@@ -357,7 +363,7 @@
 
   <h2>What you need</h2>
   <ul>
-    <li><strong>Windows 10 or 11, 64-bit.</strong> Netune runs on your PC and opens in whichever browser you use. Nothing is installed; unzipping is the whole setup.</li>
+    <li><strong>Windows 10 or 11, 64-bit.</strong> Netune runs on your PC and opens in whichever browser you use. The installer needs no administrator rights and touches nothing outside your own user folder.</li>
     <li><strong>A SQL Server you can read.</strong> Any edition from 2016 on, Express included, or Azure SQL. Netune needs read access to the database it profiles, and write access only to whichever <em>other</em> database you choose to stage into.</li>
     <li><strong>The Microsoft ODBC Driver for SQL Server</strong> (17 or 18). Most machines that talk to SQL Server already have it; if yours does not, Netune says so on the first screen and links to it.</li>
     <li><strong>About 8 GB of memory</strong> to be comfortable. The language model is optional and adds 1–5 GB depending on which you pick; Netune measures your machine before offering one.</li>
@@ -365,12 +371,12 @@
 
   <h2>How to run it</h2>
   <ol class="steps">
-    <li><strong>Download the zip</strong> above and unzip it anywhere — your Documents folder, a USB stick, wherever. It leaves nothing else on the machine.</li>
-    <li><strong>Double-click <code>Start Netune.cmd</code>.</strong> A small window opens, Netune picks a free port, and your browser opens on it. Leave that window open while you work; closing it stops Netune. Windows may show a SmartScreen notice the first time, because the beta is not yet code-signed — choose <em>More info</em>, then <em>Run anyway</em>. The file's SHA-256 is published on the <a href="https://github.com/ashonque/dataash/releases/tag/v1.0.0-beta">release page</a> if you want to check it.</li>
+    <li><strong>Download the installer</strong> above and run it. Windows may show a SmartScreen notice, because the beta is not yet code-signed — choose <em>More info</em>, then <em>Run anyway</em>. The file's SHA-256 is published on the <a href="https://github.com/ashonque/dataash/releases/tag/v1.0.0-beta">release page</a> if you want to check it first.</li>
+    <li><strong>Click through the wizard.</strong> It installs into your own user folder (no administrator prompt), puts a Netune icon on the Desktop and in the Start menu, and starts Netune when it finishes. A small window opens, Netune picks a free port, and your browser opens on it. Leave that window open while you work; closing it stops Netune.</li>
     <li><strong>Type your server name and sign in.</strong> Windows login, a SQL login or Microsoft Entra — then <em>List tables</em>, tick the ones you care about, and <em>Analyze</em>.</li>
     <li><strong>Read the structural profile</strong>, choose a methodology, answer the grain and history questions, and press <em>Build design</em>. Right-click any card to edit it.</li>
     <li><strong>Generate SQL</strong>, read it, and — if you want staging built — open <em>STG Deploy</em>, name a target database, preview, and confirm.</li>
-    <li>Optionally, double-click <code>Add desktop shortcut.cmd</code> once for a Netune icon on your desktop, and open the <em>Model</em> panel to fetch a language model if you want the chat and readable names.</li>
+    <li>Optionally, open the <em>Model</em> panel to fetch a language model if you want the chat and readable names.</li>
   </ol>
 
   <h2>What we would like to hear about</h2>
@@ -564,6 +570,8 @@
     set("dlTitle", "Download Netune " + d.version + (beta ? " beta" : ""));
     if (d.bytes) set("dlSize", Math.round(d.bytes / 1048576) + " MB");
     var a = document.querySelector(".download a.get"); if (a) a.href = d.url;
+    var z = document.getElementById("dlZip");
+    if (z && d.zip_url) { z.href = d.zip_url; if (d.zip_bytes) set("dlZipSize", Math.round(d.zip_bytes / 1048576) + " MB"); }
   })["catch"](function () { /* the markup already says the last known version */ });
 })();
 </script>
@@ -580,8 +588,8 @@
   "softwareVersion": "1.0.0-beta",
   "releaseNotes": "Free beta: profile a SQL Server database, score eight warehouse methodologies, design the target, generate the structure as T-SQL, and build the staging layer. Load procedures, warehouse deploy, landing zone and schedules are in the full edition.",
   "url": "https://dataash.de/netune-free-beta.html",
-  "downloadUrl": "https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip",
-  "fileSize": "37MB",
+  "downloadUrl": "https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free-Setup.exe",
+  "fileSize": "25MB",
   "softwareRequirements": "Microsoft SQL Server 2016 or later (or Azure SQL) and the Microsoft ODBC Driver for SQL Server",
   "memoryRequirements": "8GB",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
