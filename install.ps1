@@ -8,16 +8,16 @@
 
   What it does, in order, and nothing else:
     1. Reads https://dataash.de/netune-latest.json to learn the current
-       version, where the installer is, and its SHA-256.
+       version, where Netune's installer is, and its SHA-256. (The website
+       hands out a plain zip instead; this takes the installer, so that what
+       lands is a proper install with an entry under Settings > Apps.)
     2. Downloads Netune's Setup.exe (about 25 MB) from the GitHub release.
     3. Checks the SHA-256. A file that does not match is deleted, and this
        stops - it never runs something it cannot vouch for.
-    4. Runs that installer without asking any questions. The installer is
-       the same one the website offers, so what lands is exactly what a
-       person clicking through the wizard would get: Netune in
+    4. Runs that installer without asking any questions: Netune goes into
        %LOCALAPPDATA%\Programs\Netune (your own user folder; no
-       administrator rights, nothing under Program Files), a Desktop and
-       Start-menu shortcut, and an entry under Settings > Apps.
+       administrator rights, nothing under Program Files), with a Desktop
+       and Start-menu shortcut and an entry under Settings > Apps.
     5. Starts Netune, which opens in your browser.
 
   Your saved projects live in %LOCALAPPDATA%\Netune and are never touched,
@@ -63,22 +63,25 @@ try {
 } catch {
     Fail "Could not read $Manifest ($($_.Exception.Message))."
 }
-foreach ($k in "version", "url", "sha256", "file") {
-    if (-not $latest.$k) { Fail "The version file at dataash.de is missing '$k'; please try again later." }
-}
-if ($latest.file -notmatch '\.exe$') { Fail "The version file names no installer to run; please download Netune by hand from https://dataash.de/netune-free-beta.html" }
-if ($latest.sha256 -notmatch '^[0-9a-fA-F]{64}$') { Fail "The version file carries no usable checksum; refusing to continue." }
-if ($latest.url -notmatch '^https://(github\.com/ashonque/dataash/|dataash\.de/)') { Fail "The version file points somewhere unexpected ($($latest.url)); refusing to download from there." }
-Say ("Netune " + $latest.version + "  -  " + $latest.file)
+if (-not $latest.version) { Fail "The version file at dataash.de names no version; please try again later." }
+# The page hands out the zip; this script runs Netune's installer, which the
+# version file names separately. Older files named it as the main download.
+$url  = if ($latest.setup_url)    { $latest.setup_url }    else { $latest.url }
+$sha  = if ($latest.setup_sha256) { $latest.setup_sha256 } else { $latest.sha256 }
+$file = if ($latest.setup_file)   { $latest.setup_file }   else { $latest.file }
+$size = if ($latest.setup_bytes)  { $latest.setup_bytes }  else { $latest.bytes }
+if ($file -notmatch '\.exe$') { Fail "The version file names no installer to run; please download Netune by hand from https://dataash.de/netune-free-beta.html" }
+if ($sha -notmatch '^[0-9a-fA-F]{64}$') { Fail "The version file carries no usable checksum; refusing to continue." }
+if ($url -notmatch '^https://(github\.com/ashonque/dataash/|dataash\.de/)') { Fail "The version file points somewhere unexpected ($url); refusing to download from there." }
+Say ("Netune " + $latest.version + "  -  " + $file)
 
 # ---------------------------------------------------------------- 2. download
-$size = if ($latest.bytes) { [math]::Round($latest.bytes / 1MB) } else { 25 }
-Step "Downloading (about $size MB)"
+Step ("Downloading (about " + $(if ($size) { [math]::Round($size / 1MB) } else { 25 }) + " MB)")
 New-Item -ItemType Directory -Path $Work -Force | Out-Null
-$setup = Join-Path $Work $latest.file
+$setup = Join-Path $Work $file
 try {
     $old = $ProgressPreference; $ProgressPreference = "SilentlyContinue"   # the progress bar makes 5.1 downloads ten times slower
-    Invoke-WebRequest -Uri $latest.url -OutFile $setup -UseBasicParsing -TimeoutSec 600
+    Invoke-WebRequest -Uri $url -OutFile $setup -UseBasicParsing -TimeoutSec 600
     $ProgressPreference = $old
 } catch {
     Fail "The download failed ($($_.Exception.Message))."
@@ -88,18 +91,18 @@ Say ("received " + [math]::Round((Get-Item $setup).Length / 1MB, 1) + " MB")
 # ---------------------------------------------------------------- 3. check it
 Step "Checking the file against its published SHA-256"
 $got = (Get-FileHash -Algorithm SHA256 -Path $setup).Hash.ToLower()
-if ($got -ne $latest.sha256.ToLower()) {
+if ($got -ne $sha.ToLower()) {
     Remove-Item $setup -Force -ErrorAction SilentlyContinue
-    Fail ("The download does not match its checksum (got " + $got.Substring(0, 12) + "..., expected " + $latest.sha256.Substring(0, 12) + "...). It was deleted. Please try again; if it happens twice, write to dataash@proton.me.")
+    Fail ("The download does not match its checksum (got " + $got.Substring(0, 12) + "..., expected " + $sha.Substring(0, 12) + "...). It was deleted. Please try again; if it happens twice, write to dataash@proton.me.")
 }
 Say "matches"
 Unblock-File -Path $setup -ErrorAction SilentlyContinue     # verified; the mark-of-the-web has done its job
 
 # ---------------------------------------------------------------- 4. install
-# The website's own installer, run with its questions answered rather than
-# a second installer written here - so a person who typed this line and a
-# person who clicked through the wizard end up with exactly the same Netune,
-# including the uninstaller and the Settings > Apps entry.
+# Netune's own installer, run with its questions answered, rather than a
+# second installer written here: the uninstaller, the shortcuts and the
+# Settings > Apps entry are then the real ones, made by the tool that knows
+# how to take them away again.
 Step "Installing"
 $opts = @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/NOCANCEL")
 if ($env:NETUNE_INSTALL_DIR) { $opts += "/DIR=`"$($env:NETUNE_INSTALL_DIR)`"" }

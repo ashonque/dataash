@@ -250,20 +250,19 @@
   <section class="download" id="download" aria-labelledby="dlTitle">
     <div>
       <h2 id="dlTitle">Download Netune 1.0.0 beta</h2>
-      <p>One installer. Run it, click through, and Netune starts. No administrator rights: it installs into your own user folder, with a Desktop and Start-menu shortcut, and shows up under <em>Settings &rsaquo; Apps</em> if you ever want it gone.</p>
+      <p>A plain folder in a zip — <strong>nothing is installed</strong>. Unzip it anywhere, double-click <code style="background:rgba(255,255,255,.14);color:#fff">Netune.exe</code>, and delete the folder when you are done. Python and everything else Netune needs travel inside it.</p>
       <div class="facts">
         <span>Windows 10 / 11, 64-bit</span>
-        <span id="dlSize">25 MB</span>
+        <span id="dlSize">37 MB</span>
         <span>Free edition</span>
         <span id="dlVersion">Version 1.0.0-beta</span>
       </div>
     </div>
-    <a class="get" href="https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free-Setup.exe" download>
+    <a class="get" href="https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip" download>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
       Download the free beta
     </a>
-    <p class="hash" hidden><b>SHA-256</b> <span id="dlHash">bd5c81ea6954525dfd37484455a2b81996cd6fdea3f0eceaeef586a69ec05dbe</span></p>
-    <p class="portable">Or take it as a <a id="dlZip" href="https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip">plain folder in a zip</a> (<span id="dlZipSize">37 MB</span>) — nothing is installed at all: unzip it anywhere, double-click <code style="background:rgba(255,255,255,.14);color:#fff">Netune.exe</code>, and delete the folder when you are done.</p>
+    <p class="hash" hidden><b>SHA-256</b> <span id="dlHash">73b20092e9304e8f51dcef907d9fe6899139c540cf5b6c53475a1695ce93000f</span></p>
   </section>
 
   <h3 id="install" class="terminal-h">If you prefer a terminal</h3>
@@ -284,15 +283,17 @@
     command from a website at all, use the Download button above: it needs none.
   </p>
   <p>
-    The script does five things, in this order: asks this site which version is
-    current; downloads the very installer the button above offers;
-    <strong>checks it against the published SHA-256 and stops if it does not
-    match</strong>; runs it with its questions already answered; and starts Netune.
-    So typing the line and clicking through the wizard end in the same place —
-    Netune in your own user folder (<code>%LOCALAPPDATA%\Programs\Netune</code>, no
-    administrator rights and nothing under Program Files), the shortcuts, and the
-    entry under <em>Settings &rsaquo; Apps</em>. Run the same line again later and it
-    updates in place; your saved projects live elsewhere and are never touched.
+    <strong>The two routes end differently, and that is the point.</strong> The zip
+    installs nothing: it is a folder you keep where you like and delete when you are
+    done. The line above does a real install — it fetches Netune's setup program,
+    <strong>checks it against its published SHA-256 and stops if it does not
+    match</strong>, and runs it: Netune lands in your own user folder
+    (<code>%LOCALAPPDATA%\Programs\Netune</code>, no administrator rights and nothing
+    under Program Files), with Desktop and Start-menu shortcuts and an entry under
+    <em>Settings &rsaquo; Apps</em> to remove it again. Run the same line later and it
+    updates in place. Either way your saved projects live elsewhere and are never
+    touched — and because the script does that checksum test itself, Windows has
+    nothing to warn you about.
   </p>
 
   <h2>What Netune does</h2>
@@ -364,7 +365,7 @@
 
   <h2>What you need</h2>
   <ul>
-    <li><strong>Windows 10 or 11, 64-bit.</strong> Netune runs on your PC and opens in whichever browser you use. The installer needs no administrator rights and touches nothing outside your own user folder.</li>
+    <li><strong>Windows 10 or 11, 64-bit.</strong> Netune runs on your PC and opens in whichever browser you use. It needs no administrator rights and writes nothing outside the folder you unzip it into.</li>
     <li><strong>A SQL Server you can read.</strong> Any edition from 2016 on, Express included, or Azure SQL. Netune needs read access to the database it profiles, and write access only to whichever <em>other</em> database you choose to stage into.</li>
     <li><strong>The Microsoft ODBC Driver for SQL Server</strong> (17 or 18). Most machines that talk to SQL Server already have it; if yours does not, Netune says so on the first screen and links to it.</li>
     <li><strong>About 8 GB of memory</strong> to be comfortable. The language model is optional and adds 1–5 GB depending on which you pick; Netune measures your machine before offering one.</li>
@@ -372,20 +373,23 @@
 
   <h2>How to run it</h2>
   <ol class="steps">
-    <li><strong>Download the installer</strong> above and run it — or take the zip and unzip it, if you would rather nothing were installed.</li>
+    <li><strong>Download the zip</strong> above and unzip it anywhere — your Documents folder, a USB stick, wherever. Nothing is installed and nothing is written outside that folder.</li>
     <li>
-      <strong>Expect a notice from Windows, and keep going.</strong> Windows says
-      <em>"isn't commonly downloaded"</em>, or <em>"Windows protected your PC"</em>, on
-      anything new that is not yet code-signed. It is a count of how many people have
-      run the file, not a finding about the file — choose <em>Keep</em>, and then
-      <em>More info &rsaquo; Run anyway</em>. If you would rather check first, the
-      SHA-256 of both files is on the
-      <a href="https://github.com/ashonque/dataash/releases/tag/v1.0.0-beta">release
-      page</a>; <code>certutil -hashfile &lt;file&gt; SHA256</code> prints the one you
-      have. The one-line install below sidesteps the notice entirely, because it
-      makes that same check itself before it runs anything.
+      <strong>Double-click <code>Netune.exe</code>.</strong> A small window opens,
+      Netune picks a free port, and your browser opens on it. Leave that window open
+      while you work; closing it stops Netune.
     </li>
-    <li><strong>Click through the wizard.</strong> It installs into your own user folder (no administrator prompt), puts a Netune icon on the Desktop and in the Start menu, and starts Netune when it finishes. A small window opens, Netune picks a free port, and your browser opens on it. Leave that window open while you work; closing it stops Netune.</li>
+    <li>
+      <strong>Expect a notice from Windows the first time, and keep going.</strong>
+      Windows says <em>"Windows protected your PC"</em> about anything new that is not
+      yet code-signed — it is counting how many people have run the file, not saying
+      anything about the file itself. Choose <em>More info</em>, then <em>Run
+      anyway</em>. If you would rather check first, the zip's SHA-256 is on the
+      <a href="https://github.com/ashonque/dataash/releases/tag/v1.0.0-beta">release
+      page</a>, and <code>certutil -hashfile Netune-1.0.0-free.zip SHA256</code>
+      prints the one you have. The one-line install below meets no such notice at
+      all, because it makes that same check for you.
+    </li>
     <li><strong>Type your server name and sign in.</strong> Windows login, a SQL login or Microsoft Entra — then <em>List tables</em>, tick the ones you care about, and <em>Analyze</em>.</li>
     <li><strong>Read the structural profile</strong>, choose a methodology, answer the grain and history questions, and press <em>Build design</em>. Right-click any card to edit it.</li>
     <li><strong>Generate SQL</strong>, read it, and — if you want staging built — open <em>STG Deploy</em>, name a target database, preview, and confirm.</li>
@@ -434,7 +438,7 @@
   <h2>The small print</h2>
   <p>
     The free edition is free to use, including at work. The licence travels in
-    the install as <code>app\LICENSE.txt</code>, together with
+    the download as <code>app\LICENSE.txt</code>, together with
     <code>app\THIRD-PARTY.md</code>, which lists the software Netune is built
     on and the terms of each language model it suggests. Language models are
     not part of Netune: when you ask for one, it is downloaded from its
@@ -583,8 +587,6 @@
     set("dlTitle", "Download Netune " + d.version + (beta ? " beta" : ""));
     if (d.bytes) set("dlSize", Math.round(d.bytes / 1048576) + " MB");
     var a = document.querySelector(".download a.get"); if (a) a.href = d.url;
-    var z = document.getElementById("dlZip");
-    if (z && d.zip_url) { z.href = d.zip_url; if (d.zip_bytes) set("dlZipSize", Math.round(d.zip_bytes / 1048576) + " MB"); }
   })["catch"](function () { /* the markup already says the last known version */ });
 })();
 </script>
@@ -601,8 +603,8 @@
   "softwareVersion": "1.0.0-beta",
   "releaseNotes": "Free beta: profile a SQL Server database, score eight warehouse methodologies, design the target, generate the structure as T-SQL, and build the staging layer. Load procedures, warehouse deploy, landing zone and schedules are in the full edition.",
   "url": "https://dataash.de/netune-free-beta.html",
-  "downloadUrl": "https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free-Setup.exe",
-  "fileSize": "25MB",
+  "downloadUrl": "https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip",
+  "fileSize": "37MB",
   "softwareRequirements": "Microsoft SQL Server 2016 or later (or Azure SQL) and the Microsoft ODBC Driver for SQL Server",
   "memoryRequirements": "8GB",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
