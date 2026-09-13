@@ -1,0 +1,5 @@
+# The page generators import each other, so Python leaves bytecode beside
+# them. Nothing here is served, and a .pyc in a website repository is noise
+# that reappears on every run.
+__pycache__/
+*.pyc
