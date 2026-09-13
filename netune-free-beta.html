@@ -263,6 +263,7 @@
       Download the free beta
     </a>
     <p class="hash" hidden><b>SHA-256</b> <span id="dlHash">bd5c81ea6954525dfd37484455a2b81996cd6fdea3f0eceaeef586a69ec05dbe</span></p>
+    <p class="portable">Or take it as a <a id="dlZip" href="https://github.com/ashonque/dataash/releases/download/v1.0.0-beta/Netune-1.0.0-free.zip">plain folder in a zip</a> (<span id="dlZipSize">37 MB</span>) — nothing is installed at all: unzip it anywhere, double-click <code style="background:rgba(255,255,255,.14);color:#fff">Netune.exe</code>, and delete the folder when you are done.</p>
   </section>
 
   <h3 id="install" class="terminal-h">If you prefer a terminal</h3>
@@ -371,7 +372,19 @@
 
   <h2>How to run it</h2>
   <ol class="steps">
-    <li><strong>Download the installer</strong> above and run it. Windows may show a SmartScreen notice, because the beta is not yet code-signed — choose <em>More info</em>, then <em>Run anyway</em>. The file's SHA-256 is published on the <a href="https://github.com/ashonque/dataash/releases/tag/v1.0.0-beta">release page</a> if you want to check it first.</li>
+    <li><strong>Download the installer</strong> above and run it — or take the zip and unzip it, if you would rather nothing were installed.</li>
+    <li>
+      <strong>Expect a notice from Windows, and keep going.</strong> Windows says
+      <em>"isn't commonly downloaded"</em>, or <em>"Windows protected your PC"</em>, on
+      anything new that is not yet code-signed. It is a count of how many people have
+      run the file, not a finding about the file — choose <em>Keep</em>, and then
+      <em>More info &rsaquo; Run anyway</em>. If you would rather check first, the
+      SHA-256 of both files is on the
+      <a href="https://github.com/ashonque/dataash/releases/tag/v1.0.0-beta">release
+      page</a>; <code>certutil -hashfile &lt;file&gt; SHA256</code> prints the one you
+      have. The one-line install below sidesteps the notice entirely, because it
+      makes that same check itself before it runs anything.
+    </li>
     <li><strong>Click through the wizard.</strong> It installs into your own user folder (no administrator prompt), puts a Netune icon on the Desktop and in the Start menu, and starts Netune when it finishes. A small window opens, Netune picks a free port, and your browser opens on it. Leave that window open while you work; closing it stops Netune.</li>
     <li><strong>Type your server name and sign in.</strong> Windows login, a SQL login or Microsoft Entra — then <em>List tables</em>, tick the ones you care about, and <em>Analyze</em>.</li>
     <li><strong>Read the structural profile</strong>, choose a methodology, answer the grain and history questions, and press <em>Build design</em>. Right-click any card to edit it.</li>
@@ -570,6 +583,8 @@
     set("dlTitle", "Download Netune " + d.version + (beta ? " beta" : ""));
     if (d.bytes) set("dlSize", Math.round(d.bytes / 1048576) + " MB");
     var a = document.querySelector(".download a.get"); if (a) a.href = d.url;
+    var z = document.getElementById("dlZip");
+    if (z && d.zip_url) { z.href = d.zip_url; if (d.zip_bytes) set("dlZipSize", Math.round(d.zip_bytes / 1048576) + " MB"); }
   })["catch"](function () { /* the markup already says the last known version */ });
 })();
 </script>
