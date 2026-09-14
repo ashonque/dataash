@@ -47,6 +47,11 @@
   </url>
 
   <url>
+    <loc>https://dataash.de/kimball-vs-data-vault.html</loc>
+    <lastmod>2026-09-14</lastmod>
+  </url>
+
+  <url>
     <loc>https://dataash.de/medallion-architecture.html</loc>
     <lastmod>2026-09-13</lastmod>
   </url>
@@ -59,6 +64,16 @@
   <url>
     <loc>https://dataash.de/one-big-table.html</loc>
     <lastmod>2026-09-13</lastmod>
+  </url>
+
+  <url>
+    <loc>https://dataash.de/scd-type-1-vs-type-2.html</loc>
+    <lastmod>2026-09-14</lastmod>
+  </url>
+
+  <url>
+    <loc>https://dataash.de/what-is-a-staging-layer.html</loc>
+    <lastmod>2026-09-14</lastmod>
   </url>
 
 </urlset>

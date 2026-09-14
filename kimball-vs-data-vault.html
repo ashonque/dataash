@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>Kimball vs Data Vault: how to choose, and why the answer is usually both</title>
+  <meta name="description" content="Five questions that decide between a star schema and a Data Vault, a cost comparison, the architecture most real warehouses end up with, and the mistake of choosing Data Vault as a better Kimball." />
+  <link rel="canonical" href="https://dataash.de/kimball-vs-data-vault.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="keywords" content="Kimball vs Data Vault, Data Vault vs star schema, dimensional model vs data vault, when to use Data Vault, Data Vault or Kimball, data warehouse architecture decision, raw vault with dimensional marts" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Kimball vs Data Vault: how to choose (and why the answer is usually both)" />
+  <meta property="og:description" content="Five questions that decide between a star schema and a Data Vault, a cost comparison, the architecture most real warehouses end up with, and the mistake of choosing Data Vault as a better Kimball." />
+  <meta property="og:url" content="https://dataash.de/kimball-vs-data-vault.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Kimball vs Data Vault" />
+  <meta name="twitter:description" content="Count your source systems and ask whether you must prove what arrived. Then read this." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --no:       #9A3B2F;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(29px, 5vw, 42px); line-height: 1.14;
+      letter-spacing: -0.02em; margin: 14px 0 8px;
+    }
+    .also { font-size: 14px; color: var(--ink-dim); margin: 0 0 16px; }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 27px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 48px 0 12px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 18.5px; margin: 28px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+    pre {
+      background: var(--navy-900); color: #E8EEF9; border-radius: var(--radius);
+      padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    .fits {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0;
+    }
+    .fits > div {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 4px 20px 14px;
+    }
+    .fits .yes { border-top: 3px solid var(--ok); }
+    .fits .no  { border-top: 3px solid var(--no); }
+    .fits h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em; margin: 16px 0 10px; }
+    .fits .yes h3 { color: var(--ok); }
+    .fits .no h3  { color: var(--no); }
+    .fits ul { padding-left: 20px; margin: 0; font-size: 15.5px; }
+    @media (max-width: 620px) { .fits { grid-template-columns: 1fr; } }
+
+    .wide { overflow-x: auto; margin: 22px 0; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 15px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; min-width: 480px;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .siblings { margin: 44px 0 0; }
+    .siblings ul {
+      list-style: none; padding: 0; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .siblings li { margin: 0; }
+    .siblings a {
+      display: block; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 14px; text-decoration: none;
+      font-size: 15px; font-weight: 600;
+    }
+    .siblings a:hover { border-color: var(--navy-500); }
+    .siblings a span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-dim); }
+    @media (max-width: 620px) { .siblings ul { grid-template-columns: 1fr; } }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 48px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 52px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .cta { padding: 24px; }
+      /* the header's two items cannot both fit on a phone, and the breadcrumb
+         immediately below goes to the same place */
+      header.top a.back { display: none; }
+    }
+
+    .answer {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 22px 26px; margin: 0 0 34px; font-size: 18px; line-height: 1.6;
+    }
+    .answer strong { color: #fff; }
+    .answer a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+    .answer p { margin: 0 0 10px; }
+    .answer p:last-child { margin: 0; }
+    .answer .lbl { font-size: 12.5px; text-transform: uppercase; letter-spacing: .1em;
+                   color: var(--navy-100); font-weight: 700; margin-bottom: 8px; }
+    table td:first-child { font-weight: 600; color: var(--navy-900); }
+    .related { margin: 44px 0 0; }
+    .related ul { list-style: none; padding: 0; margin: 0; }
+    .related li { margin: 0 0 8px; }
+    .related a { font-weight: 600; text-decoration: none; }
+    .related a:hover { text-decoration: underline; }
+    .related span { color: var(--ink-dim); font-weight: 400; }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/data-warehouse-methodologies.html">&larr; All eight methodologies</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; <a href="/data-warehouse-methodologies.html">Data warehouse methodologies</a> &rsaquo; Kimball vs Data Vault
+  </nav>
+  <h1>Kimball vs Data Vault: how to choose (and why the answer is usually both)</h1>
+  <p class="standfirst">This is the comparison people search for most and the one most often framed wrongly, because the two are not competing for the same job.</p>
+  <div class="answer">
+    <div class="lbl">The short answer</div>
+    <p><strong>Count your source systems, and ask whether you must be able to prove what arrived.</strong></p>
+    <p>One or two systems, reporting questions, a team that needs results this quarter: <a href="/kimball-dimensional-modeling.html">Kimball</a>, and you will be finished far sooner. Several systems that disagree about the same customer, schemas that keep changing, or an auditor: <a href="/data-vault-2-0.html">Data Vault</a> as the integration layer &mdash; <em>and a star schema on top of it anyway</em>, because nobody reports off a raw vault.</p>
+  </div>
+  <h2 id="job">They are answers to different questions</h2>
+  <p>Kimball answers: <em>how should this data be shaped so that people can ask business questions of it?</em> Facts and dimensions, a declared grain, one join per dimension, and every BI tool already knows the shape.</p>
+  <p>Data Vault answers: <em>how do we take in data from many changing systems, keep all of it, and be able to say later exactly what we were told and when?</em> Hubs, links and satellites, insert-only, and a shape no analyst should query directly.</p>
+  <p>Put that way, the framing &ldquo;Kimball <em>or</em> Data Vault&rdquo; is mostly a category error. One is a presentation model; the other is an integration and history model. The real decision is whether you need the second one at all &mdash; because you always need the first.</p>
+  <h2 id="five">The five questions that decide it</h2>
+  <h3>1. How many source systems, and do they disagree?</h3>
+  <p>One system: nothing to integrate; a star schema straight from staging. Several systems that each hold part of the same customer under different keys: something has to reconcile them before a dimension can exist, and that job is precisely what a vault (or an <a href="/inmon-corporate-information-factory.html">Inmon core</a>) does. Kimball does not do it for you.</p>
+  <h3>2. Must you be able to prove what arrived?</h3>
+  <p>If &ldquo;what did we know about this account on the 3rd of March, and when did we learn it&rdquo; is a question a regulator or an auditor will ask, the raw vault&rsquo;s insert-only satellites answer it by construction. A star schema can approximate it with type 2 dimensions and never quite gets there, because facts and non-tracked attributes are overwritten.</p>
+  <h3>3. How often does the source schema change?</h3>
+  <p>Rarely: any model works. Constantly: a vault absorbs a new column or a new source by <em>adding tables</em>, and nothing loaded has to migrate. A star absorbs it by being altered, and a changed grain means a rebuild. This is the property people buy Data Vault for.</p>
+  <h3>4. How much history, and of what?</h3>
+  <p>History of a few grouping attributes &mdash; region, segment &mdash; is a <a href="/scd-type-1-vs-type-2.html">type 2 dimension</a>, and Kimball handles it fine. History of <em>everything</em>, including things nobody reports on yet, is the vault: it keeps all of it whether or not anybody asked.</p>
+  <h3>5. How big is the team, and how soon do they need something?</h3>
+  <p>A vault is three tables where a star has one, plus a mart layer that is not optional. A two-person team with a quarter to deliver should not start one. A team of ten with a two-year mandate across nine systems probably should.</p>
+  <h2 id="table">Side by side</h2>
+  <div class="wide">
+    <table>
+      <thead><tr><th></th><th>Kimball (star schema)</th><th>Data Vault 2.0</th></tr></thead>
+      <tbody>
+        <tr><td>Primary job</td><td>Presentation and reporting</td><td>Integration and auditable history</td></tr>
+        <tr><td>Queried by analysts</td><td>Yes &mdash; designed for it</td><td>No &mdash; through marts only</td></tr>
+        <tr><td>Tables per entity</td><td>1 (a dimension)</td><td>3+ (hub, satellites, links)</td></tr>
+        <tr><td>History</td><td>Per dimension, decided up front (SCD)</td><td>Everything, automatically, insert-only</td></tr>
+        <tr><td>A new source system</td><td>Conform it into existing dimensions</td><td>Add hubs/satellites; touch nothing existing</td></tr>
+        <tr><td>Schema change</td><td>Alter the star; rebuild if the grain moves</td><td>Add a satellite</td></tr>
+        <tr><td>Time to first report</td><td>Weeks</td><td>Months (vault + marts)</td></tr>
+        <tr><td>Build cost</td><td>Moderate</td><td>High</td></tr>
+        <tr><td>Load complexity</td><td>Lookups and SCD logic</td><td>Hash keys; loads are order-free and parallel</td></tr>
+        <tr><td>Silent failure to fear</td><td>Wrong grain</td><td>Two hash expressions that differ by a trim</td></tr>
+        <tr><td>BI tool support</td><td>Native</td><td>None &mdash; needs the star on top</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h2 id="both">The architecture most real warehouses end up with</h2>
+  <pre><code>Sources  -&gt;  Staging  -&gt;  Raw Vault  -&gt;  Business Vault  -&gt;  Star schema marts  -&gt;  BI
+                         (integrate,      (derive,           (present:
+                          keep everything)  conform)           facts &amp; dimensions)</code></pre>
+  <p>Where the vault is warranted, this is what it looks like: the vault integrates and remembers, the marts present. The marts are ordinary Kimball &mdash; grain, conformed dimensions, type 2 where the past must stay right &mdash; built from the vault rather than from staging, and rebuildable whenever the questions change.</p>
+  <p>So &ldquo;Kimball vs Data Vault&rdquo; usually resolves to: Kimball, certainly; Data Vault underneath it, if questions 1 to 3 say so. Choosing the vault <em>instead of</em> a star only makes sense if nobody needs to report yet, which is almost never true.</p>
+  <div class="note">
+    <p><strong>Where does staging go in this?</strong> Before both, and it is the same layer either way &mdash; see <a href="/what-is-a-staging-layer.html">what a staging layer is for</a>. A vault does not replace staging; the raw vault reads from it.</p>
+  </div>
+  <h2 id="mistakes">The mistakes each side makes</h2>
+  <h3>Choosing Data Vault as “a better Kimball”</h3>
+  <p>It is not one. It is slower to deliver, harder to query, and three times the tables, in exchange for integration, audit and change-absorption. A team that adopts it for a single well-behaved source has paid for all of that and received none of it.</p>
+  <h3>Building a vault with the marts as “phase two”</h3>
+  <p>Phase two gets cut. The team is left with a beautifully auditable structure nobody can get an answer out of, and the vault gets blamed for what was a project-planning failure. The marts are part of the build.</p>
+  <h3>Building a star over six systems that disagree</h3>
+  <p>The opposite mistake. With no integration layer, every conflict between systems &mdash; two customer numbers for one company, two spellings, two hierarchies &mdash; gets resolved inside the dimension load, in <code>CASE</code> expressions nobody documents, differently by each developer. Within a year the star is an integration layer that was never designed to be one.</p>
+  <h3>Treating the raw vault as a data source for analysts</h3>
+  <p>They will conclude the warehouse is broken, and from where they sit it is. Every question is five joins and a newest-row filter per satellite. Marts, or a business vault with views, or both.</p>
+  <h2 id="migrate">Moving from one to the other</h2>
+  <p><strong>Star to vault</strong> is the common direction and it is not a rewrite: the existing star becomes the mart layer, a vault is built underneath from staging, and the star&rsquo;s loads are re-pointed from staging to the vault one dimension at a time. The reports do not change.</p>
+  <p><strong>Vault to star</strong> alone &mdash; dropping the vault &mdash; is rarer, and usually means the vault was never warranted. It is also harmless: the marts are already Kimball; re-point their loads at staging and let the vault go. Nothing about the presentation layer has to move.</p>
+  <h2 id="faq">Questions people ask</h2>
+  <section class="faq">
+    <div class="faq-item">
+      <h3>Is Data Vault a replacement for a star schema?</h3>
+      <p>No. A raw vault is an integration and history layer that is not built to be queried; the readable layer on top of it is a star schema. Where a vault is warranted, you build both. Where it is not, you build the star alone.</p>
+    </div>
+    <div class="faq-item">
+      <h3>When is Data Vault worth it?</h3>
+      <p>Several source systems that disagree about the same entities, a schema that changes often, or a genuine audit requirement to prove what arrived and when. One or two of those and it starts paying for itself; none of them and it is overhead.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can a small team use Data Vault?</h3>
+      <p>It can, with generated loads and a clear plan for the marts, but it should ask whether it needs to. A vault is three tables per entity plus a mart layer, and a small team with a one-source warehouse gets the same reports from a star in a fraction of the time.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Which handles history better?</h3>
+      <p>Data Vault keeps every version of everything by construction. Kimball keeps the history you opt into, per dimension, with type 2. If the question is 'what did we know and when', the vault; if it is 'keep last year's region on last year's sales', type 2 in a star is enough and much cheaper.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can I migrate from Kimball to Data Vault later?</h3>
+      <p>Yes, and it is the usual direction. The existing star becomes the mart layer, a vault is built underneath it from staging, and the dimension loads are re-pointed at the vault one at a time. The reports keep working throughout.</p>
+    </div>
+  </section>
+  <section class="related">
+    <h2>Read next</h2>
+    <ul>
+      <li><a href="/kimball-dimensional-modeling.html">Kimball dimensional modelling</a> <span>&mdash; the star schema in full</span></li>
+      <li><a href="/data-vault-2-0.html">Data Vault 2.0</a> <span>&mdash; hubs, links, satellites and the hash-key invariant</span></li>
+      <li><a href="/inmon-corporate-information-factory.html">Inmon</a> <span>&mdash; the other integration-layer answer</span></li>
+      <li><a href="/scd-type-1-vs-type-2.html">SCD type 1 vs type 2</a> <span>&mdash; how to decide, one dimension at a time</span></li>
+      <li><a href="/what-is-a-staging-layer.html">What a staging layer is for</a> <span>&mdash; and the four things it must never do</span></li>
+      <li><a href="/data-warehouse-methodologies.html">All eight methodologies compared</a> <span>&mdash; and how to choose between them</span></li>
+    </ul>
+  </section>
+  <div class="cta">
+    <h2>Let the database answer the five questions</h2>
+    <p>Netune measures how many systems feed a SQL Server database, whether the same entity arrives under different keys, how often the schema appears to change and whether real relationships exist &mdash; then scores Kimball and Data Vault against each other on that evidence, reasons shown.</p>
+    <a href="/netune-free-beta.html">Download the free beta</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot;
+    <a href="/data-warehouse-methodologies.html">Choose a model</a> &middot;
+    <a href="/netune-free-beta.html">Free beta</a> &middot;
+    <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Kimball vs Data Vault: how to choose (and why the answer is usually both)",
+  "description": "Five questions that decide between a star schema and a Data Vault, a cost comparison, the architecture most real warehouses end up with, and the mistake of choosing Data Vault as a better Kimball.",
+  "keywords": "Kimball vs Data Vault, Data Vault vs star schema, dimensional model vs data vault, when to use Data Vault, Data Vault or Kimball, data warehouse architecture decision, raw vault with dimensional marts",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/kimball-vs-data-vault.html"
+  },
+  "image": "https://dataash.de/og.png",
+  "author": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "inLanguage": "en-GB",
+  "isPartOf": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/data-warehouse-methodologies.html"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is Data Vault a replacement for a star schema?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. A raw vault is an integration and history layer that is not built to be queried; the readable layer on top of it is a star schema. Where a vault is warranted, you build both. Where it is not, you build the star alone." } },
+    { "@type": "Question", "name": "When is Data Vault worth it?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Several source systems that disagree about the same entities, a schema that changes often, or a genuine audit requirement to prove what arrived and when. One or two of those and it starts paying for itself; none of them and it is overhead." } },
+    { "@type": "Question", "name": "Can a small team use Data Vault?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It can, with generated loads and a clear plan for the marts, but it should ask whether it needs to. A vault is three tables per entity plus a mart layer, and a small team with a one-source warehouse gets the same reports from a star in a fraction of the time." } },
+    { "@type": "Question", "name": "Which handles history better?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Data Vault keeps every version of everything by construction. Kimball keeps the history you opt into, per dimension, with type 2. If the question is 'what did we know and when', the vault; if it is 'keep last year's region on last year's sales', type 2 in a star is enough and much cheaper." } },
+    { "@type": "Question", "name": "Can I migrate from Kimball to Data Vault later?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, and it is the usual direction. The existing star becomes the mart layer, a vault is built underneath it from staging, and the dimension loads are re-pointed at the vault one at a time. The reports keep working throughout." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Netune",
+      "item": "https://dataash.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Data warehouse methodologies",
+      "item": "https://dataash.de/data-warehouse-methodologies.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Kimball vs Data Vault",
+      "item": "https://dataash.de/kimball-vs-data-vault.html"
+    }
+  ]
+}
+</script>
+
+</body>
+</html>

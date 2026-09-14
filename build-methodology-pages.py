@@ -31,6 +31,11 @@ import re
 SITE = os.path.dirname(os.path.abspath(__file__))
 BASE = "https://dataash.de/"
 HUB = "data-warehouse-methodologies.html"
+DECISIONS = [
+    ("kimball-vs-data-vault.html", "Kimball vs Data Vault", "how to choose, and why it is usually both"),
+    ("scd-type-1-vs-type-2.html", "SCD type 1 vs type 2", "one dimension at a time"),
+    ("what-is-a-staging-layer.html", "What a staging layer is for", "and the four things it must never do"),
+]
 
 # The hub page's tokens and rules, kept here rather than shared through a
 # stylesheet: a page that carries its own styles cannot be broken by an edit
@@ -316,6 +321,15 @@ def siblings(page, others):
     out.append("    </ul>")
     out.append('    <p style="margin-top:16px"><a href="/%s">'
                "&larr; All eight compared, and how to choose between them</a></p>" % HUB)
+    out.append("  </section>")
+    # the decision articles are relevant on every one of the eight, so they are
+    # listed on every one rather than tuned per page and forgotten on some
+    out.append('  <section class="siblings">')
+    out.append("    <h2>Deciding between them</h2>")
+    out.append("    <ul>")
+    for slug, label, why in DECISIONS:
+        out.append('      <li><a href="/%s">%s<span>%s</span></a></li>' % (slug, esc(label), esc(why)))
+    out.append("    </ul>")
     out.append("  </section>")
     out.append('  <div class="cta">')
     out.append("    <h2>%s</h2>" % esc(page["cta_h"]))

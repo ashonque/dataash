@@ -529,6 +529,8 @@
   <p>
     Medallion's bronze is the same idea with a different name and one extra
     promise: it keeps what arrived, unmodified, so it can prove it later.
+    The longer version, with the four things staging must never do, is
+    <a href="/what-is-a-staging-layer.html">what a staging layer is actually for</a>.
   </p>
 
   <!-- ============================================================ -->
@@ -540,7 +542,7 @@
     </div>
     <div class="faq-item">
       <h3>Kimball or Data Vault — how do I choose?</h3>
-      <p>Count your source systems and ask whether you must be able to prove what arrived. One system and reporting questions: Kimball, and you will be finished far sooner. Several systems that disagree, schemas that keep changing, or an audit requirement: Data Vault — but budget for the marts on top, because nobody queries a raw vault directly.</p>
+      <p><a href="/kimball-vs-data-vault.html">Full answer here.</a> In short: Count your source systems and ask whether you must be able to prove what arrived. One system and reporting questions: Kimball, and you will be finished far sooner. Several systems that disagree, schemas that keep changing, or an audit requirement: Data Vault — but budget for the marts on top, because nobody queries a raw vault directly.</p>
     </div>
     <div class="faq-item">
       <h3>Can I combine two methodologies?</h3>
@@ -552,7 +554,7 @@
     </div>
     <div class="faq-item">
       <h3>What is a slowly changing dimension, and which type do I need?</h3>
-      <p>It is what happens when an attribute changes — a customer moves. Type 1 overwrites and the old value is gone. Type 2 keeps the old row and adds a new one, so history survives and reports about last year stay correct. Type 2 where the past must stay right; type 1 where only the current value ever matters and the extra rows would be noise.</p>
+      <p><a href="/scd-type-1-vs-type-2.html">Full answer here.</a> In short: It is what happens when an attribute changes — a customer moves. Type 1 overwrites and the old value is gone. Type 2 keeps the old row and adds a new one, so history survives and reports about last year stay correct. Type 2 where the past must stay right; type 1 where only the current value ever matters and the extra rows would be noise.</p>
     </div>
     <div class="faq-item">
       <h3>Do I need a staging layer?</h3>

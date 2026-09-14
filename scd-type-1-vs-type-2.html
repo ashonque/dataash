@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>SCD type 1 vs type 2: how to decide, per dimension, and the mistakes that cost the most</title>
+  <meta name="description" content="Type 1 overwrites; type 2 keeps history. The question that decides it, when each is right, what type 2 costs in rows and load logic, and the column you must never let it watch." />
+  <link rel="canonical" href="https://dataash.de/scd-type-1-vs-type-2.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="keywords" content="SCD type 1 vs type 2, slowly changing dimension, SCD type 2, SCD type 1, ValidFrom ValidTo IsCurrent, dimension history, type 2 dimension load, Kimball SCD, when to use SCD type 2" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="SCD type 1 or type 2? How to decide, one dimension at a time" />
+  <meta property="og:description" content="Type 1 overwrites; type 2 keeps history. The question that decides it, when each is right, what type 2 costs in rows and load logic, and the column you must never let it watch." />
+  <meta property="og:url" content="https://dataash.de/scd-type-1-vs-type-2.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SCD type 1 vs type 2" />
+  <meta name="twitter:description" content="One question decides it: must a report about the past keep saying what it said?" />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --no:       #9A3B2F;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(29px, 5vw, 42px); line-height: 1.14;
+      letter-spacing: -0.02em; margin: 14px 0 8px;
+    }
+    .also { font-size: 14px; color: var(--ink-dim); margin: 0 0 16px; }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 27px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 48px 0 12px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 18.5px; margin: 28px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+    pre {
+      background: var(--navy-900); color: #E8EEF9; border-radius: var(--radius);
+      padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    .fits {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0;
+    }
+    .fits > div {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 4px 20px 14px;
+    }
+    .fits .yes { border-top: 3px solid var(--ok); }
+    .fits .no  { border-top: 3px solid var(--no); }
+    .fits h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em; margin: 16px 0 10px; }
+    .fits .yes h3 { color: var(--ok); }
+    .fits .no h3  { color: var(--no); }
+    .fits ul { padding-left: 20px; margin: 0; font-size: 15.5px; }
+    @media (max-width: 620px) { .fits { grid-template-columns: 1fr; } }
+
+    .wide { overflow-x: auto; margin: 22px 0; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 15px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; min-width: 480px;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .siblings { margin: 44px 0 0; }
+    .siblings ul {
+      list-style: none; padding: 0; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .siblings li { margin: 0; }
+    .siblings a {
+      display: block; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 14px; text-decoration: none;
+      font-size: 15px; font-weight: 600;
+    }
+    .siblings a:hover { border-color: var(--navy-500); }
+    .siblings a span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-dim); }
+    @media (max-width: 620px) { .siblings ul { grid-template-columns: 1fr; } }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 48px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 52px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .cta { padding: 24px; }
+      /* the header's two items cannot both fit on a phone, and the breadcrumb
+         immediately below goes to the same place */
+      header.top a.back { display: none; }
+    }
+
+    .answer {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 22px 26px; margin: 0 0 34px; font-size: 18px; line-height: 1.6;
+    }
+    .answer strong { color: #fff; }
+    .answer a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+    .answer p { margin: 0 0 10px; }
+    .answer p:last-child { margin: 0; }
+    .answer .lbl { font-size: 12.5px; text-transform: uppercase; letter-spacing: .1em;
+                   color: var(--navy-100); font-weight: 700; margin-bottom: 8px; }
+    table td:first-child { font-weight: 600; color: var(--navy-900); }
+    .related { margin: 44px 0 0; }
+    .related ul { list-style: none; padding: 0; margin: 0; }
+    .related li { margin: 0 0 8px; }
+    .related a { font-weight: 600; text-decoration: none; }
+    .related a:hover { text-decoration: underline; }
+    .related span { color: var(--ink-dim); font-weight: 400; }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/data-warehouse-methodologies.html">&larr; All eight methodologies</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; <a href="/data-warehouse-methodologies.html">Data warehouse methodologies</a> &rsaquo; SCD type 1 vs type 2
+  </nav>
+  <h1>SCD type 1 or type 2? How to decide, one dimension at a time</h1>
+  <p class="standfirst">The slowly changing dimension question is asked once per dimension, early, and is expensive to change later. Here is the one test that answers it, and the three ways it goes wrong.</p>
+  <div class="answer">
+    <div class="lbl">The short answer</div>
+    <p>Ask, for this dimension: <strong>if an attribute changes, must a report about the past keep saying what it said?</strong></p>
+    <p>If yes &mdash; a customer moved region and last year&rsquo;s sales must stay in the old region &mdash; that is <strong>type 2</strong>. If no &mdash; only the current value ever matters, and old values would be noise &mdash; that is <strong>type 1</strong>. Most warehouses have some of each, and the decision is per dimension, not per warehouse.</p>
+  </div>
+  <h2 id="what">What the two types actually do</h2>
+  <p>A dimension row describes something &mdash; a customer, a product, a store &mdash; and things change. The slowly changing dimension types are the standard answers to what happens to the row when they do.</p>
+  <h3>Type 1: overwrite</h3>
+  <p>The old value is replaced and gone. One row per customer, always showing the current state. Every fact that ever pointed at that customer now reports under the new value, including facts from before the change.</p>
+  <pre><code>DimCustomer  (type 1)
+  CustomerKey   CustomerNumber   Region
+  1001          C-4471           South     &lt;- was 'North' until March; nobody can tell</code></pre>
+  <h3>Type 2: add a row</h3>
+  <p>The old row is closed and a new one opened. Several rows per customer, each valid for a period. A fact points at whichever version was current when it happened, so last year&rsquo;s sales stay in last year&rsquo;s region.</p>
+  <pre><code>DimCustomer  (type 2)
+  CustomerKey  CustomerNumber  Region  ValidFrom   ValidTo     IsCurrent
+  1001         C-4471          North   2019-01-01  2026-03-14  0
+  2387         C-4471          South   2026-03-14  9999-12-31  1</code></pre>
+  <p>Note that the surrogate key changed and the business key did not. That is the whole trick: the business key says <em>which customer</em>, the surrogate key says <em>which version of them</em>. It is also why type 2 is impossible without surrogate keys.</p>
+  <h3>Types 3 and 6, briefly</h3>
+  <p>Type 3 keeps a <code>PreviousRegion</code> column beside the current one: exactly one step of history, for the case where a reorganisation needs both views side by side for a while. Type 6 is a type 2 dimension with a type 1 &ldquo;current value&rdquo; column added to every historical row, so you can report by either. Both are real and both are far rarer than the literature implies. Reach for them only when you can say which question they answer that 1 and 2 cannot.</p>
+  <h2 id="decide">How to decide, attribute by attribute</h2>
+  <p>The decision is made per dimension, but the evidence comes from its attributes. Walk the columns and ask three things:</p>
+  <ol>
+    <li><strong>Does this attribute change at all?</strong> A date of birth does not. A product&rsquo;s launch date does not. If nothing in the dimension changes, the type 2 machinery is pure cost.</li>
+    <li><strong>When it changes, does the past need the old value?</strong> Region, segment, sales territory, price band, manager &mdash; almost always yes, because reports are grouped by them and last year&rsquo;s numbers must not move. Email address, phone number, a spelling correction to a name &mdash; almost always no.</li>
+    <li><strong>Is the attribute even the business&rsquo;s?</strong> <code>ModifiedDate</code>, <code>RowVersion</code>, <code>LoadBatchID</code> record that a system touched the row, not that anything about the customer moved. See the third mistake below.</li>
+  </ol>
+  <p>One volatile attribute whose history matters is enough to make the dimension type 2. If none qualifies, type 1. If the volatile attribute is one nobody groups by &mdash; a phone number &mdash; type 1 with a clear conscience.</p>
+  <div class="note">
+    <p><strong>Flattened attributes count too.</strong> In a star schema, <code>DimCustomer</code> often carries columns folded in from a parent table &mdash; the territory name, the account manager. If the territory is renamed and the customer dimension is type 1, that history is lost just as surely as if the customer&rsquo;s own column had been overwritten. A volatile inherited attribute argues for type 2 exactly as much as a volatile local one. Netune&rsquo;s SCD advice judges the folded-in columns alongside the table&rsquo;s own for this reason, and names which one made the call.</p>
+  </div>
+  <h2 id="cost">What type 2 costs</h2>
+  <p>Type 2 is the right default for anything people group by, and it is not free. Know what you are buying.</p>
+  <div class="wide">
+    <table>
+      <thead><tr><th></th><th>Type 1</th><th>Type 2</th></tr></thead>
+      <tbody>
+        <tr><td>Rows</td><td>One per thing</td><td>One per version; grows with change rate</td></tr>
+        <tr><td>Load</td><td>Update in place</td><td>Close the old row, insert the new, compare to detect the change</td></tr>
+        <tr><td>Fact load</td><td>Look up the key</td><td>Look up the key <em>that was current on the fact&rsquo;s date</em></td></tr>
+        <tr><td>Query</td><td>Filter nothing</td><td>Filter <code>IsCurrent = 1</code> for a &ldquo;now&rdquo; view, or join on date range for history</td></tr>
+        <tr><td>Correcting a typo</td><td>Overwrite</td><td>Also overwrite &mdash; a correction is not a change; do not open a version for it</td></tr>
+        <tr><td>Undo later</td><td>Cannot recover history</td><td>Can collapse to type 1 any time</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>That last row is the asymmetry that settles most arguments: a type 2 dimension can always be read as type 1 (<code>WHERE IsCurrent = 1</code>), but a type 1 dimension cannot be turned into type 2 after the fact, because the history was never stored. When genuinely unsure, type 2 is the reversible mistake.</p>
+  <h2 id="mistakes">The three expensive mistakes</h2>
+  <h3>Making everything type 2 to be safe</h3>
+  <p>It feels cautious and it is not. A dimension with twelve attributes that all open new versions gains rows for every trivial edit, the fact load slows down resolving date-ranged keys, and analysts who forgot <code>IsCurrent = 1</code> double-count everything. Type 2 the dimensions whose history someone will actually ask for; type 1 the rest.</p>
+  <h3>Retrofitting type 2 after a year of type 1</h3>
+  <p>By then the history is gone. The dimension can be switched to type 2 from today onward, but every fact before the switch points at a single version that claims to have been true forever. Decide up front, which is why the question belongs in the design and not in the second sprint.</p>
+  <h3>Letting the change test watch housekeeping columns</h3>
+  <p>This is the quiet one. If a type 2 dimension compares <em>every</em> column to detect change, and the source carries a <code>ModifiedDate</code> or a <code>rowversion</code>, then every batch that touches the source row opens a new version of the customer. After a year the dimension holds a detailed history of the source system&rsquo;s maintenance schedule and almost nothing about the business &mdash; and it is enormous.</p>
+  <p>The fix is to restrict the <em>change test</em> to the attributes that describe the business, while still writing every column. Netune marks those columns <code>tracked</code>, hashes only them when deciding whether to open a version, and names the ones it ignored in a comment at the top of the load procedure, so the decision is visible.</p>
+  <h2 id="load">What a type 2 load looks like</h2>
+  <p>For anybody writing it by hand, the shape is always the same and every step matters:</p>
+  <ol>
+    <li>Stage the incoming rows.</li>
+    <li>For each incoming row, find the <strong>current</strong> version by business key (<code>IsCurrent = 1</code>).</li>
+    <li>Compare the <strong>tracked</strong> attributes &mdash; a hash of them is cheaper than a column-by-column comparison and is not fooled by column order.</li>
+    <li>Where they differ: set the old row&rsquo;s <code>ValidTo</code> to now and <code>IsCurrent</code> to 0, insert the new row with <code>ValidFrom</code> now, <code>ValidTo</code> far future, <code>IsCurrent</code> 1.</li>
+    <li>Where the key is new: insert as a first version.</li>
+    <li>Where nothing tracked changed but an untracked column did: update in place &mdash; that is the type 1 part of a type 2 dimension.</li>
+    <li>Keep the <code>-1</code> unknown row, so a fact whose customer cannot be resolved lands somewhere and is still counted.</li>
+  </ol>
+  <p>Which methodologies ask this question at all? <a href="/kimball-dimensional-modeling.html">Kimball</a> and <a href="/galaxy-schema.html">Galaxy</a>. <a href="/data-vault-2-0.html">Data Vault</a>, <a href="/anchor-modeling.html">Anchor</a> and <a href="/inmon-corporate-information-factory.html">Inmon&rsquo;s core</a> keep every version by construction, so there is nothing to decide; <a href="/one-big-table.html">One Big Table</a> keeps none.</p>
+  <h2 id="faq">Questions people ask</h2>
+  <section class="faq">
+    <div class="faq-item">
+      <h3>Should I default to SCD type 2?</h3>
+      <p>For any dimension people group reports by &mdash; region, segment, category, territory &mdash; yes, because type 2 can always be read as type 1 later and the reverse is impossible. For dimensions nobody groups by, or whose attributes never change, type 1 is cheaper and honest.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can one dimension be type 1 for some columns and type 2 for others?</h3>
+      <p>Yes, and most real type 2 dimensions are. Changes to tracked attributes open a new version; changes to the others are overwritten in place. The dimension is called type 2 because it can hold history, not because every column triggers it.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Does a correction count as a change?</h3>
+      <p>No. A typo fixed in a customer's name was never true, so there is no history to keep &mdash; overwrite it. A type 2 version should mean the world changed, not that somebody noticed a mistake.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Why does type 2 need surrogate keys?</h3>
+      <p>Because one customer now has several rows, so the business key is no longer unique and cannot be the primary key or the target of a fact's foreign key. The surrogate identifies the version; the business key identifies the customer.</p>
+    </div>
+    <div class="faq-item">
+      <h3>What is the difference between SCD type 2 and Data Vault's satellites?</h3>
+      <p>Same idea, different place. A satellite is insert-only and keeps every version automatically, so Data Vault has no per-dimension decision to make. Type 2 is the dimensional model's way of opting a particular dimension into that behaviour.</p>
+    </div>
+  </section>
+  <section class="related">
+    <h2>Read next</h2>
+    <ul>
+      <li><a href="/kimball-dimensional-modeling.html">Kimball dimensional modelling</a> <span>&mdash; where the SCD question lives</span></li>
+      <li><a href="/kimball-vs-data-vault.html">Kimball vs Data Vault</a> <span>&mdash; one keeps history by choice, the other by construction</span></li>
+      <li><a href="/what-is-a-staging-layer.html">What a staging layer is for</a> <span>&mdash; and the four things it must never do</span></li>
+      <li><a href="/kimball-vs-data-vault.html">Kimball vs Data Vault</a> <span>&mdash; how to choose, and why the answer is often both</span></li>
+      <li><a href="/data-warehouse-methodologies.html">All eight methodologies compared</a> <span>&mdash; and how to choose between them</span></li>
+    </ul>
+  </section>
+  <div class="cta">
+    <h2>See which of your dimensions argue for type 2</h2>
+    <p>Netune profiles the real data, works out which attributes change and whether anything groups by them, and recommends a type per dimension with the reason named &mdash; including the folded-in columns most people forget.</p>
+    <a href="/netune-free-beta.html">Download the free beta</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot;
+    <a href="/data-warehouse-methodologies.html">Choose a model</a> &middot;
+    <a href="/netune-free-beta.html">Free beta</a> &middot;
+    <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "SCD type 1 or type 2? How to decide, one dimension at a time",
+  "description": "Type 1 overwrites; type 2 keeps history. The question that decides it, when each is right, what type 2 costs in rows and load logic, and the column you must never let it watch.",
+  "keywords": "SCD type 1 vs type 2, slowly changing dimension, SCD type 2, SCD type 1, ValidFrom ValidTo IsCurrent, dimension history, type 2 dimension load, Kimball SCD, when to use SCD type 2",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/scd-type-1-vs-type-2.html"
+  },
+  "image": "https://dataash.de/og.png",
+  "author": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "inLanguage": "en-GB",
+  "isPartOf": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/data-warehouse-methodologies.html"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Should I default to SCD type 2?",
+      "acceptedAnswer": { "@type": "Answer", "text": "For any dimension people group reports by - region, segment, category, territory - yes, because type 2 can always be read as type 1 later and the reverse is impossible. For dimensions nobody groups by, or whose attributes never change, type 1 is cheaper and honest." } },
+    { "@type": "Question", "name": "Can one dimension be type 1 for some columns and type 2 for others?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, and most real type 2 dimensions are. Changes to tracked attributes open a new version; changes to the others are overwritten in place. The dimension is called type 2 because it can hold history, not because every column triggers it." } },
+    { "@type": "Question", "name": "Does a correction count as a change?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. A typo fixed in a customer's name was never true, so there is no history to keep - overwrite it. A type 2 version should mean the world changed, not that somebody noticed a mistake." } },
+    { "@type": "Question", "name": "Why does type 2 need surrogate keys?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because one customer now has several rows, so the business key is no longer unique and cannot be the primary key or the target of a fact's foreign key. The surrogate identifies the version; the business key identifies the customer." } },
+    { "@type": "Question", "name": "What is the difference between SCD type 2 and Data Vault's satellites?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Same idea, different place. A satellite is insert-only and keeps every version automatically, so Data Vault has no per-dimension decision to make. Type 2 is the dimensional model's way of opting a particular dimension into that behaviour." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Netune",
+      "item": "https://dataash.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Data warehouse methodologies",
+      "item": "https://dataash.de/data-warehouse-methodologies.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "SCD type 1 vs type 2",
+      "item": "https://dataash.de/scd-type-1-vs-type-2.html"
+    }
+  ]
+}
+</script>
+
+</body>
+</html>

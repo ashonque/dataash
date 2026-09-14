@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>What a staging layer is for in a data warehouse, and what it must never do</title>
+  <meta name="description" content="Why every warehouse methodology has a staging layer, the three jobs it does, the four things that must not happen in it, and how it differs from a landing zone and from Medallion's bronze." />
+  <link rel="canonical" href="https://dataash.de/what-is-a-staging-layer.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="keywords" content="staging layer data warehouse, staging area, staging tables, what is staging in ETL, staging vs landing zone, staging vs bronze, truncate and load, persistent staging, staging schema SQL Server" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="What a staging layer is actually for (and the four things it must never do)" />
+  <meta property="og:description" content="Why every warehouse methodology has a staging layer, the three jobs it does, the four things that must not happen in it, and how it differs from a landing zone and from Medallion's bronze." />
+  <meta property="og:url" content="https://dataash.de/what-is-a-staging-layer.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="What a staging layer is for" />
+  <meta name="twitter:description" content="Three jobs, four rules, and why it is a heap with no indexes." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --no:       #9A3B2F;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(29px, 5vw, 42px); line-height: 1.14;
+      letter-spacing: -0.02em; margin: 14px 0 8px;
+    }
+    .also { font-size: 14px; color: var(--ink-dim); margin: 0 0 16px; }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 27px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 48px 0 12px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 18.5px; margin: 28px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+    pre {
+      background: var(--navy-900); color: #E8EEF9; border-radius: var(--radius);
+      padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    .fits {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0;
+    }
+    .fits > div {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 4px 20px 14px;
+    }
+    .fits .yes { border-top: 3px solid var(--ok); }
+    .fits .no  { border-top: 3px solid var(--no); }
+    .fits h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em; margin: 16px 0 10px; }
+    .fits .yes h3 { color: var(--ok); }
+    .fits .no h3  { color: var(--no); }
+    .fits ul { padding-left: 20px; margin: 0; font-size: 15.5px; }
+    @media (max-width: 620px) { .fits { grid-template-columns: 1fr; } }
+
+    .wide { overflow-x: auto; margin: 22px 0; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 15px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; min-width: 480px;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .siblings { margin: 44px 0 0; }
+    .siblings ul {
+      list-style: none; padding: 0; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .siblings li { margin: 0; }
+    .siblings a {
+      display: block; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 14px; text-decoration: none;
+      font-size: 15px; font-weight: 600;
+    }
+    .siblings a:hover { border-color: var(--navy-500); }
+    .siblings a span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-dim); }
+    @media (max-width: 620px) { .siblings ul { grid-template-columns: 1fr; } }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 48px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 52px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .cta { padding: 24px; }
+      /* the header's two items cannot both fit on a phone, and the breadcrumb
+         immediately below goes to the same place */
+      header.top a.back { display: none; }
+    }
+
+    .answer {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 22px 26px; margin: 0 0 34px; font-size: 18px; line-height: 1.6;
+    }
+    .answer strong { color: #fff; }
+    .answer a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+    .answer p { margin: 0 0 10px; }
+    .answer p:last-child { margin: 0; }
+    .answer .lbl { font-size: 12.5px; text-transform: uppercase; letter-spacing: .1em;
+                   color: var(--navy-100); font-weight: 700; margin-bottom: 8px; }
+    table td:first-child { font-weight: 600; color: var(--navy-900); }
+    .related { margin: 44px 0 0; }
+    .related ul { list-style: none; padding: 0; margin: 0; }
+    .related li { margin: 0 0 8px; }
+    .related a { font-weight: 600; text-decoration: none; }
+    .related a:hover { text-decoration: underline; }
+    .related span { color: var(--ink-dim); font-weight: 400; }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/data-warehouse-methodologies.html">&larr; All eight methodologies</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; <a href="/data-warehouse-methodologies.html">Data warehouse methodologies</a> &rsaquo; Staging layer
+  </nav>
+  <h1>What a staging layer is actually for (and the four things it must never do)</h1>
+  <p class="standfirst">Staging is the layer every methodology shares and nobody writes about, which is why it is where the strangest decisions get made.</p>
+  <div class="answer">
+    <div class="lbl">The short answer</div>
+    <p>A staging table is <strong>a typed copy of one source table, and nothing else</strong>: no keys resolved, no history applied, no business rules, the source&rsquo;s own column names. It exists to keep the transformation off the production system, to give a failed load somewhere to restart from, and to be the one place the data still looks exactly like the source when a number turns out wrong.</p>
+    <p>Yes, you need one, whichever methodology you choose. No, it is not where the modelling happens.</p>
+  </div>
+  <h2 id="jobs">The three jobs it does</h2>
+  <h3>1. It protects the source system</h3>
+  <p>A warehouse load that reads directly from production holds locks, competes for I/O, and turns a slow transformation into a slow application. Staging reads the source once, as plainly as possible, and everything downstream reads staging. The production system has one cheap visitor per run rather than a dozen expensive ones.</p>
+  <h3>2. It gives a failed load somewhere to restart from</h3>
+  <p>Warehouse loads fail. A dimension lookup finds an unexpected NULL, a type conversion trips on one row in ten million, somebody renamed a column. Without staging, the fix means going back to the source and extracting again &mdash; and the source has moved on since. With staging, the extract is already done and the load restarts from the step that failed.</p>
+  <h3>3. It is where you go when a number is wrong</h3>
+  <p>Somebody says the revenue figure is off. The warehouse has resolved keys, applied history and summed things; the source system has been updated three times since. Staging is the only place holding the data as it was at the moment of the load, in the source&rsquo;s own shape, so you can tell whether the warehouse mis-transformed it or the source sent it that way. That single property pays for the whole layer.</p>
+  <h2 id="rules">The four things it must never do</h2>
+  <p>Every one of these is tempting, because staging is where the data is first in your hands and it feels efficient to tidy it on the way in. Each one quietly destroys one of the three jobs above.</p>
+  <h3>It must not apply business rules</h3>
+  <p>The moment staging filters out cancelled orders, or maps status codes to words, it stops being a copy of the source &mdash; and job 3 is gone. When the number is wrong you can no longer tell whether the rule or the source is to blame. Rules belong in the layer that is allowed to have opinions.</p>
+  <h3>It must not resolve keys</h3>
+  <p>Looking up surrogate keys during staging means staging depends on the warehouse being loaded first, which inverts the layer order and makes the restart point useless. Staging carries the source&rsquo;s own keys; the warehouse load resolves them.</p>
+  <h3>It must not rename columns</h3>
+  <p>A staging column called what the source called it is one that can be traced back without a mapping document. Rename it there and every investigation starts with a translation step. Give things readable names in the warehouse, and keep the source&rsquo;s names in staging where they are evidence.</p>
+  <h3>It must not carry indexes or keys</h3>
+  <p>This one is about performance rather than honesty, and it is counter-intuitive. A staging table is cleared and refilled every run, in bulk. On SQL Server, a heap with no indexes loaded with <code>TABLOCK</code> under the simple or bulk-logged recovery model is minimally logged; add a clustered index and every row goes through the transaction log. A primary key on a staging table also makes it refuse the duplicate rows the source legitimately sent, which is exactly the kind of thing you wanted to catch downstream rather than lose.</p>
+  <h2 id="types">Types: keep them, with five exceptions</h2>
+  <p>A staging column has the source column&rsquo;s type. That is most of what &ldquo;typed copy&rdquo; means. There are a handful of types SQL Server cannot create or compare as they stand, and those are converted once, at the boundary, so nothing downstream ever meets them:</p>
+  <ul>
+    <li><code>hierarchyid</code>, <code>geography</code>, <code>geometry</code> &mdash; CLR types; staged as text via <code>.ToString()</code></li>
+    <li><code>xml</code>, <code>sql_variant</code> &mdash; staged as text via an explicit <code>CONVERT</code></li>
+    <li><code>timestamp</code> / <code>rowversion</code> &mdash; eight bytes, not a date; staged as <code>BINARY(8)</code></li>
+  </ul>
+  <p>Everything else crosses unchanged. Widening a column in staging and not in the warehouse is how a load fails on a value too long for its target, so if a type must change, it changes the same way on both sides.</p>
+  <h2 id="shape">Truncate-and-reload, or persistent?</h2>
+  <p>The classic staging table is emptied and refilled every run (<code>TRUNCATE</code>, falling back to <code>DELETE</code> for an account without <code>ALTER</code> rights, then a bulk insert). It holds the current extract and nothing older. That is the right default: cheap, simple, and enough for the three jobs.</p>
+  <p>A <strong>persistent staging area</strong> keeps every extract, usually with a load date, so you can see what the source said on any past run. That is genuinely useful for audit and for rebuilding history after a modelling mistake &mdash; and it is also what <a href="/medallion-architecture.html">Medallion&rsquo;s bronze</a> and <a href="/data-vault-2-0.html">Data Vault&rsquo;s raw vault</a> are, under other names. If you find yourself wanting persistent staging, you are probably choosing one of those two.</p>
+  <p>Incremental staging &mdash; copying only rows newer than a high-water mark &mdash; is a performance choice, not a change of shape. Two things about it worth knowing: the watermark should be derived from the target (<code>MAX(column)</code>) rather than stored in a bookkeeping table, because a stored watermark and the real data drift apart the first time a run half-fails; and a <em>created</em> column and a <em>modified</em> column give opposite results &mdash; one misses every update, the other appends updates beside the rows they replace.</p>
+  <h2 id="vs">Staging, landing zone, bronze: what is the difference?</h2>
+  <div class="wide">
+    <table>
+      <thead><tr><th></th><th>Staging</th><th>Landing zone</th><th>Bronze</th></tr></thead>
+      <tbody>
+        <tr><td>What it holds</td><td>The tables the design needs, typed for the warehouse</td><td>The source&rsquo;s own tables, unchanged, every column</td><td>Everything as it arrived, plus ingest metadata</td></tr>
+        <tr><td>Lifetime</td><td>Refilled each run</td><td>Refilled or appended each run</td><td>Kept &mdash; it is the archive</td></tr>
+        <tr><td>Purpose</td><td>Feed the warehouse load</td><td>Get the data off production so modelling can happen somewhere else</td><td>Prove what was received, hash and all</td></tr>
+        <tr><td>Modelled?</td><td>No</td><td>No</td><td>No</td></tr>
+        <tr><td>Who reads it</td><td>The warehouse load</td><td>Profiling, exploration, then staging</td><td>Silver</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>They overlap because they are answers to neighbouring problems. A landing zone is what you build when the modelling has not happened yet and you need the data somewhere safe to look at. Staging is what the design needs once it exists. Bronze is staging that promised never to forget.</p>
+  <h2 id="where">Where it lives, and one detail about the log</h2>
+  <p>Staging is usually a schema (<code>stg</code>) in the warehouse database, or a database of its own on the same server. On SQL Server the same server matters: the staging load reads the source with a three-part name (<code>[SourceDb].[dbo].[Orders]</code>), and that only resolves locally. A source on another server means a landing copy first, or a linked server, and both are decisions rather than defaults.</p>
+  <p>One small thing that saves an afternoon: put the load log &mdash; the table every load procedure writes a row into &mdash; in the <em>warehouse</em> schema, not staging&rsquo;s, even though the staging procedures write to it too. One table then records a whole run. Split it by layer and you have two audit trails that have to be joined to answer &ldquo;did last night work&rdquo;.</p>
+  <h2 id="faq">Questions people ask</h2>
+  <section class="faq">
+    <div class="faq-item">
+      <h3>Do I need a staging layer if my source is small?</h3>
+      <p>Almost always, yes. The three jobs &mdash; protecting the source, giving a failed load a restart point, and holding the data as it was when a number is disputed &mdash; have nothing to do with size. What a small source lets you skip is incremental loading, not staging.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Should staging tables have primary keys?</h3>
+      <p>No. A staging table is a heap that is cleared and bulk-loaded each run; a key or index turns a minimally logged load into a fully logged one, and a primary key rejects the duplicate rows the source legitimately sent, which you wanted to see downstream rather than lose at the door.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Is staging the same as ODS?</h3>
+      <p>No. An operational data store is integrated and current, meant to be queried for operational reporting. Staging is a per-source copy meant to be read by the warehouse load and nobody else.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can I do transformations in staging to save a step?</h3>
+      <p>You can, and you will regret it the first time a number is wrong and you cannot tell whether the source sent it or your transformation made it. Staging is evidence. Transform in the layer that is allowed to have opinions.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Is Medallion's bronze layer just staging?</h3>
+      <p>Bronze is staging with one extra promise: it keeps what it received, unmodified, rather than being truncated and refilled. Everything staging does, bronze does too; bronze additionally works as an archive and can prove what arrived.</p>
+    </div>
+  </section>
+  <section class="related">
+    <h2>Read next</h2>
+    <ul>
+      <li><a href="/medallion-architecture.html">Medallion architecture</a> <span>&mdash; bronze is staging that never forgets</span></li>
+      <li><a href="/data-vault-2-0.html">Data Vault 2.0</a> <span>&mdash; the other persistent-staging cousin</span></li>
+      <li><a href="/scd-type-1-vs-type-2.html">SCD type 1 vs type 2</a> <span>&mdash; how to decide, one dimension at a time</span></li>
+      <li><a href="/kimball-vs-data-vault.html">Kimball vs Data Vault</a> <span>&mdash; how to choose, and why the answer is often both</span></li>
+      <li><a href="/data-warehouse-methodologies.html">All eight methodologies compared</a> <span>&mdash; and how to choose between them</span></li>
+    </ul>
+  </section>
+  <div class="cta">
+    <h2>Generate the staging layer from a real database</h2>
+    <p>Netune reads a SQL Server database and writes the staging DDL and load procedures the design needs &mdash; heaps, TABLOCK, the five type exceptions handled at the boundary &mdash; and deploys them in the free edition.</p>
+    <a href="/netune-free-beta.html">Download the free beta</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot;
+    <a href="/data-warehouse-methodologies.html">Choose a model</a> &middot;
+    <a href="/netune-free-beta.html">Free beta</a> &middot;
+    <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "What a staging layer is actually for (and the four things it must never do)",
+  "description": "Why every warehouse methodology has a staging layer, the three jobs it does, the four things that must not happen in it, and how it differs from a landing zone and from Medallion's bronze.",
+  "keywords": "staging layer data warehouse, staging area, staging tables, what is staging in ETL, staging vs landing zone, staging vs bronze, truncate and load, persistent staging, staging schema SQL Server",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/what-is-a-staging-layer.html"
+  },
+  "image": "https://dataash.de/og.png",
+  "author": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "inLanguage": "en-GB",
+  "isPartOf": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/data-warehouse-methodologies.html"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Do I need a staging layer if my source is small?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Almost always, yes. The three jobs - protecting the source, giving a failed load a restart point, and holding the data as it was when a number is disputed - have nothing to do with size. What a small source lets you skip is incremental loading, not staging." } },
+    { "@type": "Question", "name": "Should staging tables have primary keys?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. A staging table is a heap that is cleared and bulk-loaded each run; a key or index turns a minimally logged load into a fully logged one, and a primary key rejects the duplicate rows the source legitimately sent, which you wanted to see downstream rather than lose at the door." } },
+    { "@type": "Question", "name": "Is staging the same as ODS?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. An operational data store is integrated and current, meant to be queried for operational reporting. Staging is a per-source copy meant to be read by the warehouse load and nobody else." } },
+    { "@type": "Question", "name": "Can I do transformations in staging to save a step?",
+      "acceptedAnswer": { "@type": "Answer", "text": "You can, and you will regret it the first time a number is wrong and you cannot tell whether the source sent it or your transformation made it. Staging is evidence. Transform in the layer that is allowed to have opinions." } },
+    { "@type": "Question", "name": "Is Medallion's bronze layer just staging?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Bronze is staging with one extra promise: it keeps what it received, unmodified, rather than being truncated and refilled. Everything staging does, bronze does too; bronze additionally works as an archive and can prove what arrived." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Netune",
+      "item": "https://dataash.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Data warehouse methodologies",
+      "item": "https://dataash.de/data-warehouse-methodologies.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Staging layer",
+      "item": "https://dataash.de/what-is-a-staging-layer.html"
+    }
+  ]
+}
+</script>
+
+</body>
+</html>
