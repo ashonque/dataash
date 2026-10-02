@@ -80,12 +80,21 @@ def clicks():
     try:
         req = urllib.request.Request(api + "/counts", headers={"User-Agent": "netune-stats"})
         with urllib.request.urlopen(req, timeout=30) as r:
-            got = json.loads(r.read()).get("total") or {}
+            answer = json.loads(r.read())
     except Exception as e:
         print("  (the click counter did not answer: %s)" % e)
         return ""
-    return "clicks %d  copies ps %d cmd %d  feedback %d" % (
+    got = answer.get("total") or {}
+    line = "clicks %d  copies ps %d cmd %d  feedback %d" % (
         got.get("download_click", 0), got.get("copy_ps", 0), got.get("copy_cmd", 0), got.get("feedback", 0))
+    # Downloads handed out through the worker, robots left out - the number
+    # GitHub's own count is to be read against. A worker deployed before /dl
+    # existed sends no "served", and the line is just shorter.
+    served = answer.get("served")
+    if served:
+        line += "  |  served %d (page %d, ps %d, link %d)" % (
+            served.get("total", 0), served.get("page", 0), served.get("ps", 0), served.get("link", 0))
+    return line
 
 
 def last_total(text):

@@ -139,7 +139,9 @@
         var v = document.getElementById("dlVersion");
         say("download_beta", {
           version: trim(v ? v.textContent.replace(/^Version\s*/, "") : "", 20),
-          file_name: (get.href.split("/").pop() || ""),
+          /* the link may go through the download counter, whose address
+             ends in a query string; the page names the real file beside it */
+          file_name: get.getAttribute("data-file") || (get.href.split("/").pop() || ""),
           link_url: get.href
         });
       });

@@ -76,21 +76,36 @@ if ($url -notmatch '^https://(github\.com/ashonque/dataash/|dataash\.de/)') { Fa
 Say ("Netune " + $latest.version + "  -  " + $file)
 
 # ---------------------------------------------------------------- 2. download
+# The first attempt goes through dataash.de's download counter, which adds
+# one to a number - no address, no identifier, just the number - and sends
+# the request straight on to the same file on GitHub. If the counter is down,
+# or what arrives does not match the checksum, the file is fetched from
+# GitHub directly instead: the count is a nicety, the install is not.
 Step ("Downloading (about " + $(if ($size) { [math]::Round($size / 1MB) } else { 25 }) + " MB)")
 New-Item -ItemType Directory -Path $Work -Force | Out-Null
 $setup = Join-Path $Work $file
-try {
+$Counter = "https://netune-stats.dataash.workers.dev"
+
+function Fetch([string]$from) {
+    # "" when the file arrived, otherwise the reason it did not
     $old = $ProgressPreference; $ProgressPreference = "SilentlyContinue"   # the progress bar makes 5.1 downloads ten times slower
-    Invoke-WebRequest -Uri $url -OutFile $setup -UseBasicParsing -TimeoutSec 600
-    $ProgressPreference = $old
-} catch {
-    Fail "The download failed ($($_.Exception.Message))."
+    try { Invoke-WebRequest -Uri $from -OutFile $setup -UseBasicParsing -TimeoutSec 600; return "" }
+    catch { return $_.Exception.Message }
+    finally { $ProgressPreference = $old }
+}
+function HashOf { return (Get-FileHash -Algorithm SHA256 -Path $setup).Hash.ToLower() }
+
+$err = Fetch ($Counter + "/dl?u=" + [uri]::EscapeDataString($url) + "&via=ps")
+if ($err -or ((HashOf) -ne $sha.ToLower())) {
+    Remove-Item $setup -Force -ErrorAction SilentlyContinue
+    $err = Fetch $url
+    if ($err) { Fail "The download failed ($err)." }
 }
 Say ("received " + [math]::Round((Get-Item $setup).Length / 1MB, 1) + " MB")
 
 # ---------------------------------------------------------------- 3. check it
 Step "Checking the file against its published SHA-256"
-$got = (Get-FileHash -Algorithm SHA256 -Path $setup).Hash.ToLower()
+$got = HashOf
 if ($got -ne $sha.ToLower()) {
     Remove-Item $setup -Force -ErrorAction SilentlyContinue
     Fail ("The download does not match its checksum (got " + $got.Substring(0, 12) + "..., expected " + $sha.Substring(0, 12) + "...). It was deleted. Please try again; if it happens twice, write to dataash@proton.me.")

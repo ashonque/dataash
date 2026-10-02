@@ -586,7 +586,17 @@
     set("dlVersion", "Version " + d.version + (beta ? "-beta" : ""));
     set("dlTitle", "Download Netune " + d.version + (beta ? " beta" : ""));
     if (d.bytes) set("dlSize", Math.round(d.bytes / 1048576) + " MB");
-    var a = document.querySelector(".download a.get"); if (a) a.href = d.url;
+    var a = document.querySelector(".download a.get");
+    if (a) { a.href = d.url; a.setAttribute("data-file", d.file || ""); }
+    /* Once the worker can count downloads itself, the link goes through it:
+       it adds one (robots left out) and sends the browser straight on to the
+       same file on GitHub. Asked rather than assumed, so a worker that is
+       down, or one deployed before /dl existed, leaves the plain link. */
+    if (a && API) {
+      fetch(API + "/counts", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (c) {
+        if (c && c.served) a.href = API + "/dl?u=" + encodeURIComponent(d.url) + "&via=page";
+      })["catch"](function () { /* the GitHub link still works */ });
+    }
   })["catch"](function () { /* the markup already says the last known version */ });
 })();
 </script>

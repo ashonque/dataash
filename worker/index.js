@@ -17,6 +17,15 @@
  *                     at that moment; the next submission flushes the queue.
  *   GET  /feedback    the newest few accepted lines, so the page can show
  *                     that the box is real.
+ *   GET  /dl?u=...&via=page|ps
+ *                     a download. Counts it, then sends the browser on to
+ *                     the file on GitHub with a 302. Only a Netune release
+ *                     asset of ashonque/dataash is accepted as the target,
+ *                     so this cannot be used to bounce anybody anywhere
+ *                     else. Robots and HEAD requests are sent on and not
+ *                     counted; GitHub's own count includes them, which is
+ *                     why the two numbers differ.
+ *   GET  /stats       the same totals as /counts, as a page a person reads.
  *
  * What is deliberately not here: no IP address is ever written down. The
  * rate limit keys on a hash of the address and the day that lives for a
@@ -30,6 +39,17 @@ const REPO = "ashonque/dataash";
 const FILE = "feedback/feedback.txt";
 const ALLOWED_ORIGINS = ["https://dataash.de", "https://www.dataash.de"];
 const EVENTS = ["copy_ps", "copy_cmd", "download_click"];
+
+// What /dl will send a browser on to: a Netune zip or installer on this
+// repository's releases, and nothing else - an open redirect on a domain
+// people have learned to trust is a gift to whoever wants to phish them.
+const ASSET = /^https:\/\/github\.com\/ashonque\/dataash\/releases\/download\/[A-Za-z0-9._-]+\/Netune-[0-9.]+-(free|full)(-Setup\.exe|\.zip)$/;
+const VIAS = ["page", "ps", "link"];
+// Link checkers, previews and crawlers follow download links too, and a
+// count that includes them says nothing about people. curl and wget are in
+// the list because that is what most of them are; a person using either is
+// rare enough to lose.
+const NOT_A_PERSON = /bot|crawl|spider|slurp|preview|scan|monitor|headless|python|go-http|java\/|okhttp|wget|curl|facebookexternalhit|whatsapp|telegram|slack|discord|linkcheck/i;
 const MAX_WORDS = 50;
 const MAX_CHARS = 400;
 const PER_ADDRESS_SECONDS = 600;
@@ -62,8 +82,14 @@ export default {
       if (url.pathname === "/feedback" && request.method === "GET") {
         return json(await recent(env, url.searchParams.get("n")), 200, cors);
       }
+      if (url.pathname === "/dl" && (request.method === "GET" || request.method === "HEAD")) {
+        return await serve(request, env, url);
+      }
+      if (url.pathname === "/stats" && request.method === "GET") {
+        return statsPage(await totals(env));
+      }
       if (url.pathname === "/") {
-        return new Response("netune-stats: /counts, /feedback", { headers: cors });
+        return new Response("netune-stats: /counts, /stats, /feedback, /dl", { headers: cors });
       }
       return json({ ok: false, error: "No such thing here." }, 404, cors);
     } catch (e) {
@@ -129,7 +155,66 @@ async function totals(env) {
   for (const r of rows) { out.total[r.event] = r.total; out.today[r.event] = r.today; }
   const fb = await env.DB.prepare("SELECT COUNT(*) AS n FROM feedback WHERE accepted = 1").first();
   out.total.feedback = (fb && fb.n) || 0;
+  // the downloads this worker handed out, added up both ways: by file, and
+  // by where the person came from
+  out.served = { total: 0, today: 0, zip: 0, setup: 0, page: 0, ps: 0, link: 0 };
+  for (const r of rows) {
+    const m = /^served_(zip|setup)_(page|ps|link)$/.exec(r.event);
+    if (!m) continue;
+    out.served.total += r.total;
+    out.served.today += r.today;
+    out.served[m[1]] += r.total;
+    out.served[m[2]] += r.total;
+  }
   return out;
+}
+
+/* ---------------------------------------------------------------- downloads */
+async function serve(request, env, url) {
+  const target = url.searchParams.get("u") || "";
+  const m = ASSET.exec(target);
+  if (!m) return json({ ok: false, error: "That is not a Netune download." }, 400, {});
+  const kind = m[2] === ".zip" ? "zip" : "setup";
+  const asked = url.searchParams.get("via");
+  const via = VIAS.includes(asked) ? asked : "link";
+  const ua = request.headers.get("User-Agent") || "";
+  if (request.method === "GET" && ua && !NOT_A_PERSON.test(ua)) {
+    try {
+      await env.DB.prepare(
+        "INSERT INTO counts (event, day, n) VALUES (?, ?, 1) " +
+        "ON CONFLICT(event, day) DO UPDATE SET n = n + 1"
+      ).bind("served_" + kind + "_" + via, today()).run();
+    } catch (e) {
+      // a download must never fail because the counting did
+    }
+  }
+  return new Response(null, {
+    status: 302,
+    headers: { Location: target, "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" },
+  });
+}
+
+function statsPage(t) {
+  const s = t.served;
+  const row = (label, total, today) =>
+    "<tr><td>" + label + "</td><td>" + total + "</td><td>" + (today === undefined ? "" : today) + "</td></tr>";
+  const html =
+    '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<meta name="robots" content="noindex"><title>Netune downloads</title>' +
+    "<style>body{font:15px/1.6 system-ui,sans-serif;max-width:560px;margin:40px auto;padding:0 18px;color:#0C1B36}" +
+    "table{border-collapse:collapse;width:100%;margin:0 0 26px}td,th{text-align:left;padding:7px 10px;border-bottom:1px solid #E3DCCE}" +
+    "td:nth-child(n+2),th:nth-child(n+2){text-align:right}h2{font-size:16px;margin:28px 0 8px}p{color:#5A6A86}</style>" +
+    "<h1>Netune downloads</h1><p>Counted by dataash.de's own Cloudflare Worker. Robots are not counted. Day " + t.day + " (UTC).</p>" +
+    "<h2>Downloads served</h2><table><tr><th></th><th>Total</th><th>Today</th></tr>" +
+    row("All", s.total, s.today) + row("Zip", s.zip) + row("Installer", s.setup) +
+    row("&nbsp;&nbsp;from the download page", s.page) + row("&nbsp;&nbsp;from the PowerShell command", s.ps) +
+    row("&nbsp;&nbsp;from a shared link", s.link) + "</table>" +
+    "<h2>On the download page</h2><table><tr><th></th><th>Total</th><th>Today</th></tr>" +
+    row("Download button pressed", t.total.download_click, t.today.download_click) +
+    row("PowerShell command selected", t.total.copy_ps, t.today.copy_ps) +
+    row("Feedback left", t.total.feedback) + "</table>" +
+    "<p>Installs through winget, and downloads straight from the GitHub release page, are not here; GitHub counts those.</p>";
+  return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
 }
 
 /* ---------------------------------------------------------------- feedback */
