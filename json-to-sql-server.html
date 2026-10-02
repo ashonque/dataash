@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/analytics.js" defer></script>
+  <title>Import JSON into SQL Server: OPENJSON, nested arrays and JSON Lines done properly</title>
+  <meta name="description" content="Load a JSON file into SQL Server tables: the OPENJSON route with working T-SQL, what to do with nested arrays and JSON Lines, and the five traps that lose data quietly." />
+  <link rel="canonical" href="https://dataash.de/json-to-sql-server.html" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="keywords" content="import JSON into SQL Server, JSON to SQL Server, OPENJSON, load JSON file into SQL Server table, nested JSON SQL Server, JSON array to table, JSON Lines SQL Server, OPENROWSET BULK JSON, convert JSON to SQL table, flatten JSON SQL" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="How to import JSON into SQL Server (and the parts OPENJSON leaves to you)" />
+  <meta property="og:description" content="Load a JSON file into SQL Server tables: the OPENJSON route with working T-SQL, what to do with nested arrays and JSON Lines, and the five traps that lose data quietly." />
+  <meta property="og:url" content="https://dataash.de/json-to-sql-server.html" />
+  <meta property="og:site_name" content="Netune" />
+  <meta property="og:image" content="https://dataash.de/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="JSON to SQL Server" />
+  <meta name="twitter:description" content="OPENJSON gets you started. Nested arrays, missing fields and string dates are where the data goes missing." />
+  <meta name="twitter:image" content="https://dataash.de/og.png" />
+
+  <meta name="theme-color" content="#1E3A6B" />
+  <link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-900: #0C1B36;
+      --navy-700: #1E3A6B;
+      --navy-500: #3E68AE;
+      --navy-100: #D7E0F0;
+      --navy-050: #EDF2FA;
+      --ground:   #F7F3EA;
+      --surface:  #FFFFFF;
+      --ink:      #0C1B36;
+      --ink-dim:  #5A6A86;
+      --line:     #E3DCCE;
+      --ok:       #1F7A4D;
+      --no:       #9A3B2F;
+      --radius:   14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--ground); color: var(--ink);
+      font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+    header.top {
+      border-bottom: 1px solid var(--line); background: var(--ground);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; padding-bottom: 16px;
+    }
+    .brand {
+      font-weight: 800; font-size: 19px; color: var(--navy-700);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--navy-500); font-weight: 500; }
+    .top a.back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+    .top a.back:hover { color: var(--navy-700); }
+
+    nav.crumbs { font-size: 13px; color: var(--ink-dim); padding: 22px 0 0; }
+    nav.crumbs a { color: var(--navy-500); text-decoration: none; }
+    nav.crumbs a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: clamp(29px, 5vw, 42px); line-height: 1.14;
+      letter-spacing: -0.02em; margin: 14px 0 8px;
+    }
+    .also { font-size: 14px; color: var(--ink-dim); margin: 0 0 16px; }
+    .standfirst { font-size: 20px; color: var(--ink-dim); margin: 0 0 30px; }
+    h2 {
+      font-size: clamp(22px, 3.4vw, 27px); line-height: 1.25;
+      letter-spacing: -0.01em; margin: 48px 0 12px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 18.5px; margin: 28px 0 8px; }
+    p { margin: 0 0 18px; }
+    ul, ol { margin: 0 0 18px; padding-left: 22px; }
+    li { margin-bottom: 9px; }
+    strong { color: var(--navy-900); }
+    a { color: var(--navy-700); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em; background: var(--navy-050);
+      padding: 2px 6px; border-radius: 5px; color: var(--navy-700);
+    }
+    pre {
+      background: var(--navy-900); color: #E8EEF9; border-radius: var(--radius);
+      padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    .fits {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0;
+    }
+    .fits > div {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 4px 20px 14px;
+    }
+    .fits .yes { border-top: 3px solid var(--ok); }
+    .fits .no  { border-top: 3px solid var(--no); }
+    .fits h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em; margin: 16px 0 10px; }
+    .fits .yes h3 { color: var(--ok); }
+    .fits .no h3  { color: var(--no); }
+    .fits ul { padding-left: 20px; margin: 0; font-size: 15.5px; }
+    @media (max-width: 620px) { .fits { grid-template-columns: 1fr; } }
+
+    .wide { overflow-x: auto; margin: 22px 0; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 15px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; min-width: 480px;
+    }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: var(--navy-050); font-weight: 600; color: var(--navy-700); }
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--navy-500);
+      border-radius: var(--radius); padding: 18px 22px; margin: 26px 0;
+    }
+    .note p:last-child { margin-bottom: 0; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item h3 { margin: 0 0 6px; font-size: 17.5px; }
+    .faq-item p { margin: 0; color: var(--ink-dim); }
+
+    .siblings { margin: 44px 0 0; }
+    .siblings ul {
+      list-style: none; padding: 0; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .siblings li { margin: 0; }
+    .siblings a {
+      display: block; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 14px; text-decoration: none;
+      font-size: 15px; font-weight: 600;
+    }
+    .siblings a:hover { border-color: var(--navy-500); }
+    .siblings a span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-dim); }
+    @media (max-width: 620px) { .siblings ul { grid-template-columns: 1fr; } }
+
+    .cta {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 32px; margin: 48px 0 20px;
+    }
+    .cta h2 { margin: 0 0 10px; color: #fff; }
+    .cta p { color: var(--navy-100); margin-bottom: 20px; }
+    .cta a {
+      display: inline-block; background: #fff; color: var(--navy-700);
+      padding: 13px 24px; border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: 15px;
+    }
+    .cta a:hover { background: var(--navy-050); }
+
+    footer { border-top: 1px solid var(--line); margin-top: 52px; padding: 26px 0 46px; }
+    footer .wrap { font-size: 14px; color: var(--ink-dim); }
+    footer a { color: var(--navy-700); }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .cta { padding: 24px; }
+      /* the header's two items cannot both fit on a phone, and the breadcrumb
+         immediately below goes to the same place */
+      header.top a.back { display: none; }
+    }
+
+    .answer {
+      background: var(--navy-700); color: #fff; border-radius: var(--radius);
+      padding: 22px 26px; margin: 0 0 34px; font-size: 18px; line-height: 1.6;
+    }
+    .answer strong { color: #fff; }
+    .answer a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+    .answer p { margin: 0 0 10px; }
+    .answer p:last-child { margin: 0; }
+    .answer .lbl { font-size: 12.5px; text-transform: uppercase; letter-spacing: .1em;
+                   color: var(--navy-100); font-weight: 700; margin-bottom: 8px; }
+    table td:first-child { font-weight: 600; color: var(--navy-900); }
+    .related { margin: 44px 0 0; }
+    .related ul { list-style: none; padding: 0; margin: 0; }
+    .related li { margin: 0 0 8px; }
+    .related a { font-weight: 600; text-decoration: none; }
+    .related a:hover { text-decoration: underline; }
+    .related span { color: var(--ink-dim); font-weight: 400; }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">Netune<span> by DataAsh</span></a>
+    <a class="back" href="/">&larr; Netune</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Netune</a> &rsaquo; JSON to SQL Server
+  </nav>
+  <h1>How to import JSON into SQL Server (and the parts OPENJSON leaves to you)</h1>
+  <p class="standfirst">Getting a JSON file into SQL Server takes ten lines of T-SQL. Getting <em>all</em> of it in, into tables a report can join, is the part every tutorial stops just before.</p>
+  <div class="answer">
+    <div class="lbl">The short answer</div>
+    <p>For a small, flat file you will load once: <strong>OPENJSON</strong> in T-SQL, SQL Server 2016 or later. Read the file with <code>OPENROWSET(BULK ...)</code>, describe the columns in a <code>WITH</code> clause, insert the result. The code is below.</p>
+    <p>For anything nested, anything with records that do not all carry the same fields, or a file you will receive again next week, something has to decide the shape: <strong>objects become columns, arrays of objects become child tables carrying their parent&rsquo;s key</strong>, and the types are read from every record rather than guessed from the first one.</p>
+  </div>
+  <h2 id="openjson">The native way: OPENJSON</h2>
+  <p>Two steps: read the file into one string, then shred the string into rows. Here is a file of orders, each with a customer object and an array of lines:</p>
+  <pre><code>{ "orders": [
+  { "id": 1001, "placed": "2026-03-14T09:30:00Z",
+    "customer": { "number": "C-4471", "city": "Frankfurt" },
+    "lines": [ { "sku": "A-7", "qty": 2, "price": 19.90 },
+               { "sku": "B-2", "qty": 1, "price": 4.50 } ] }
+] }</code></pre>
+  <p>And the T-SQL that turns the orders into a table:</p>
+  <pre><code>DECLARE @json NVARCHAR(MAX);
+
+SELECT @json = BulkColumn
+FROM OPENROWSET(BULK 'C:\data\orders.json', SINGLE_CLOB) AS f;
+
+INSERT INTO dbo.Orders (OrderId, PlacedAt, CustomerNumber, City)
+SELECT OrderId, PlacedAt, CustomerNumber, City
+FROM OPENJSON(@json, '$.orders')
+WITH (
+    OrderId         INT            '$.id',
+    PlacedAt        DATETIME2(0)   '$.placed',
+    CustomerNumber  NVARCHAR(20)   '$.customer.number',
+    City            NVARCHAR(100)  '$.customer.city'
+);</code></pre>
+  <p>The lines belong in a table of their own, each row carrying the order it came from. <code>CROSS APPLY</code> a second <code>OPENJSON</code> over the array, declared <code>AS JSON</code> so it arrives as a fragment rather than as NULL:</p>
+  <pre><code>INSERT INTO dbo.OrderLines (OrderId, Sku, Qty, Price)
+SELECT o.OrderId, l.Sku, l.Qty, l.Price
+FROM OPENJSON(@json, '$.orders')
+     WITH (OrderId INT '$.id', Lines NVARCHAR(MAX) '$.lines' AS JSON) AS o
+CROSS APPLY OPENJSON(o.Lines)
+     WITH (Sku NVARCHAR(20) '$.sku', Qty INT '$.qty', Price DECIMAL(10,2) '$.price') AS l;</code></pre>
+  <p>Four things that catch everybody the first time:</p>
+  <ul>
+    <li><strong>The path is on the SQL Server machine</strong>, not on yours. <code>C:\data\orders.json</code> means the server&rsquo;s C: drive, and the service account needs read access to it &mdash; plus your login needs <code>ADMINISTER BULK OPERATIONS</code>. On Azure SQL Database there is no server drive at all; the file has to come from blob storage.</li>
+    <li><strong>The database must be at compatibility level 130 or higher</strong>, or <code>OPENJSON</code> is not recognised &mdash; even on a 2019 or 2022 server, if the database was restored from an older one.</li>
+    <li><strong>JSON paths are case-sensitive.</strong> <code>'$.Customer'</code> does not find <code>&quot;customer&quot;</code>, and in the default lax mode it returns NULL rather than an error. Write <code>'strict $.customer'</code> while developing and a wrong path fails loudly instead.</li>
+    <li><strong>Encoding.</strong> <code>SINGLE_CLOB</code> reads the file as <code>VARCHAR</code> in the database&rsquo;s code page, so a UTF-8 file containing &uuml; or &szlig; can arrive mangled; <code>SINGLE_NCLOB</code> expects UTF-16. Check one row with an umlaut in it before trusting the rest.</li>
+  </ul>
+  <h2 id="where">Where OPENJSON stops being enough</h2>
+  <p>Everything above works. What it does not do is decide anything: every path and every type in that <code>WITH</code> clause is a guess you typed. On a real file, five of those guesses go wrong quietly.</p>
+  <h3>1. A field you did not list is not imported, and nothing says so</h3>
+  <p>JSON records are allowed to differ. If record 551 is the first to carry a <code>discount</code> field and you wrote the <code>WITH</code> clause from the first record, the discount is simply not there &mdash; no error, no warning, no NULL column to notice. The column list has to come from <em>every</em> record, which means reading the whole file before deciding the shape.</p>
+  <h3>2. Exploding an array duplicates its parent</h3>
+  <p>Shredding orders and lines into <em>one</em> result with <code>CROSS APPLY</code> gives one row per line, with the order&rsquo;s columns repeated on each. Sum an order-level amount over that and every order with three lines counts three times. An array of objects is a second table, not a wider first one &mdash; which is why the example above inserts lines separately, carrying only the key.</p>
+  <h3>3. Dates are strings, and some carry an offset</h3>
+  <p>JSON has no date type. <code>&quot;2026-03-14T09:30:00+01:00&quot;</code> is text until you say otherwise, and <code>DATETIME2</code> has nowhere to keep the <code>+01:00</code>. Either convert to UTC on the way in and record that you did, or use <code>DATETIMEOFFSET</code>. What you must not do is drop the offset silently, which is what a plain <code>DATETIME2</code> conversion of a mixed file does to an hour of every day.</p>
+  <h3>4. One field, two types</h3>
+  <p><code>&quot;id&quot;: 7</code> in most records and <code>&quot;id&quot;: &quot;A-7&quot;</code> in a few. Typed <code>INT</code>, the few fail the whole insert &mdash; or, with <code>TRY_CAST</code>, become NULL without comment. Count what each field actually holds before choosing its type: &ldquo;number in 493, text in 7&rdquo; is a decision, and it should be yours.</p>
+  <h3>5. Arrays of plain values</h3>
+  <p><code>&quot;tags&quot;: [&quot;b2b&quot;, &quot;priority&quot;]</code> is not a set of rows worth a table and does not fit in one cell either. There are five honest things to do with it &mdash; keep it as JSON text, take the first value, join the values with a separator, count them, or skip it &mdash; and four of the five throw something away. Keeping the JSON text is the only default that loses nothing.</p>
+  <h2 id="flatten">Flattening rules worth agreeing on before you start</h2>
+  <p>However the import is done &mdash; by hand, in a script, or with a tool &mdash; it is making these decisions. Better to make them on purpose:</p>
+  <div class="wide">
+    <table>
+      <thead><tr><th>In the JSON</th><th>In SQL Server</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>A nested object</td><td>Columns named by path: <code>customer_address_city</code></td><td>One value per cell, and the name says where it came from</td></tr>
+        <tr><td>An array of objects</td><td>A child table, each row carrying the parent&rsquo;s key</td><td>Avoids duplicating the parent; joins back cleanly</td></tr>
+        <tr><td>An array of values</td><td>JSON text by default; first / joined / count if chosen</td><td>Only the JSON text keeps everything</td></tr>
+        <tr><td>A field some records lack</td><td>A column, NULL where absent</td><td>Never a shifted column; never a dropped field</td></tr>
+        <tr><td>The parent key in the child</td><td><code>order_id</code>, not <code>id</code></td><td>Foreign keys are often matched by name; <code>id</code> matches everything</td></tr>
+        <tr><td>Where the records are</td><td><code>$.orders</code>, <code>$.data.items</code>, or the root</td><td>Pick the path holding the most records; offer the others</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>That fifth row is a small thing with a large effect. If the lines table calls its key <code>order_id</code>, anything that later infers relationships by column name &mdash; a modelling tool, a BI tool&rsquo;s auto-detect, a colleague &mdash; links the two tables by itself. Call it <code>id</code> and it collides with the child&rsquo;s own key and links to nothing.</p>
+  <h2 id="types">Choosing SQL Server types for JSON values</h2>
+  <div class="wide">
+    <table>
+      <thead><tr><th>JSON value</th><th>Usual SQL Server type</th><th>Watch for</th></tr></thead>
+      <tbody>
+        <tr><td>true / false</td><td><code>BIT</code></td><td>Strings like &quot;yes&quot; are not booleans; leave them as text</td></tr>
+        <tr><td>Whole numbers</td><td><code>INT</code> or <code>BIGINT</code></td><td>IDs that are numbers today and text tomorrow</td></tr>
+        <tr><td>Decimals (money, prices)</td><td><code>DECIMAL(p,s)</code></td><td>Not <code>FLOAT</code> &mdash; 0.1 + 0.2 must equal 0.3</td></tr>
+        <tr><td>ISO date</td><td><code>DATE</code> / <code>DATETIME2</code></td><td>Strings that look like dates but are not</td></tr>
+        <tr><td>ISO date with offset</td><td><code>DATETIMEOFFSET</code>, or UTC in <code>DATETIME2</code></td><td>Silently dropped offsets</td></tr>
+        <tr><td>Strings</td><td><code>NVARCHAR(n)</code> sized from the data</td><td><code>NVARCHAR(MAX)</code> everywhere is slow to index</td></tr>
+        <tr><td>Leftover nested JSON</td><td><code>NVARCHAR(MAX)</code> with <code>CHECK (ISJSON(col) = 1)</code></td><td>Queryable later with <code>JSON_VALUE</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>SQL Server 2025 and Azure SQL add a native <code>json</code> type, which stores a document more compactly and validates it on the way in. It is a good home for the leftovers in the last row; it does not change the advice for everything above it, because a report still wants columns.</p>
+  <h2 id="jsonl">JSON Lines (.jsonl, .ndjson)</h2>
+  <p>One JSON object per line, no surrounding array &mdash; the format most APIs and log exports use. <code>OPENJSON</code> expects one document, so split the file on line breaks first:</p>
+  <pre><code>SELECT j.*
+FROM STRING_SPLIT(@json, CHAR(10)) AS line
+CROSS APPLY OPENJSON(line.value)
+     WITH (Id INT '$.id', Event NVARCHAR(50) '$.event', At DATETIME2 '$.at') AS j
+WHERE ISJSON(line.value) = 1;</code></pre>
+  <p>The <code>ISJSON</code> filter skips the empty last line and any <code>CHAR(13)</code> leftovers from Windows line endings. For a file of millions of lines this is slow &mdash; it is one string in memory &mdash; and the honest answer is to load it in batches from outside SQL Server.</p>
+  <h2 id="netune">Doing it with Netune</h2>
+  <div class="note">
+    <p>Netune&rsquo;s <strong>Add Data &rarr; JSON</strong> does the deciding for you and then shows its work. It reads <code>.json</code>, <code>.jsonl</code> and <code>.ndjson</code>, finds where the records are, flattens nested objects into columns named by path, and offers each repeating group as a table of its own carrying its parent&rsquo;s key. The columns come from <em>every</em> record, not a sample; ISO date strings are read as dates and offsets converted to UTC with a note saying so; each column shows how many values of each kind it really holds. Every name, type and array choice is editable before anything is written. Then the parent and its child tables are created and filled in <strong>one transaction</strong>, so a failure leaves nothing half-imported. It runs on your machine and is part of the free beta.</p>
+  </div>
+  <h2 id="faq">Questions people ask</h2>
+  <section class="faq">
+    <div class="faq-item">
+      <h3>How do I import a JSON file into SQL Server?</h3>
+      <p>Read it into a string with <code>OPENROWSET(BULK 'path', SINGLE_CLOB)</code>, then shred it with <code>OPENJSON</code> and a <code>WITH</code> clause naming each column, its type and its JSON path, and insert the result. The path is on the SQL Server machine, and the database needs compatibility level 130 or higher.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Which versions of SQL Server support JSON?</h3>
+      <p>SQL Server 2016 and later, with the database at compatibility level 130 or higher, have <code>OPENJSON</code>, <code>JSON_VALUE</code>, <code>JSON_QUERY</code> and <code>ISJSON</code>. SQL Server 2025 and Azure SQL add a native <code>json</code> data type.</p>
+    </div>
+    <div class="faq-item">
+      <h3>How do I import nested JSON arrays into SQL Server?</h3>
+      <p>Put each array of objects in its own table. Declare the array <code>AS JSON</code> in the parent's <code>WITH</code> clause, <code>CROSS APPLY OPENJSON</code> over it, and insert the child rows with the parent's key. Exploding the array into the parent's table instead repeats the parent on every child row, and sums over it double-count.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Why does OPENJSON return NULL for a field that is clearly there?</h3>
+      <p>Almost always the path's case: JSON paths are case-sensitive, so <code>$.Customer</code> does not match <code>customer</code>. In the default lax mode a missing path returns NULL instead of an error; prefix the path with <code>strict</code> while developing and the mistake fails loudly.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can SQL Server read JSON Lines files?</h3>
+      <p>Not directly. Read the file into a string, split it on <code>CHAR(10)</code> with <code>STRING_SPLIT</code>, keep the lines where <code>ISJSON</code> is 1, and <code>CROSS APPLY OPENJSON</code> to each. For very large files, load them in batches from outside SQL Server instead.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Why are characters like ü and ß mangled after the import?</h3>
+      <p><code>SINGLE_CLOB</code> reads the file as <code>VARCHAR</code> in the database's code page, which is not UTF-8 unless the database uses a UTF-8 collation (SQL Server 2019 and later). Use a UTF-8 collation, or convert the file to UTF-16 and read it with <code>SINGLE_NCLOB</code>.</p>
+    </div>
+  </section>
+  <section class="related">
+    <h2>Read next</h2>
+    <ul>
+      <li><a href="/excel-to-sql-server.html">Excel to SQL Server</a> <span>&mdash; dates that are numbers, and columns that hold two things</span></li>
+      <li><a href="/what-is-a-staging-layer.html">What a staging layer is for</a> <span>&mdash; where an imported file should land first</span></li>
+      <li><a href="/netune-free-beta.html">The Netune free beta</a> <span>&mdash; imports Excel and JSON into SQL Server</span></li>
+    </ul>
+  </section>
+  <div class="cta">
+    <h2>Import a JSON file properly, in a few clicks</h2>
+    <p>Netune reads the whole file, flattens it into a parent table and child tables with their keys, shows what every column really holds, and writes it all to SQL Server in one transaction. Free, and it runs on your machine.</p>
+    <a href="/netune-free-beta.html">Download the free beta</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 DataAsh &middot; <a href="/">Netune</a> &middot;
+    <a href="/data-warehouse-methodologies.html">Choose a model</a> &middot;
+    <a href="/netune-free-beta.html">Free beta</a> &middot;
+    <a href="mailto:dataash@proton.me">dataash@proton.me</a>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to import JSON into SQL Server (and the parts OPENJSON leaves to you)",
+  "description": "Load a JSON file into SQL Server tables: the OPENJSON route with working T-SQL, what to do with nested arrays and JSON Lines, and the five traps that lose data quietly.",
+  "keywords": "import JSON into SQL Server, JSON to SQL Server, OPENJSON, load JSON file into SQL Server table, nested JSON SQL Server, JSON array to table, JSON Lines SQL Server, OPENROWSET BULK JSON, convert JSON to SQL table, flatten JSON SQL",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dataash.de/json-to-sql-server.html"
+  },
+  "image": "https://dataash.de/og.png",
+  "author": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "DataAsh",
+    "url": "https://dataash.de/"
+  },
+  "inLanguage": "en-GB"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "How do I import a JSON file into SQL Server?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Read it into a string with OPENROWSET(BULK 'path', SINGLE_CLOB), then shred it with OPENJSON and a WITH clause naming each column, its type and its JSON path, and insert the result. The path is on the SQL Server machine, and the database needs compatibility level 130 or higher." } },
+    { "@type": "Question", "name": "Which versions of SQL Server support JSON?",
+      "acceptedAnswer": { "@type": "Answer", "text": "SQL Server 2016 and later, with the database at compatibility level 130 or higher, have OPENJSON, JSON_VALUE, JSON_QUERY and ISJSON. SQL Server 2025 and Azure SQL add a native json data type." } },
+    { "@type": "Question", "name": "How do I import nested JSON arrays into SQL Server?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Put each array of objects in its own table. Declare the array AS JSON in the parent's WITH clause, CROSS APPLY OPENJSON over it, and insert the child rows with the parent's key. Exploding the array into the parent's table instead repeats the parent on every child row, and sums over it double-count." } },
+    { "@type": "Question", "name": "Why does OPENJSON return NULL for a field that is clearly there?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Almost always the path's case: JSON paths are case-sensitive, so $.Customer does not match customer. In the default lax mode a missing path returns NULL instead of an error; prefix the path with strict while developing and the mistake fails loudly." } },
+    { "@type": "Question", "name": "Can SQL Server read JSON Lines files?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Not directly. Read the file into a string, split it on CHAR(10) with STRING_SPLIT, keep the lines where ISJSON is 1, and CROSS APPLY OPENJSON to each. For very large files, load them in batches from outside SQL Server instead." } },
+    { "@type": "Question", "name": "Why are characters like ü and ß mangled after the import?",
+      "acceptedAnswer": { "@type": "Answer", "text": "SINGLE_CLOB reads the file as VARCHAR in the database's code page, which is not UTF-8 unless the database uses a UTF-8 collation (SQL Server 2019 and later). Use a UTF-8 collation, or convert the file to UTF-16 and read it with SINGLE_NCLOB." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Netune",
+      "item": "https://dataash.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "JSON to SQL Server",
+      "item": "https://dataash.de/json-to-sql-server.html"
+    }
+  ]
+}
+</script>
+
+</body>
+</html>

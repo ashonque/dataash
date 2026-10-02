@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="/analytics.js" defer></script>
-  <title>Excel to SQL Server without losing what is in the spreadsheet</title>
-  <meta name="description" content="What actually goes wrong when a spreadsheet becomes a SQL Server table - dates, mixed columns, sampled schemas - and what a careful import does instead." />
+  <title>Import Excel into SQL Server without losing dates, columns or rows</title>
+  <meta name="description" content="How to import an Excel file into SQL Server: the Import Wizard, OPENROWSET and CSV with BULK INSERT, where each one loses data, and what to do instead." />
   <link rel="canonical" href="https://dataash.de/excel-to-sql-server.html" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="keywords" content="import Excel into SQL Server, Excel to SQL Server, xlsx to SQL Server, SQL Server Import and Export Wizard Excel, OPENROWSET Excel, Microsoft.ACE.OLEDB.12.0, BULK INSERT CSV, Excel dates as numbers, Excel to SQL table" />
 
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="Excel to SQL Server: importing a spreadsheet without losing what is in it" />
+  <meta property="og:title" content="Import Excel into SQL Server without losing what is in the spreadsheet" />
   <meta property="og:description" content="Dates that are really numbers, columns that hold two kinds of thing, and schemas guessed from the first hundred rows. What goes wrong, and what to do instead." />
   <meta property="og:url" content="https://dataash.de/excel-to-sql-server.html" />
   <meta property="og:site_name" content="Netune" />
@@ -19,7 +20,7 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_GB" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Excel to SQL Server, without losing what is in the spreadsheet" />
+  <meta name="twitter:title" content="Import Excel into SQL Server, without losing what is in the spreadsheet" />
   <meta name="twitter:description" content="Dates that are really numbers, columns that hold two kinds of thing, and schemas guessed from the first hundred rows." />
   <meta name="twitter:image" content="https://dataash.de/og.png" />
 
@@ -90,6 +91,12 @@
     ul, ol { margin: 0 0 18px; padding-left: 22px; }
     li { margin-bottom: 9px; }
     strong { color: var(--navy-900); }
+    pre {
+      background: #0C1B36; color: #E8EEF9; border-radius: 12px;
+      padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace; margin: 0 0 18px;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
     code {
       font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
       font-size: 0.88em; background: var(--navy-050);
@@ -149,7 +156,7 @@
     <a href="/">Netune</a> &rsaquo; Excel to SQL Server
   </nav>
 
-  <h1>Excel to SQL Server, without losing what is in the spreadsheet</h1>
+  <h1>How to import Excel into SQL Server without losing what is in the spreadsheet</h1>
   <p class="standfirst">
     Getting a spreadsheet into a database looks like a five-minute job. It is,
     until the dates arrive as numbers, one column turns out to hold two kinds
@@ -255,6 +262,80 @@
     to decide what happens to it.
   </p>
 
+  <h2>The three usual routes into SQL Server, and where each one bites</h2>
+  <p>
+    Everything above happens inside whichever route you take. These are the
+    three people reach for first, and the particular way each one loses data.
+  </p>
+
+  <h3>1. The SQL Server Import and Export Wizard</h3>
+  <p>
+    Right-click a database in SSMS, <em>Tasks &rarr; Import Data</em>, choose
+    Microsoft Excel as the source. It is the quickest route and the one with
+    the most famous trap: the Excel driver it uses decides each column&rsquo;s
+    type from <strong>the first eight rows</strong> (the
+    <code>TypeGuessRows</code> setting). If those eight rows are numbers, the
+    column is numeric &mdash; and every text value further down comes back as
+    <strong>NULL</strong>, without an error. The import reports success.
+  </p>
+  <p>
+    Two other things you will meet: the wizard needs the
+    <em>Microsoft Access Database Engine</em> installed in the same bitness as
+    the wizard itself, which is where <em>&ldquo;The
+    &lsquo;Microsoft.ACE.OLEDB.12.0&rsquo; provider is not registered on the
+    local machine&rdquo;</em> comes from; and it creates
+    <code>NVARCHAR(255)</code> and <code>FLOAT</code> columns unless you edit the
+    mappings, so check them before pressing Finish.
+  </p>
+
+  <h3>2. OPENROWSET with the ACE provider</h3>
+  <p>
+    The same driver, from T-SQL, so the import can be scripted:
+  </p>
+  <pre><code>SELECT *
+INTO   dbo.Sales_Import
+FROM   OPENROWSET('Microsoft.ACE.OLEDB.12.0',
+         'Excel 12.0 Xml;Database=C:\data\sales.xlsx;HDR=YES;IMEX=1',
+         'SELECT * FROM [Sheet1$]');</code></pre>
+  <p>
+    <code>IMEX=1</code> is the important part: it tells the driver to read a
+    column holding mixed types as text instead of nulling the minority. Even so,
+    this route needs the Access Database Engine installed <em>on the SQL Server
+    machine</em> in 64-bit, <code>Ad Hoc Distributed Queries</code> switched on
+    with <code>sp_configure</code>, and the file on the server&rsquo;s own disk
+    &mdash; three things a DBA will reasonably question. It is not available on
+    Azure SQL Database at all.
+  </p>
+
+  <h3>3. Save as CSV, then BULK INSERT</h3>
+  <p>
+    The most portable route, and the one that throws away the most. A CSV has
+    no types, so dates become whatever the spreadsheet <em>displayed</em>,
+    leading zeros on IDs are only kept if the cells were text, and Excel on a
+    German machine writes semicolons as separators and commas as decimal points:
+  </p>
+  <pre><code>BULK INSERT dbo.Sales_Staging
+FROM 'C:\data\sales.csv'
+WITH (FORMAT = 'CSV', FIRSTROW = 2, FIELDTERMINATOR = ';', CODEPAGE = '65001');
+
+-- then convert, saying which culture the text was written in
+SELECT TRY_PARSE(Amount AS DECIMAL(19,4) USING 'de-DE') AS Amount,
+       TRY_CONVERT(DATE, OrderDate, 104)                AS OrderDate   -- dd.mm.yyyy
+FROM   dbo.Sales_Staging;</code></pre>
+  <p>
+    Load into an all-<code>NVARCHAR</code> staging table first and convert
+    afterwards, as above: a <code>DECIMAL</code> column will refuse
+    <code>19,90</code> outright, and a refused row in the middle of a bulk load
+    is much harder to find than a <code>NULL</code> from <code>TRY_PARSE</code>
+    you can count. <code>FORMAT = 'CSV'</code> (SQL Server 2017 and later) is
+    what makes quoted fields containing the separator work.
+  </p>
+  <p>
+    None of the three reads the workbook&rsquo;s styles, none reads the whole
+    sheet before deciding the types, and none tells you how many values in a
+    column did not fit. Which is the list below.
+  </p>
+
   <h2>What a careful import actually does</h2>
   <ol>
     <li>
@@ -323,10 +404,14 @@
   </p>
   <p>
     It reads <code>.xlsx</code> and <code>.xlsm</code> directly, with no
-    spreadsheet software and no heavyweight libraries involved. It shows you
-    every column it inferred, what each one holds and where it is unsure,
-    before anything is created. And it never writes into the database it read
-    from — a rule that runs through everything Netune does.
+    spreadsheet software and no heavyweight libraries involved &mdash; so no
+    Access Database Engine, no bitness to match and no
+    <code>sp_configure</code>. It shows you every column it inferred, what each
+    one holds and where it is unsure, before anything is created. And it never
+    writes into the database it read from — a rule that runs through everything
+    Netune does. It is part of the <a href="/netune-free-beta.html">free
+    beta</a>, and so is the same import for
+    <a href="/json-to-sql-server.html">JSON files</a>, nested arrays included.
   </p>
   <div class="note">
     <p>
@@ -340,6 +425,36 @@
 
   <h2>Questions people ask</h2>
   <div class="faq">
+    <div class="faq-item">
+      <h3>How do I import an Excel file into SQL Server?</h3>
+      <p>
+        Three built-in ways: the Import and Export Wizard in SSMS
+        (<em>Tasks &rarr; Import Data</em>), <code>OPENROWSET</code> with the
+        <code>Microsoft.ACE.OLEDB.12.0</code> provider, or saving as CSV and
+        using <code>BULK INSERT</code>. The first two guess types from the first
+        eight rows; the third loses types entirely. Whichever you use, check the
+        row count and the column types against the sheet afterwards.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>Why does the Import Wizard turn some values into NULL?</h3>
+      <p>
+        The Excel driver decides a column's type from its first eight rows. If
+        they hold numbers, any text further down that column is returned as
+        NULL, and the import still reports success. Adding
+        <code>IMEX=1</code> to the connection string makes mixed columns arrive
+        as text instead.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>How do I fix "The 'Microsoft.ACE.OLEDB.12.0' provider is not registered"?</h3>
+      <p>
+        Install the Microsoft Access Database Engine redistributable in the
+        same bitness as the program doing the import &mdash; 64-bit for SQL
+        Server itself, and for the 64-bit Import Wizard. It is a driver
+        problem, not a problem with the file.
+      </p>
+    </div>
     <div class="faq-item">
       <h3>Why do my dates import as five-digit numbers?</h3>
       <p>
@@ -388,13 +503,14 @@
   </div>
 
   <div class="cta">
-    <h2>Bring the spreadsheet. Netune will show you the model.</h2>
+    <h2>Import the spreadsheet properly, in a few clicks</h2>
     <p>
-      Netune reads raw data, shows you the warehouse it implies, and generates
-      the staging, warehouse and mart layers in the methodology that fits.
-      Access is opening in stages.
+      Netune reads the whole sheet and its styles, shows what every column
+      really holds before anything is created, and writes the table to SQL
+      Server in one transaction &mdash; no Access driver, no
+      <code>sp_configure</code>. Free, and it runs on your machine.
     </p>
-    <a href="/#access">Request early access</a>
+    <a href="/netune-free-beta.html">Download the free beta</a>
   </div>
 </main>
 
@@ -402,6 +518,7 @@
   <div class="wrap">
     &copy; <span id="year">2026</span> DataAsh. Netune is a DataAsh product.
     &nbsp;&middot;&nbsp; <a href="/">dataash.de</a>
+    &nbsp;&middot;&nbsp; <a href="/json-to-sql-server.html">JSON to SQL Server</a>
     &nbsp;&middot;&nbsp; <a href="/data-warehouse-methodologies.html">How to choose a data warehouse model</a>
   </div>
 </footer>
@@ -414,8 +531,9 @@
 {
   "@context": "https://schema.org",
   "@type": "Article",
-  "headline": "Excel to SQL Server, without losing what is in the spreadsheet",
-  "description": "What actually goes wrong when a spreadsheet becomes a SQL Server table - dates that are really numbers, columns that hold two kinds of thing, schemas guessed from a sample - and what a careful import does instead.",
+  "headline": "How to import Excel into SQL Server without losing what is in the spreadsheet",
+  "description": "How to import an Excel file into SQL Server: the Import Wizard, OPENROWSET and CSV with BULK INSERT, where each one loses data, and what to do instead.",
+  "keywords": "import Excel into SQL Server, Excel to SQL Server, xlsx to SQL Server, Import and Export Wizard, OPENROWSET, Microsoft.ACE.OLEDB.12.0, BULK INSERT, TypeGuessRows, IMEX",
   "url": "https://dataash.de/excel-to-sql-server.html",
   "image": "https://dataash.de/og.png",
   "inLanguage": "en",
@@ -440,6 +558,30 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I import an Excel file into SQL Server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Three built-in ways: the Import and Export Wizard in SSMS (Tasks, Import Data), OPENROWSET with the Microsoft.ACE.OLEDB.12.0 provider, or saving as CSV and using BULK INSERT. The first two guess types from the first eight rows; the third loses types entirely. Whichever you use, check the row count and the column types against the sheet afterwards."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the Import Wizard turn some values into NULL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Excel driver decides a column's type from its first eight rows. If they hold numbers, any text further down that column is returned as NULL, and the import still reports success. Adding IMEX=1 to the connection string makes mixed columns arrive as text instead."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I fix \"The 'Microsoft.ACE.OLEDB.12.0' provider is not registered\"?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Install the Microsoft Access Database Engine redistributable in the same bitness as the program doing the import - 64-bit for SQL Server itself, and for the 64-bit Import Wizard. It is a driver problem, not a problem with the file."
+      }
+    },
     {
       "@type": "Question",
       "name": "Why do my dates import as five-digit numbers?",

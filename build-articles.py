@@ -79,12 +79,35 @@ def block(item):
     raise ValueError("unknown block kind %r" % kind)
 
 
+# An article belongs to a family, and the family says where it sits and what
+# it is read beside. A decision article lives under the methodologies hub and
+# lists the other decisions; an import guide lives under the home page and
+# lists the other import guides. Telling somebody who searched "json to sql
+# server" to read about SCD types next would be a link nobody follows.
+FAMILIES = {
+    "decision": {"parent": (HUB, "Data warehouse methodologies"),
+                 "back": (HUB, "All eight methodologies"),
+                 "closing": (HUB, "All eight methodologies compared", "and how to choose between them")},
+    "import":   {"parent": None,
+                 "back": ("", "Netune"),
+                 "closing": ("netune-free-beta.html", "The Netune free beta", "imports Excel and JSON into SQL Server")},
+}
+
+
+def family(art):
+    return FAMILIES[art.get("family", "decision")]
+
+
 def body(art, all_articles):
+    fam = family(art)
     out = []
     add = out.append
     add('  <nav class="crumbs" aria-label="Breadcrumb">')
-    add('    <a href="/">Netune</a> &rsaquo; '
-        '<a href="/%s">Data warehouse methodologies</a> &rsaquo; %s' % (HUB, esc(art["crumb"])))
+    if fam["parent"]:
+        add('    <a href="/">Netune</a> &rsaquo; '
+            '<a href="/%s">%s</a> &rsaquo; %s' % (fam["parent"][0], esc(fam["parent"][1]), esc(art["crumb"])))
+    else:
+        add('    <a href="/">Netune</a> &rsaquo; %s' % esc(art["crumb"]))
     add("  </nav>")
     add("  <h1>%s</h1>" % esc(art["h1"]))
     add('  <p class="standfirst">%s</p>' % art["standfirst"])
@@ -115,11 +138,11 @@ def body(art, all_articles):
     for slug, label, why in art["related"]:
         add('      <li><a href="/%s">%s</a> <span>&mdash; %s</span></li>' % (slug, esc(label), esc(why)))
     for other in all_articles:
-        if other["slug"] != art["slug"]:
+        if other["slug"] != art["slug"] and family(other) is fam:
             add('      <li><a href="/%s">%s</a> <span>&mdash; %s</span></li>'
                 % (other["slug"], esc(other["short"]), esc(other["oneline"])))
-    add('      <li><a href="/%s">All eight methodologies compared</a> '
-        '<span>&mdash; and how to choose between them</span></li>' % HUB)
+    slug, label, why = fam["closing"]
+    add('      <li><a href="/%s">%s</a> <span>&mdash; %s</span></li>' % (slug, esc(label), esc(why)))
     add("    </ul>")
     add("  </section>")
 
@@ -147,16 +170,14 @@ def schema(art):
         "author": {"@type": "Organization", "name": "DataAsh", "url": BASE},
         "publisher": {"@type": "Organization", "name": "DataAsh", "url": BASE},
         "inLanguage": "en-GB",
-        "isPartOf": {"@type": "WebPage", "@id": hub},
     }
-    crumbs = {
-        "@context": "https://schema.org", "@type": "BreadcrumbList",
-        "itemListElement": [
-            {"@type": "ListItem", "position": 1, "name": "Netune", "item": BASE},
-            {"@type": "ListItem", "position": 2, "name": "Data warehouse methodologies", "item": hub},
-            {"@type": "ListItem", "position": 3, "name": art["crumb"], "item": url},
-        ],
-    }
+    parent = family(art)["parent"]
+    trail = [{"@type": "ListItem", "position": 1, "name": "Netune", "item": BASE}]
+    if parent:
+        article["isPartOf"] = {"@type": "WebPage", "@id": BASE + parent[0]}
+        trail.append({"@type": "ListItem", "position": 2, "name": parent[1], "item": BASE + parent[0]})
+    trail.append({"@type": "ListItem", "position": len(trail) + 1, "name": art["crumb"], "item": url})
+    crumbs = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": trail}
     tag = '<script type="application/ld+json">\n%s\n</script>'
     return "\n\n".join([
         tag % json.dumps(article, indent=2, ensure_ascii=False),
@@ -167,7 +188,7 @@ def schema(art):
 
 
 def render(art, all_articles):
-    return _gen.TEMPLATE % {
+    html = _gen.TEMPLATE % {
         "title": esc(art["title"]),
         "meta": esc(art["meta"]),
         "url": BASE + art["slug"],
@@ -180,6 +201,12 @@ def render(art, all_articles):
         "body": body(art, all_articles),
         "schema": schema(art),
     }
+    # The shared template's header link says where a methodology page belongs;
+    # an import guide belongs somewhere else, so it is pointed there instead.
+    back_slug, back_label = family(art)["back"]
+    stock = '<a class="back" href="/%s">&larr; All eight methodologies</a>' % HUB
+    assert stock in html, "the shared template's back link has changed"
+    return html.replace(stock, '<a class="back" href="/%s">&larr; %s</a>' % (back_slug, esc(back_label)))
 
 
 def main():

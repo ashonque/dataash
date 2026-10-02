@@ -436,6 +436,8 @@ ARTICLES = [
         "related": [
             ("medallion-architecture.html", "Medallion architecture", "bronze is staging that never forgets"),
             ("data-vault-2-0.html", "Data Vault 2.0", "the other persistent-staging cousin"),
+            ("json-to-sql-server.html", "JSON to SQL Server", "landing a file that has no database behind it"),
+            ("excel-to-sql-server.html", "Excel to SQL Server", "and a spreadsheet, without losing its dates"),
         ],
         "cta_h": "Generate the staging layer from a real database",
         "cta_p": "Netune reads a SQL Server database and writes the staging DDL and load "
@@ -644,5 +646,274 @@ ARTICLES = [
                  "entity arrives under different keys, how often the schema appears to change and "
                  "whether real relationships exist &mdash; then scores Kimball and Data Vault "
                  "against each other on that evidence, reasons shown.",
+    },
+    # ------------------------------------------------------------------ 4
+    {
+        "family": "import",
+        "slug": "json-to-sql-server.html",
+        "short": "JSON to SQL Server",
+        "oneline": "OPENJSON, nested arrays and JSON Lines, into real tables",
+        "crumb": "JSON to SQL Server",
+        "title": "Import JSON into SQL Server: OPENJSON, nested arrays and JSON Lines done properly",
+        "h1": "How to import JSON into SQL Server (and the parts OPENJSON leaves to you)",
+        "meta": "Load a JSON file into SQL Server tables: the OPENJSON route with working T-SQL, "
+                "what to do with nested arrays and JSON Lines, and the five traps that lose data quietly.",
+        "tw": "OPENJSON gets you started. Nested arrays, missing fields and string dates are where the data goes missing.",
+        "keywords": "import JSON into SQL Server, JSON to SQL Server, OPENJSON, load JSON file into SQL "
+                    "Server table, nested JSON SQL Server, JSON array to table, JSON Lines SQL Server, "
+                    "OPENROWSET BULK JSON, convert JSON to SQL table, flatten JSON SQL",
+        "standfirst": "Getting a JSON file into SQL Server takes ten lines of T-SQL. Getting "
+                      "<em>all</em> of it in, into tables a report can join, is the part every "
+                      "tutorial stops just before.",
+
+        "answer": [
+            "For a small, flat file you will load once: <strong>OPENJSON</strong> in T-SQL, "
+            "SQL Server 2016 or later. Read the file with <code>OPENROWSET(BULK ...)</code>, "
+            "describe the columns in a <code>WITH</code> clause, insert the result. The code is "
+            "below.",
+            "For anything nested, anything with records that do not all carry the same fields, "
+            "or a file you will receive again next week, something has to decide the shape: "
+            "<strong>objects become columns, arrays of objects become child tables carrying "
+            "their parent&rsquo;s key</strong>, and the types are read from every record rather "
+            "than guessed from the first one.",
+        ],
+
+        "sections": [
+            {
+                "id": "openjson", "h2": "The native way: OPENJSON",
+                "blocks": [
+                    {"p": "Two steps: read the file into one string, then shred the string into "
+                          "rows. Here is a file of orders, each with a customer object and an "
+                          "array of lines:"},
+                    {"code": '{ "orders": [\n'
+                             '  { "id": 1001, "placed": "2026-03-14T09:30:00Z",\n'
+                             '    "customer": { "number": "C-4471", "city": "Frankfurt" },\n'
+                             '    "lines": [ { "sku": "A-7", "qty": 2, "price": 19.90 },\n'
+                             '               { "sku": "B-2", "qty": 1, "price": 4.50 } ] }\n'
+                             '] }'},
+                    {"p": "And the T-SQL that turns the orders into a table:"},
+                    {"code": "DECLARE @json NVARCHAR(MAX);\n"
+                             "\n"
+                             "SELECT @json = BulkColumn\n"
+                             "FROM OPENROWSET(BULK 'C:\\data\\orders.json', SINGLE_CLOB) AS f;\n"
+                             "\n"
+                             "INSERT INTO dbo.Orders (OrderId, PlacedAt, CustomerNumber, City)\n"
+                             "SELECT OrderId, PlacedAt, CustomerNumber, City\n"
+                             "FROM OPENJSON(@json, '$.orders')\n"
+                             "WITH (\n"
+                             "    OrderId         INT            '$.id',\n"
+                             "    PlacedAt        DATETIME2(0)   '$.placed',\n"
+                             "    CustomerNumber  NVARCHAR(20)   '$.customer.number',\n"
+                             "    City            NVARCHAR(100)  '$.customer.city'\n"
+                             ");"},
+                    {"p": "The lines belong in a table of their own, each row carrying the order it "
+                          "came from. <code>CROSS APPLY</code> a second <code>OPENJSON</code> over "
+                          "the array, declared <code>AS JSON</code> so it arrives as a fragment "
+                          "rather than as NULL:"},
+                    {"code": "INSERT INTO dbo.OrderLines (OrderId, Sku, Qty, Price)\n"
+                             "SELECT o.OrderId, l.Sku, l.Qty, l.Price\n"
+                             "FROM OPENJSON(@json, '$.orders')\n"
+                             "     WITH (OrderId INT '$.id', Lines NVARCHAR(MAX) '$.lines' AS JSON) AS o\n"
+                             "CROSS APPLY OPENJSON(o.Lines)\n"
+                             "     WITH (Sku NVARCHAR(20) '$.sku', Qty INT '$.qty', Price DECIMAL(10,2) '$.price') AS l;"},
+                    {"p": "Four things that catch everybody the first time:"},
+                    {"ul": [
+                        "<strong>The path is on the SQL Server machine</strong>, not on yours. "
+                        "<code>C:\\data\\orders.json</code> means the server&rsquo;s C: drive, and "
+                        "the service account needs read access to it &mdash; plus your login needs "
+                        "<code>ADMINISTER BULK OPERATIONS</code>. On Azure SQL Database there is no "
+                        "server drive at all; the file has to come from blob storage.",
+                        "<strong>The database must be at compatibility level 130 or higher</strong>, "
+                        "or <code>OPENJSON</code> is not recognised &mdash; even on a 2019 or 2022 "
+                        "server, if the database was restored from an older one.",
+                        "<strong>JSON paths are case-sensitive.</strong> <code>'$.Customer'</code> "
+                        "does not find <code>&quot;customer&quot;</code>, and in the default lax mode "
+                        "it returns NULL rather than an error. Write <code>'strict $.customer'</code> "
+                        "while developing and a wrong path fails loudly instead.",
+                        "<strong>Encoding.</strong> <code>SINGLE_CLOB</code> reads the file as "
+                        "<code>VARCHAR</code> in the database&rsquo;s code page, so a UTF-8 file "
+                        "containing &uuml; or &szlig; can arrive mangled; <code>SINGLE_NCLOB</code> "
+                        "expects UTF-16. Check one row with an umlaut in it before trusting the "
+                        "rest.",
+                    ]},
+                ],
+            },
+            {
+                "id": "where", "h2": "Where OPENJSON stops being enough",
+                "blocks": [
+                    {"p": "Everything above works. What it does not do is decide anything: every "
+                          "path and every type in that <code>WITH</code> clause is a guess you "
+                          "typed. On a real file, five of those guesses go wrong quietly."},
+                    {"h3": "1. A field you did not list is not imported, and nothing says so"},
+                    {"p": "JSON records are allowed to differ. If record 551 is the first to carry "
+                          "a <code>discount</code> field and you wrote the <code>WITH</code> clause "
+                          "from the first record, the discount is simply not there &mdash; no error, "
+                          "no warning, no NULL column to notice. The column list has to come from "
+                          "<em>every</em> record, which means reading the whole file before "
+                          "deciding the shape."},
+                    {"h3": "2. Exploding an array duplicates its parent"},
+                    {"p": "Shredding orders and lines into <em>one</em> result with "
+                          "<code>CROSS APPLY</code> gives one row per line, with the order&rsquo;s "
+                          "columns repeated on each. Sum an order-level amount over that and every "
+                          "order with three lines counts three times. An array of objects is a "
+                          "second table, not a wider first one &mdash; which is why the example "
+                          "above inserts lines separately, carrying only the key."},
+                    {"h3": "3. Dates are strings, and some carry an offset"},
+                    {"p": "JSON has no date type. <code>&quot;2026-03-14T09:30:00+01:00&quot;</code> "
+                          "is text until you say otherwise, and <code>DATETIME2</code> has nowhere "
+                          "to keep the <code>+01:00</code>. Either convert to UTC on the way in and "
+                          "record that you did, or use <code>DATETIMEOFFSET</code>. What you must "
+                          "not do is drop the offset silently, which is what a plain "
+                          "<code>DATETIME2</code> conversion of a mixed file does to an hour of "
+                          "every day."},
+                    {"h3": "4. One field, two types"},
+                    {"p": "<code>&quot;id&quot;: 7</code> in most records and "
+                          "<code>&quot;id&quot;: &quot;A-7&quot;</code> in a few. Typed "
+                          "<code>INT</code>, the few fail the whole insert &mdash; or, with "
+                          "<code>TRY_CAST</code>, become NULL without comment. Count what each "
+                          "field actually holds before choosing its type: &ldquo;number in 493, "
+                          "text in 7&rdquo; is a decision, and it should be yours."},
+                    {"h3": "5. Arrays of plain values"},
+                    {"p": "<code>&quot;tags&quot;: [&quot;b2b&quot;, &quot;priority&quot;]</code> "
+                          "is not a set of rows worth a table and does not fit in one cell either. "
+                          "There are five honest things to do with it &mdash; keep it as JSON text, "
+                          "take the first value, join the values with a separator, count them, or "
+                          "skip it &mdash; and four of the five throw something away. Keeping the "
+                          "JSON text is the only default that loses nothing."},
+                ],
+            },
+            {
+                "id": "flatten", "h2": "Flattening rules worth agreeing on before you start",
+                "blocks": [
+                    {"p": "However the import is done &mdash; by hand, in a script, or with a "
+                          "tool &mdash; it is making these decisions. Better to make them on "
+                          "purpose:"},
+                    {"table": {
+                        "head": ["In the JSON", "In SQL Server", "Why"],
+                        "rows": [
+                            ["A nested object", "Columns named by path: <code>customer_address_city</code>",
+                             "One value per cell, and the name says where it came from"],
+                            ["An array of objects", "A child table, each row carrying the parent&rsquo;s key",
+                             "Avoids duplicating the parent; joins back cleanly"],
+                            ["An array of values", "JSON text by default; first / joined / count if chosen",
+                             "Only the JSON text keeps everything"],
+                            ["A field some records lack", "A column, NULL where absent",
+                             "Never a shifted column; never a dropped field"],
+                            ["The parent key in the child", "<code>order_id</code>, not <code>id</code>",
+                             "Foreign keys are often matched by name; <code>id</code> matches everything"],
+                            ["Where the records are", "<code>$.orders</code>, <code>$.data.items</code>, or the root",
+                             "Pick the path holding the most records; offer the others"],
+                        ],
+                    }},
+                    {"p": "That fifth row is a small thing with a large effect. If the lines table "
+                          "calls its key <code>order_id</code>, anything that later infers "
+                          "relationships by column name &mdash; a modelling tool, a BI tool&rsquo;s "
+                          "auto-detect, a colleague &mdash; links the two tables by itself. Call it "
+                          "<code>id</code> and it collides with the child&rsquo;s own key and links "
+                          "to nothing."},
+                ],
+            },
+            {
+                "id": "types", "h2": "Choosing SQL Server types for JSON values",
+                "blocks": [
+                    {"table": {
+                        "head": ["JSON value", "Usual SQL Server type", "Watch for"],
+                        "rows": [
+                            ["true / false", "<code>BIT</code>", "Strings like &quot;yes&quot; are not booleans; leave them as text"],
+                            ["Whole numbers", "<code>INT</code> or <code>BIGINT</code>", "IDs that are numbers today and text tomorrow"],
+                            ["Decimals (money, prices)", "<code>DECIMAL(p,s)</code>", "Not <code>FLOAT</code> &mdash; 0.1 + 0.2 must equal 0.3"],
+                            ["ISO date", "<code>DATE</code> / <code>DATETIME2</code>", "Strings that look like dates but are not"],
+                            ["ISO date with offset", "<code>DATETIMEOFFSET</code>, or UTC in <code>DATETIME2</code>", "Silently dropped offsets"],
+                            ["Strings", "<code>NVARCHAR(n)</code> sized from the data", "<code>NVARCHAR(MAX)</code> everywhere is slow to index"],
+                            ["Leftover nested JSON", "<code>NVARCHAR(MAX)</code> with <code>CHECK (ISJSON(col) = 1)</code>",
+                             "Queryable later with <code>JSON_VALUE</code>"],
+                        ],
+                    }},
+                    {"p": "SQL Server 2025 and Azure SQL add a native <code>json</code> type, which "
+                          "stores a document more compactly and validates it on the way in. It is a "
+                          "good home for the leftovers in the last row; it does not change the "
+                          "advice for everything above it, because a report still wants columns."},
+                ],
+            },
+            {
+                "id": "jsonl", "h2": "JSON Lines (.jsonl, .ndjson)",
+                "blocks": [
+                    {"p": "One JSON object per line, no surrounding array &mdash; the format most "
+                          "APIs and log exports use. <code>OPENJSON</code> expects one document, so "
+                          "split the file on line breaks first:"},
+                    {"code": "SELECT j.*\n"
+                             "FROM STRING_SPLIT(@json, CHAR(10)) AS line\n"
+                             "CROSS APPLY OPENJSON(line.value)\n"
+                             "     WITH (Id INT '$.id', Event NVARCHAR(50) '$.event', At DATETIME2 '$.at') AS j\n"
+                             "WHERE ISJSON(line.value) = 1;"},
+                    {"p": "The <code>ISJSON</code> filter skips the empty last line and any "
+                          "<code>CHAR(13)</code> leftovers from Windows line endings. For a file of "
+                          "millions of lines this is slow &mdash; it is one string in memory "
+                          "&mdash; and the honest answer is to load it in batches from outside SQL "
+                          "Server."},
+                ],
+            },
+            {
+                "id": "netune", "h2": "Doing it with Netune",
+                "blocks": [
+                    {"note": "Netune&rsquo;s <strong>Add Data &rarr; JSON</strong> does the "
+                             "deciding for you and then shows its work. It reads "
+                             "<code>.json</code>, <code>.jsonl</code> and <code>.ndjson</code>, finds "
+                             "where the records are, flattens nested objects into columns named by "
+                             "path, and offers each repeating group as a table of its own carrying "
+                             "its parent&rsquo;s key. The columns come from <em>every</em> record, "
+                             "not a sample; ISO date strings are read as dates and offsets "
+                             "converted to UTC with a note saying so; each column shows how many "
+                             "values of each kind it really holds. Every name, type and array "
+                             "choice is editable before anything is written. Then the parent and "
+                             "its child tables are created and filled in <strong>one "
+                             "transaction</strong>, so a failure leaves nothing half-imported. It "
+                             "runs on your machine and is part of the free beta."},
+                ],
+            },
+        ],
+
+        "faq": [
+            {"q": "How do I import a JSON file into SQL Server?",
+             "a": "Read it into a string with <code>OPENROWSET(BULK 'path', SINGLE_CLOB)</code>, "
+                  "then shred it with <code>OPENJSON</code> and a <code>WITH</code> clause naming each "
+                  "column, its type and its JSON path, and insert the result. The path is on the "
+                  "SQL Server machine, and the database needs compatibility level 130 or higher."},
+            {"q": "Which versions of SQL Server support JSON?",
+             "a": "SQL Server 2016 and later, with the database at compatibility level 130 or "
+                  "higher, have <code>OPENJSON</code>, <code>JSON_VALUE</code>, "
+                  "<code>JSON_QUERY</code> and <code>ISJSON</code>. SQL Server 2025 and Azure SQL "
+                  "add a native <code>json</code> data type."},
+            {"q": "How do I import nested JSON arrays into SQL Server?",
+             "a": "Put each array of objects in its own table. Declare the array <code>AS JSON</code> "
+                  "in the parent's <code>WITH</code> clause, <code>CROSS APPLY OPENJSON</code> over "
+                  "it, and insert the child rows with the parent's key. Exploding the array into the "
+                  "parent's table instead repeats the parent on every child row, and sums over it "
+                  "double-count."},
+            {"q": "Why does OPENJSON return NULL for a field that is clearly there?",
+             "a": "Almost always the path's case: JSON paths are case-sensitive, so "
+                  "<code>$.Customer</code> does not match <code>customer</code>. In the default lax "
+                  "mode a missing path returns NULL instead of an error; prefix the path with "
+                  "<code>strict</code> while developing and the mistake fails loudly."},
+            {"q": "Can SQL Server read JSON Lines files?",
+             "a": "Not directly. Read the file into a string, split it on <code>CHAR(10)</code> with "
+                  "<code>STRING_SPLIT</code>, keep the lines where <code>ISJSON</code> is 1, and "
+                  "<code>CROSS APPLY OPENJSON</code> to each. For very large files, load them in "
+                  "batches from outside SQL Server instead."},
+            {"q": "Why are characters like ü and ß mangled after the import?",
+             "a": "<code>SINGLE_CLOB</code> reads the file as <code>VARCHAR</code> in the database's "
+                  "code page, which is not UTF-8 unless the database uses a UTF-8 collation (SQL "
+                  "Server 2019 and later). Use a UTF-8 collation, or convert the file to UTF-16 and "
+                  "read it with <code>SINGLE_NCLOB</code>."},
+        ],
+
+        "related": [
+            ("excel-to-sql-server.html", "Excel to SQL Server", "dates that are numbers, and columns that hold two things"),
+            ("what-is-a-staging-layer.html", "What a staging layer is for", "where an imported file should land first"),
+        ],
+        "cta_h": "Import a JSON file properly, in a few clicks",
+        "cta_p": "Netune reads the whole file, flattens it into a parent table and child tables "
+                 "with their keys, shows what every column really holds, and writes it all to SQL "
+                 "Server in one transaction. Free, and it runs on your machine.",
     },
 ]
